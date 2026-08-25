@@ -177,7 +177,7 @@ async function analyzeStock() {
 
 
     // =================================================
-    // START CHART
+    // START CHART IMMEDIATELY
     // =================================================
 
     const chartPromise =
@@ -276,7 +276,7 @@ async function analyzeStock() {
 
 
         // =================================================
-        // DISPLAY ANALYSIS
+        // DISPLAY RESULT
         // =================================================
 
         result.innerHTML = `
@@ -300,8 +300,6 @@ async function analyzeStock() {
                 <div class="analysis-details">
 
 
-                    <!-- SENTIMENT -->
-
                     <div>
 
                         <span>
@@ -318,8 +316,6 @@ async function analyzeStock() {
 
                     </div>
 
-
-                    <!-- RECOMMENDATION -->
 
                     <div>
 
@@ -339,8 +335,6 @@ async function analyzeStock() {
 
                     </div>
 
-
-                    <!-- CONFIDENCE -->
 
                     <div>
 
@@ -478,29 +472,135 @@ async function updateStockChart(
 
 
         // =================================================
-        // GET STOCK DATA
+        // COMPANY NAME
         // =================================================
 
-        const response =
-            await fetch(
-                `/price/${encodeURIComponent(stock)}?t=${Date.now()}`
+        let displayName =
+            stockNames[stock] ||
+            companyName ||
+            stock;
+
+
+        // =================================================
+        // HDFC FIX
+        // =================================================
+
+        if (stock === "HDFC") {
+
+            displayName =
+                "HDFC Bank";
+
+        }
+
+
+        // =================================================
+        // FETCH PRICE DATA WITH RETRY
+        // =================================================
+
+        let data = null;
+
+        let success = false;
+
+
+        for (
+            let attempt = 1;
+            attempt <= 3;
+            attempt++
+        ) {
+
+            try {
+
+                console.log(
+                    `📡 Price request ${attempt}/3 for ${stock}`
+                );
+
+
+                const response =
+                    await fetch(
+                        `/price/${encodeURIComponent(stock)}?t=${Date.now()}_${attempt}`,
+                        {
+                            cache: "no-store"
+                        }
+                    );
+
+
+                const responseData =
+                    await response.json();
+
+
+                if (
+                    response.ok &&
+                    responseData.prices &&
+                    responseData.prices.length > 0
+                ) {
+
+                    data =
+                        responseData;
+
+                    success = true;
+
+                    console.log(
+                        `✅ Price data received for ${stock}`
+                    );
+
+                    break;
+
+                }
+
+
+                console.warn(
+                    `⚠ Attempt ${attempt} failed for ${stock}`
+                );
+
+            }
+
+
+            catch (error) {
+
+                console.warn(
+                    `⚠ Attempt ${attempt} error:`,
+                    error
+                );
+
+            }
+
+
+            // =================================================
+            // WAIT BEFORE RETRY
+            // =================================================
+
+            if (
+                !success &&
+                attempt < 3
+            ) {
+
+                await new Promise(
+                    resolve =>
+                        setTimeout(
+                            resolve,
+                            1200
+                        )
+                );
+
+            }
+
+        }
+
+
+        // =================================================
+        // ALL ATTEMPTS FAILED
+        // =================================================
+
+        if (
+            !success ||
+            !data
+        ) {
+
+            console.error(
+                `❌ Unable to load ${stock} after 3 attempts`
             );
 
-
-        const data =
-            await response.json();
-
-
-        // =================================================
-        // API ERROR
-        // =================================================
-
-        if (!response.ok) {
-
-            throw new Error(
-                data.error ||
-                "Unable to load price data"
-            );
+            return;
 
         }
 
@@ -514,9 +614,11 @@ async function updateStockChart(
             data.prices.length === 0
         ) {
 
-            throw new Error(
-                "No price data available"
+            console.error(
+                `❌ No price data for ${stock}`
             );
+
+            return;
 
         }
 
@@ -542,31 +644,13 @@ async function updateStockChart(
 
 
         console.log(
-            `✅ ${stock} prices loaded`,
+            `📈 ${stock} prices:`,
             prices
         );
 
 
         // =================================================
-        // FORCE CORRECT COMPANY NAME
-        // =================================================
-
-        let displayName =
-            stockNames[stock] || companyName || stock;
-
-
-        // HDFC FIX
-
-        if (stock === "HDFC") {
-
-            displayName =
-                "HDFC Bank";
-
-        }
-
-
-        // =================================================
-        // DESTROY PREVIOUS CHART
+        // DESTROY OLD CHART
         // =================================================
 
         if (stockChart) {
@@ -611,12 +695,31 @@ async function updateStockChart(
 
 
         // =================================================
-        // CREATE CHART
+        // GET CANVAS CONTEXT
+        // =================================================
+
+        const context =
+            canvas.getContext("2d");
+
+
+        if (!context) {
+
+            console.error(
+                "❌ Unable to get canvas context"
+            );
+
+            return;
+
+        }
+
+
+        // =================================================
+        // CREATE NEW CHART
         // =================================================
 
         stockChart =
             new Chart(
-                canvas.getContext("2d"),
+                context,
                 {
 
                     type: "line",
@@ -665,6 +768,13 @@ async function updateStockChart(
                         responsive: true,
 
                         maintainAspectRatio: false,
+
+
+                        animation: {
+
+                            duration: 500
+
+                        },
 
 
                         interaction: {
@@ -718,6 +828,7 @@ async function updateStockChart(
 
                                 },
 
+
                                 grid: {
 
                                     color:
@@ -732,12 +843,14 @@ async function updateStockChart(
 
                                 beginAtZero: false,
 
+
                                 ticks: {
 
                                     color:
                                         "#71849a"
 
                                 },
+
 
                                 grid: {
 
@@ -758,12 +871,12 @@ async function updateStockChart(
 
 
         // =================================================
-        // FORCE CHART UPDATE
+        // FORCE UPDATE
         // =================================================
 
-        stockChart.resize();
-
         stockChart.update();
+
+        stockChart.resize();
 
 
         console.log(
@@ -798,7 +911,7 @@ function setStock(symbol) {
     if (!stockInput) {
 
         console.error(
-            "Stock input not found"
+            "❌ Stock input not found"
         );
 
         return;
@@ -807,7 +920,7 @@ function setStock(symbol) {
 
 
     // =================================================
-    // SET STOCK
+    // SET STOCK VALUE
     // =================================================
 
     stockInput.value =
@@ -815,25 +928,7 @@ function setStock(symbol) {
 
 
     // =================================================
-    // SCROLL TO ANALYSIS
-    // =================================================
-
-    const analysisSection =
-        document.getElementById("analysis");
-
-
-    if (analysisSection) {
-
-        analysisSection.scrollIntoView({
-            behavior: "smooth",
-            block: "start"
-        });
-
-    }
-
-
-    // =================================================
-    // WAIT FOR RENDER
+    // START ANALYSIS
     // =================================================
 
     requestAnimationFrame(() => {
@@ -842,7 +937,7 @@ function setStock(symbol) {
 
             analyzeStock();
 
-        }, 300);
+        }, 500);
 
     });
 
@@ -885,16 +980,12 @@ document.addEventListener(
             "✅ AI Stock Market Analyser loaded"
         );
 
-        console.log(
-            "✅ Chart.js ready"
-        );
-
     }
 );
 
 
 // =====================================================
-// INITIAL CHART.JS CHECK
+// CHART.JS READY CHECK
 // =====================================================
 
 waitForChartJS().then(() => {
