@@ -6,6 +6,7 @@ import os
 app = Flask(__name__)
 CORS(app)
 
+
 # ========================================
 # WEBSITE DIRECTORY
 # ========================================
@@ -19,7 +20,10 @@ BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 
 @app.route("/")
 def website():
-    return send_from_directory(BASE_DIR, "index1.html")
+    return send_from_directory(
+        BASE_DIR,
+        "index1.html"
+    )
 
 
 # ========================================
@@ -28,12 +32,14 @@ def website():
 
 @app.route("/<path:filename>")
 def static_files(filename):
-    return send_from_directory(BASE_DIR, filename)
+    return send_from_directory(
+        BASE_DIR,
+        filename
+    )
 
 
 # ========================================
-# TEMPORARY DEMO STOCK DATA
-# ML MODEL WILL BE CONNECTED HERE LATER
+# STOCK DATA
 # ========================================
 
 stock_data = {
@@ -81,6 +87,7 @@ stock_data = {
 
 @app.route("/health")
 def health():
+
     return jsonify({
         "status": "online",
         "message": "AI Stock Market Analyser API is running"
@@ -94,19 +101,35 @@ def health():
 @app.route("/analyze", methods=["GET"])
 def analyze():
 
-    stock = request.args.get("stock", "").strip().upper()
+    stock = request.args.get(
+        "stock",
+        ""
+    ).strip().upper()
+
+
+    # Empty input
 
     if stock == "":
+
         return jsonify({
             "error": "Please provide a stock symbol"
         }), 400
 
+
+    # Check supported stock
+
     if stock not in stock_data:
+
         return jsonify({
             "error": "Stock not available"
         }), 404
 
-    return jsonify(stock_data[stock])
+
+    # Return analysis
+
+    return jsonify(
+        stock_data[stock]
+    )
 
 
 # ========================================
@@ -118,35 +141,164 @@ def get_price(symbol):
 
     try:
 
+        # ------------------------------------
+        # CLEAN SYMBOL
+        # ------------------------------------
+
         symbol = symbol.strip().upper()
 
-        ticker = yf.Ticker(symbol + ".NS")
 
-        data = ticker.history(period="7d")
+        # ------------------------------------
+        # NSE SYMBOL
+        # ------------------------------------
 
-        if data.empty:
+        ticker_symbol = symbol + ".NS"
+
+
+        print(
+            f"Fetching price data for {ticker_symbol}"
+        )
+
+
+        # ------------------------------------
+        # CREATE YFINANCE TICKER
+        # ------------------------------------
+
+        ticker = yf.Ticker(
+            ticker_symbol
+        )
+
+
+        # ------------------------------------
+        # GET 7 DAYS DATA
+        # ------------------------------------
+
+        data = ticker.history(
+            period="7d",
+            interval="1d",
+            auto_adjust=False
+        )
+
+
+        # ------------------------------------
+        # CHECK DATA
+        # ------------------------------------
+
+        if data is None or data.empty:
+
+            print(
+                f"No data returned for {ticker_symbol}"
+            )
+
             return jsonify({
-                "error": "Stock data not found"
+                "error":
+                    f"No price data found for {symbol}"
             }), 404
+
+
+        # ------------------------------------
+        # CREATE PRICE LIST
+        # ------------------------------------
 
         prices = []
 
+
         for date, row in data.iterrows():
 
+            close_price = row.get(
+                "Close"
+            )
+
+
+            # Skip missing values
+
+            if close_price is None:
+
+                continue
+
+
+            # Convert price to float
+
+            try:
+
+                close_price = float(
+                    close_price
+                )
+
+            except (
+                TypeError,
+                ValueError
+            ):
+
+                continue
+
+
+            # Add price
+
             prices.append({
-                "date": date.strftime("%Y-%m-%d"),
-                "price": round(float(row["Close"]), 2)
+
+                "date":
+                    date.strftime(
+                        "%Y-%m-%d"
+                    ),
+
+                "price":
+                    round(
+                        close_price,
+                        2
+                    )
+
             })
 
+
+        # ------------------------------------
+        # CHECK VALID PRICES
+        # ------------------------------------
+
+        if not prices:
+
+            return jsonify({
+                "error":
+                    f"No valid price data found for {symbol}"
+            }), 404
+
+
+        # ------------------------------------
+        # RETURN DATA
+        # ------------------------------------
+
+        print(
+            f"Successfully loaded {symbol}: "
+            f"{len(prices)} prices"
+        )
+
+
         return jsonify({
+
             "symbol": symbol,
+
             "prices": prices
+
         })
+
+
+    # ========================================
+    # ERROR HANDLING
+    # ========================================
 
     except Exception as e:
 
+        print(
+            f"PRICE ERROR for {symbol}: "
+            f"{repr(e)}"
+        )
+
+
         return jsonify({
-            "error": "Unable to fetch stock price data"
+
+            "error":
+                f"Unable to fetch stock price data for {symbol}"
+
         }), 500
 
 
@@ -156,10 +308,20 @@ def get_price(symbol):
 
 if __name__ == "__main__":
 
-    port = int(os.environ.get("PORT", 5000))
+    port = int(
+        os.environ.get(
+            "PORT",
+            5000
+        )
+    )
+
 
     app.run(
+
         host="0.0.0.0",
+
         port=port,
+
         debug=False
+
     )
