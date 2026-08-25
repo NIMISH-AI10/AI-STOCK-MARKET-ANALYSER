@@ -14,7 +14,25 @@ BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 
 
 # =====================================================
-# STOCK ANALYSIS DATA
+# SERVE WEBSITE
+# =====================================================
+
+@app.route("/")
+def website():
+    return send_from_directory(BASE_DIR, "index1.html")
+
+
+# =====================================================
+# SERVE CSS / JS / OTHER FILES
+# =====================================================
+
+@app.route("/<path:filename>")
+def static_files(filename):
+    return send_from_directory(BASE_DIR, filename)
+
+
+# =====================================================
+# DEMO AI ANALYSIS DATA
 # =====================================================
 
 stock_data = {
@@ -57,51 +75,6 @@ stock_data = {
 
 
 # =====================================================
-# YAHOO FINANCE TICKER MAPPING
-# =====================================================
-
-ticker_symbols = {
-
-    "RELIANCE": "RELIANCE.NS",
-
-    "TCS": "TCS.NS",
-
-    "INFY": "INFY.NS",
-
-    # IMPORTANT HDFC FIX
-    "HDFC": "HDFCBANK.NS",
-
-    "ITC": "ITC.NS"
-}
-
-
-# =====================================================
-# SERVE WEBSITE
-# =====================================================
-
-@app.route("/")
-def website():
-
-    return send_from_directory(
-        BASE_DIR,
-        "index1.html"
-    )
-
-
-# =====================================================
-# SERVE CSS / JS / OTHER FILES
-# =====================================================
-
-@app.route("/<path:filename>")
-def static_files(filename):
-
-    return send_from_directory(
-        BASE_DIR,
-        filename
-    )
-
-
-# =====================================================
 # HEALTH CHECK
 # =====================================================
 
@@ -109,12 +82,8 @@ def static_files(filename):
 def health():
 
     return jsonify({
-
         "status": "online",
-
-        "message":
-            "AI Stock Market Analyser API is running"
-
+        "message": "AI Stock Market Analyser API is running"
     })
 
 
@@ -130,33 +99,19 @@ def analyze():
         ""
     ).strip().upper()
 
-
-    # Empty input
-    if not stock:
+    if stock == "":
 
         return jsonify({
-
-            "error":
-                "Please provide a stock symbol"
-
+            "error": "Please provide a stock symbol"
         }), 400
 
-
-    # Stock not supported
     if stock not in stock_data:
 
         return jsonify({
-
-            "error":
-                "Stock not available"
-
+            "error": "Stock not available"
         }), 404
 
-
-    # Return analysis
-    return jsonify(
-        stock_data[stock]
-    )
+    return jsonify(stock_data[stock])
 
 
 # =====================================================
@@ -168,253 +123,150 @@ def get_price(symbol):
 
     try:
 
-        # ---------------------------------------------
-        # CLEAN SYMBOL
-        # ---------------------------------------------
-
         symbol = symbol.strip().upper()
 
+        # -------------------------------------------------
+        # WEBSITE SYMBOL -> ACTUAL NSE SYMBOL
+        # -------------------------------------------------
 
-        # ---------------------------------------------
-        # CHECK SUPPORTED STOCK
-        # ---------------------------------------------
+        ticker_map = {
 
-        if symbol not in ticker_symbols:
+            "RELIANCE": "RELIANCE.NS",
 
-            return jsonify({
+            "TCS": "TCS.NS",
 
-                "error":
-                    f"Stock {symbol} is not supported"
+            "INFY": "INFY.NS",
 
-            }), 404
+            "HDFC": "HDFCBANK.NS",
 
+            "ITC": "ITC.NS"
 
-        # ---------------------------------------------
-        # GET YAHOO SYMBOL
-        # ---------------------------------------------
+        }
 
-        ticker_symbol = ticker_symbols[symbol]
-
+        yf_symbol = ticker_map.get(
+            symbol,
+            symbol + ".NS"
+        )
 
         print(
-            f"Fetching market data for {ticker_symbol}"
+            f"Fetching price data: {symbol} -> {yf_symbol}"
         )
 
+        # -------------------------------------------------
+        # GET YFINANCE DATA
+        # -------------------------------------------------
 
-        # ---------------------------------------------
-        # CREATE YAHOO TICKER
-        # ---------------------------------------------
-
-        ticker = yf.Ticker(
-            ticker_symbol
-        )
-
-
-        # ---------------------------------------------
-        # GET 7 DAYS DATA
-        # ---------------------------------------------
+        ticker = yf.Ticker(yf_symbol)
 
         data = ticker.history(
-
             period="7d",
-
             interval="1d",
-
             auto_adjust=False
-
         )
 
+        # -------------------------------------------------
+        # CHECK EMPTY DATA
+        # -------------------------------------------------
 
-        # ---------------------------------------------
-        # CHECK DATA
-        # ---------------------------------------------
-
-        if data is None or data.empty:
-
-            print(
-                f"No market data for {ticker_symbol}"
-            )
+        if data.empty:
 
             return jsonify({
 
                 "error":
-                    f"No price data found for {symbol}"
+                    f"No price data available for {symbol}",
+
+                "symbol":
+                    symbol,
+
+                "yf_symbol":
+                    yf_symbol
 
             }), 404
 
-
-        # ---------------------------------------------
-        # BUILD PRICE LIST
-        # ---------------------------------------------
+        # -------------------------------------------------
+        # FORMAT PRICE DATA
+        # -------------------------------------------------
 
         prices = []
-
 
         for date, row in data.iterrows():
 
             close_price = row.get("Close")
 
-
             if close_price is None:
-
                 continue
-
 
             try:
 
-                close_price = float(
-                    close_price
-                )
+                price = float(close_price)
 
-            except (
-                TypeError,
-                ValueError
-            ):
+            except:
 
                 continue
-
 
             prices.append({
 
                 "date":
-                    date.strftime(
-                        "%Y-%m-%d"
-                    ),
+                    date.strftime("%Y-%m-%d"),
 
                 "price":
-                    round(
-                        close_price,
-                        2
-                    )
+                    round(price, 2)
 
             })
 
-
-        # ---------------------------------------------
+        # -------------------------------------------------
         # CHECK VALID PRICES
-        # ---------------------------------------------
+        # -------------------------------------------------
 
         if not prices:
 
             return jsonify({
 
                 "error":
-                    f"No valid price data found for {symbol}"
+                    f"No valid price data available for {symbol}",
+
+                "symbol":
+                    symbol,
+
+                "yf_symbol":
+                    yf_symbol
 
             }), 404
 
+        # -------------------------------------------------
+        # SUCCESS RESPONSE
+        # -------------------------------------------------
 
-        # ---------------------------------------------
-        # CURRENT PRICE
-        # ---------------------------------------------
+        return jsonify({
 
-        current_price = prices[-1]["price"]
+            "symbol":
+                symbol,
 
-
-        # ---------------------------------------------
-        # PREVIOUS PRICE
-        # ---------------------------------------------
-
-        previous_price = None
-
-        if len(prices) >= 2:
-
-            previous_price = prices[-2]["price"]
-
-
-        # ---------------------------------------------
-        # DAILY CHANGE
-        # ---------------------------------------------
-
-        change = None
-
-        change_percent = None
-
-
-        if previous_price is not None:
-
-            change = round(
-                current_price - previous_price,
-                2
-            )
-
-
-            if previous_price != 0:
-
-                change_percent = round(
-
-                    (
-                        change /
-                        previous_price
-                    ) * 100,
-
-                    2
-
-                )
-
-
-        # ---------------------------------------------
-        # RESPONSE
-        # ---------------------------------------------
-
-        response = {
-
-            "symbol": symbol,
-
-            "company":
-                stock_data.get(
-                    symbol,
-                    {}
-                ).get(
-                    "name",
-                    symbol
-                ),
-
-            "ticker":
-                ticker_symbol,
-
-            "current_price":
-                current_price,
-
-            "previous_price":
-                previous_price,
-
-            "change":
-                change,
-
-            "change_percent":
-                change_percent,
+            "yf_symbol":
+                yf_symbol,
 
             "prices":
                 prices
 
-        }
-
-
-        print(
-            f"{symbol} market data loaded successfully"
-        )
-
-
-        return jsonify(response)
-
-
-    # ---------------------------------------------
-    # ERROR HANDLING
-    # ---------------------------------------------
+        })
 
     except Exception as e:
 
         print(
-            f"PRICE ERROR for {symbol}: "
-            f"{repr(e)}"
+            "PRICE API ERROR:",
+            str(e)
         )
-
 
         return jsonify({
 
             "error":
-                f"Unable to fetch stock price data for {symbol}"
+                f"Unable to fetch stock price data for {symbol}",
+
+            "details":
+                str(e),
+
+            "symbol":
+                symbol
 
         }), 500
 
@@ -426,14 +278,11 @@ def get_price(symbol):
 if __name__ == "__main__":
 
     port = int(
-
         os.environ.get(
             "PORT",
             5000
         )
-
     )
-
 
     app.run(
 
