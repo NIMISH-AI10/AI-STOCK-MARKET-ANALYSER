@@ -6,40 +6,16 @@ import os
 app = Flask(__name__)
 CORS(app)
 
-# ========================================
+# =====================================================
 # WEBSITE DIRECTORY
-# ========================================
+# =====================================================
 
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 
 
-# ========================================
-# SERVE WEBSITE
-# ========================================
-
-@app.route("/")
-def website():
-    return send_from_directory(
-        BASE_DIR,
-        "index1.html"
-    )
-
-
-# ========================================
-# SERVE CSS, JS AND OTHER FILES
-# ========================================
-
-@app.route("/<path:filename>")
-def static_files(filename):
-    return send_from_directory(
-        BASE_DIR,
-        filename
-    )
-
-
-# ========================================
+# =====================================================
 # STOCK ANALYSIS DATA
-# ========================================
+# =====================================================
 
 stock_data = {
 
@@ -80,22 +56,71 @@ stock_data = {
 }
 
 
-# ========================================
+# =====================================================
+# YAHOO FINANCE TICKER MAPPING
+# =====================================================
+
+ticker_symbols = {
+
+    "RELIANCE": "RELIANCE.NS",
+
+    "TCS": "TCS.NS",
+
+    "INFY": "INFY.NS",
+
+    # IMPORTANT HDFC FIX
+    "HDFC": "HDFCBANK.NS",
+
+    "ITC": "ITC.NS"
+}
+
+
+# =====================================================
+# SERVE WEBSITE
+# =====================================================
+
+@app.route("/")
+def website():
+
+    return send_from_directory(
+        BASE_DIR,
+        "index1.html"
+    )
+
+
+# =====================================================
+# SERVE CSS / JS / OTHER FILES
+# =====================================================
+
+@app.route("/<path:filename>")
+def static_files(filename):
+
+    return send_from_directory(
+        BASE_DIR,
+        filename
+    )
+
+
+# =====================================================
 # HEALTH CHECK
-# ========================================
+# =====================================================
 
 @app.route("/health")
 def health():
 
     return jsonify({
+
         "status": "online",
-        "message": "AI Stock Market Analyser API is running"
+
+        "message":
+            "AI Stock Market Analyser API is running"
+
     })
 
 
-# ========================================
+# =====================================================
 # ANALYZE STOCK
-# ========================================
+# =====================================================
 
 @app.route("/analyze", methods=["GET"])
 def analyze():
@@ -105,131 +130,135 @@ def analyze():
         ""
     ).strip().upper()
 
-    # Empty stock
-    if stock == "":
+
+    # Empty input
+    if not stock:
 
         return jsonify({
-            "error": "Please provide a stock symbol"
+
+            "error":
+                "Please provide a stock symbol"
+
         }), 400
 
-    # Unsupported stock
+
+    # Stock not supported
     if stock not in stock_data:
 
         return jsonify({
-            "error": "Stock not available"
+
+            "error":
+                "Stock not available"
+
         }), 404
 
-    # Return stock analysis
+
+    # Return analysis
     return jsonify(
         stock_data[stock]
     )
 
 
-# ========================================
+# =====================================================
 # REAL STOCK PRICE API
-# ========================================
+# =====================================================
 
 @app.route("/price/<symbol>", methods=["GET"])
 def get_price(symbol):
 
     try:
 
-        # ------------------------------------
+        # ---------------------------------------------
         # CLEAN SYMBOL
-        # ------------------------------------
+        # ---------------------------------------------
 
         symbol = symbol.strip().upper()
 
 
-        # ------------------------------------
-        # YAHOO FINANCE SYMBOL MAPPING
-        # ------------------------------------
+        # ---------------------------------------------
+        # CHECK SUPPORTED STOCK
+        # ---------------------------------------------
 
-        ticker_symbols = {
+        if symbol not in ticker_symbols:
 
-            "RELIANCE": "RELIANCE.NS",
+            return jsonify({
 
-            "TCS": "TCS.NS",
+                "error":
+                    f"Stock {symbol} is not supported"
 
-            "INFY": "INFY.NS",
-
-            # IMPORTANT:
-            # HDFC Bank Yahoo ticker
-            "HDFC": "HDFCBANK.NS",
-
-            "ITC": "ITC.NS"
-        }
+            }), 404
 
 
-        # Use mapped ticker
-        ticker_symbol = ticker_symbols.get(
-            symbol,
-            symbol + ".NS"
-        )
+        # ---------------------------------------------
+        # GET YAHOO SYMBOL
+        # ---------------------------------------------
+
+        ticker_symbol = ticker_symbols[symbol]
 
 
         print(
-            f"Fetching price data for {ticker_symbol}"
+            f"Fetching market data for {ticker_symbol}"
         )
 
 
-        # ------------------------------------
-        # YFINANCE
-        # ------------------------------------
+        # ---------------------------------------------
+        # CREATE YAHOO TICKER
+        # ---------------------------------------------
 
         ticker = yf.Ticker(
             ticker_symbol
         )
 
 
-        # ------------------------------------
-        # GET LAST 7 DAYS
-        # ------------------------------------
+        # ---------------------------------------------
+        # GET 7 DAYS DATA
+        # ---------------------------------------------
 
         data = ticker.history(
+
             period="7d",
+
             interval="1d",
+
             auto_adjust=False
+
         )
 
 
-        # ------------------------------------
+        # ---------------------------------------------
         # CHECK DATA
-        # ------------------------------------
+        # ---------------------------------------------
 
         if data is None or data.empty:
 
             print(
-                f"No data returned for {ticker_symbol}"
+                f"No market data for {ticker_symbol}"
             )
 
             return jsonify({
+
                 "error":
                     f"No price data found for {symbol}"
+
             }), 404
 
 
-        # ------------------------------------
-        # CREATE PRICE LIST
-        # ------------------------------------
+        # ---------------------------------------------
+        # BUILD PRICE LIST
+        # ---------------------------------------------
 
         prices = []
 
 
         for date, row in data.iterrows():
 
-            close_price = row.get(
-                "Close"
-            )
+            close_price = row.get("Close")
 
-
-            # Skip missing price
 
             if close_price is None:
+
                 continue
 
-
-            # Convert to float
 
             try:
 
@@ -245,8 +274,6 @@ def get_price(symbol):
                 continue
 
 
-            # Add price
-
             prices.append({
 
                 "date":
@@ -259,50 +286,122 @@ def get_price(symbol):
                         close_price,
                         2
                     )
+
             })
 
 
-        # ------------------------------------
-        # CHECK VALID PRICE DATA
-        # ------------------------------------
+        # ---------------------------------------------
+        # CHECK VALID PRICES
+        # ---------------------------------------------
 
         if not prices:
 
             return jsonify({
+
                 "error":
                     f"No valid price data found for {symbol}"
+
             }), 404
 
 
-        # ------------------------------------
-        # SUCCESS
-        # ------------------------------------
+        # ---------------------------------------------
+        # CURRENT PRICE
+        # ---------------------------------------------
 
-        print(
-            f"Successfully loaded {symbol}"
-        )
-
-        print(
-            f"Yahoo ticker: {ticker_symbol}"
-        )
-
-        print(
-            f"Number of prices: {len(prices)}"
-        )
+        current_price = prices[-1]["price"]
 
 
-        return jsonify({
+        # ---------------------------------------------
+        # PREVIOUS PRICE
+        # ---------------------------------------------
+
+        previous_price = None
+
+        if len(prices) >= 2:
+
+            previous_price = prices[-2]["price"]
+
+
+        # ---------------------------------------------
+        # DAILY CHANGE
+        # ---------------------------------------------
+
+        change = None
+
+        change_percent = None
+
+
+        if previous_price is not None:
+
+            change = round(
+                current_price - previous_price,
+                2
+            )
+
+
+            if previous_price != 0:
+
+                change_percent = round(
+
+                    (
+                        change /
+                        previous_price
+                    ) * 100,
+
+                    2
+
+                )
+
+
+        # ---------------------------------------------
+        # RESPONSE
+        # ---------------------------------------------
+
+        response = {
 
             "symbol": symbol,
 
-            "prices": prices
+            "company":
+                stock_data.get(
+                    symbol,
+                    {}
+                ).get(
+                    "name",
+                    symbol
+                ),
 
-        })
+            "ticker":
+                ticker_symbol,
+
+            "current_price":
+                current_price,
+
+            "previous_price":
+                previous_price,
+
+            "change":
+                change,
+
+            "change_percent":
+                change_percent,
+
+            "prices":
+                prices
+
+        }
 
 
-    # ========================================
-    # ERROR
-    # ========================================
+        print(
+            f"{symbol} market data loaded successfully"
+        )
+
+
+        return jsonify(response)
+
+
+    # ---------------------------------------------
+    # ERROR HANDLING
+    # ---------------------------------------------
 
     except Exception as e:
 
@@ -320,17 +419,19 @@ def get_price(symbol):
         }), 500
 
 
-# ========================================
+# =====================================================
 # START SERVER
-# ========================================
+# =====================================================
 
 if __name__ == "__main__":
 
     port = int(
+
         os.environ.get(
             "PORT",
             5000
         )
+
     )
 
 
