@@ -14,7 +14,7 @@ BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 
 
 # =====================================================
-# SERVE WEBSITE
+# SERVE MAIN WEBSITE
 # =====================================================
 
 @app.route("/")
@@ -23,7 +23,7 @@ def website():
 
 
 # =====================================================
-# SERVE CSS / JS / OTHER FILES
+# SERVE CSS, JS AND OTHER FILES
 # =====================================================
 
 @app.route("/<path:filename>")
@@ -32,7 +32,7 @@ def static_files(filename):
 
 
 # =====================================================
-# DEMO AI ANALYSIS DATA
+# STOCK ANALYSIS DATA
 # =====================================================
 
 stock_data = {
@@ -137,23 +137,26 @@ def get_price(symbol):
 
             "INFY": "INFY.NS",
 
+            # IMPORTANT:
+            # HDFC Bank's NSE ticker is HDFCBANK
             "HDFC": "HDFCBANK.NS",
 
             "ITC": "ITC.NS"
 
         }
 
+        # Get correct Yahoo Finance ticker
         yf_symbol = ticker_map.get(
             symbol,
             symbol + ".NS"
         )
 
         print(
-            f"Fetching price data: {symbol} -> {yf_symbol}"
+            f"Fetching stock: {symbol} -> {yf_symbol}"
         )
 
         # -------------------------------------------------
-        # GET YFINANCE DATA
+        # FETCH REAL MARKET DATA
         # -------------------------------------------------
 
         ticker = yf.Ticker(yf_symbol)
@@ -165,7 +168,7 @@ def get_price(symbol):
         )
 
         # -------------------------------------------------
-        # CHECK EMPTY DATA
+        # EMPTY DATA
         # -------------------------------------------------
 
         if data.empty:
@@ -184,7 +187,7 @@ def get_price(symbol):
             }), 404
 
         # -------------------------------------------------
-        # FORMAT PRICE DATA
+        # FORMAT DATA
         # -------------------------------------------------
 
         prices = []
@@ -200,7 +203,7 @@ def get_price(symbol):
 
                 price = float(close_price)
 
-            except:
+            except (TypeError, ValueError):
 
                 continue
 
@@ -215,7 +218,7 @@ def get_price(symbol):
             })
 
         # -------------------------------------------------
-        # CHECK VALID PRICES
+        # NO VALID PRICES
         # -------------------------------------------------
 
         if not prices:
@@ -234,7 +237,7 @@ def get_price(symbol):
             }), 404
 
         # -------------------------------------------------
-        # SUCCESS RESPONSE
+        # SUCCESS
         # -------------------------------------------------
 
         return jsonify({
@@ -272,7 +275,7 @@ def get_price(symbol):
 
 
 # =====================================================
-# START SERVER
+# START FLASK SERVER
 # =====================================================
 
 if __name__ == "__main__":
