@@ -5,9 +5,33 @@
 
 let stockChart = null;
 
+
+// =====================================================
+// DOM ELEMENTS
+// =====================================================
+
 const stockInput = document.getElementById("stockInput");
 const result = document.getElementById("result");
 const analyzeBtn = document.getElementById("analyzeBtn");
+
+
+// =====================================================
+// STOCK NAMES
+// =====================================================
+
+const stockNames = {
+
+    RELIANCE: "Reliance Industries",
+
+    TCS: "Tata Consultancy Services",
+
+    INFY: "Infosys",
+
+    HDFC: "HDFC Bank",
+
+    ITC: "ITC Limited"
+
+};
 
 
 // =====================================================
@@ -16,35 +40,59 @@ const analyzeBtn = document.getElementById("analyzeBtn");
 
 async function analyzeStock() {
 
-    const stock = stockInput.value.trim().toUpperCase();
+    const stock =
+        stockInput.value.trim().toUpperCase();
 
-    if (stock === "") {
+
+    // =================================================
+    // EMPTY INPUT
+    // =================================================
+
+    if (!stock) {
 
         result.innerHTML = `
             <div class="analysis-result">
+
                 <h3>⚠ INPUT REQUIRED</h3>
+
                 <h2>Please enter a stock symbol</h2>
+
                 <p>
                     Example:
-                    <strong>RELIANCE</strong>,
-                    <strong>TCS</strong>,
-                    <strong>INFY</strong>,
-                    <strong>HDFC</strong>
+                    RELIANCE, TCS, INFY, HDFC or ITC
                 </p>
+
             </div>
         `;
 
         return;
+
     }
 
 
-    // ================= LOADING =================
+    // =================================================
+    // COMPANY NAME
+    // =================================================
+
+    const companyName =
+        stockNames[stock] || stock;
+
+
+    // =================================================
+    // SHOW LOADING
+    // =================================================
 
     result.innerHTML = `
         <div class="analysis-result">
+
             <h3>🤖 AI ANALYSIS</h3>
-            <h2>Analyzing ${stock}...</h2>
-            <p>Fetching stock information and market data...</p>
+
+            <h2>Analyzing ${companyName}...</h2>
+
+            <p>
+                Loading market information...
+            </p>
+
         </div>
     `;
 
@@ -53,87 +101,112 @@ async function analyzeStock() {
 
         analyzeBtn.disabled = true;
 
-        analyzeBtn.innerHTML = `
-            ANALYZING...
-        `;
+        analyzeBtn.innerHTML =
+            "ANALYZING...";
+
     }
 
 
-    try {
+    // =================================================
+    // START CHART IMMEDIATELY
+    // =================================================
 
-        // =================================================
-        // 1. GET ANALYSIS DATA
-        // =================================================
+    // IMPORTANT:
+    // Chart request is NOT waiting for analysis API.
 
-        const analysisResponse = await fetch(
-            `/analyze?stock=${encodeURIComponent(stock)}`
+    const chartPromise =
+        updateStockChart(
+            stock,
+            companyName
         );
 
 
-        if (!analysisResponse.ok) {
+    // =================================================
+    // ANALYSIS API
+    // =================================================
 
-            let errorData = {};
+    try {
 
-            try {
-                errorData = await analysisResponse.json();
-            } catch (e) {
-                errorData = {};
-            }
+        const response =
+            await fetch(
+                `/analyze?stock=${encodeURIComponent(stock)}`
+            );
+
+
+        const data =
+            await response.json();
+
+
+        if (!response.ok) {
 
             throw new Error(
-                errorData.error || "Stock not available"
+                data.error ||
+                "Stock not available"
             );
+
         }
 
 
-        const data = await analysisResponse.json();
-
-
         // =================================================
-        // 2. SENTIMENT
+        // SENTIMENT ICON
         // =================================================
 
         let sentimentIcon = "😐";
+
 
         if (
             data.sentiment &&
             data.sentiment.toLowerCase() === "positive"
         ) {
+
             sentimentIcon = "😊";
+
         }
 
         else if (
             data.sentiment &&
             data.sentiment.toLowerCase() === "negative"
         ) {
+
             sentimentIcon = "😟";
+
         }
 
 
         // =================================================
-        // 3. RECOMMENDATION
+        // RECOMMENDATION
         // =================================================
 
-        let recommendationClass = "hold";
-        let recommendationIcon = "⏸️";
+        let recommendationClass =
+            "hold";
+
+        let recommendationIcon =
+            "⏸️";
+
 
         if (data.recommendation === "BUY") {
 
-            recommendationClass = "buy";
-            recommendationIcon = "📈";
+            recommendationClass =
+                "buy";
+
+            recommendationIcon =
+                "📈";
 
         }
 
         else if (data.recommendation === "SELL") {
 
-            recommendationClass = "sell";
-            recommendationIcon = "📉";
+            recommendationClass =
+                "sell";
+
+            recommendationIcon =
+                "📉";
 
         }
 
 
         // =================================================
-        // 4. DISPLAY ANALYSIS
+        // DISPLAY RESULT
         // =================================================
 
         result.innerHTML = `
@@ -145,7 +218,7 @@ async function analyzeStock() {
                 </h3>
 
                 <h2>
-                    ${data.name || stock}
+                    ${data.name || companyName}
                 </h2>
 
                 <p>
@@ -156,31 +229,46 @@ async function analyzeStock() {
                 <div class="analysis-details">
 
                     <div>
-                        <span>Market Sentiment</span>
+
+                        <span>
+                            Market Sentiment
+                        </span>
 
                         <strong>
                             ${sentimentIcon}
                             ${data.sentiment || "N/A"}
                         </strong>
+
                     </div>
 
 
                     <div>
-                        <span>Recommendation</span>
+
+                        <span>
+                            Recommendation
+                        </span>
 
                         <strong class="${recommendationClass}">
+
                             ${recommendationIcon}
+
                             ${data.recommendation || "N/A"}
+
                         </strong>
+
                     </div>
 
 
                     <div>
-                        <span>Confidence Score</span>
+
+                        <span>
+                            Confidence Score
+                        </span>
 
                         <strong>
                             ${data.confidence ?? "N/A"}%
                         </strong>
+
                     </div>
 
                 </div>
@@ -190,48 +278,56 @@ async function analyzeStock() {
                     color:#7d8fa4;
                     font-size:0.75rem;
                 ">
+
                     ✓ Analysis received successfully
                     from Flask backend.
+
                 </p>
 
             </div>
+
         `;
 
 
-        // =================================================
-        // 5. LOAD GRAPH
-        // =================================================
+        // Wait for chart to finish
 
-        await updateStockChart(stock, data.name);
-
-
-    } catch (error) {
-
-        console.error("Analysis error:", error);
-
-
-        result.innerHTML = `
-            <div class="analysis-result">
-
-                <h3>❌ ERROR</h3>
-
-                <h2>
-                    ${error.message || "Unable to analyze stock"}
-                </h2>
-
-                <p>
-                    Please check the stock symbol and try again.
-                </p>
-
-            </div>
-        `;
+        await chartPromise;
 
     }
 
 
-    // =================================================
-    // ENABLE BUTTON
-    // =================================================
+    catch (error) {
+
+        console.error(
+            "Analysis error:",
+            error
+        );
+
+
+        result.innerHTML = `
+
+            <div class="analysis-result">
+
+                <h3>
+                    ❌ ERROR
+                </h3>
+
+                <h2>
+                    ${error.message ||
+                    "Unable to analyze stock"}
+                </h2>
+
+                <p>
+                    Please check the stock symbol
+                    and try again.
+                </p>
+
+            </div>
+
+        `;
+
+    }
+
 
     finally {
 
@@ -243,6 +339,7 @@ async function analyzeStock() {
                 ANALYZE
                 <span>→</span>
             `;
+
         }
 
     }
@@ -255,91 +352,99 @@ async function analyzeStock() {
 // UPDATE STOCK CHART
 // =====================================================
 
-async function updateStockChart(stock, companyName = stock) {
+async function updateStockChart(
+    stock,
+    companyName
+) {
 
-    const canvas = document.getElementById("stockChart");
+    const canvas =
+        document.getElementById("stockChart");
 
+
+    // =================================================
+    // CANVAS CHECK
+    // =================================================
 
     if (!canvas) {
 
-        console.error("Stock chart canvas not found.");
+        console.error(
+            "❌ stockChart canvas not found"
+        );
 
         return;
+
     }
 
 
     try {
 
-        // =================================================
-        // SHOW LOADING IN CHART AREA
-        // =================================================
-
-        console.log(`Loading price data for ${stock}...`);
-
-
-        // =================================================
-        // GET PRICE DATA
-        // =================================================
-
-        const priceResponse = await fetch(
-            `/price/${encodeURIComponent(stock)}?t=${Date.now()}`
+        console.log(
+            `📊 Loading ${stock} chart...`
         );
 
 
-        if (!priceResponse.ok) {
+        // =================================================
+        // PRICE API
+        // =================================================
 
-            let errorData = {};
+        const response =
+            await fetch(
+                `/price/${encodeURIComponent(stock)}?t=${Date.now()}`
+            );
 
-            try {
-                errorData = await priceResponse.json();
-            } catch (e) {
-                errorData = {};
-            }
+
+        const data =
+            await response.json();
+
+
+        if (!response.ok) {
 
             throw new Error(
-                errorData.error || "Unable to load stock price"
+                data.error ||
+                "Unable to load price data"
             );
+
         }
 
 
-        const priceData = await priceResponse.json();
-
-
         // =================================================
-        // CHECK PRICE DATA
+        // CHECK PRICES
         // =================================================
 
         if (
-            !priceData.prices ||
-            priceData.prices.length === 0
+            !data.prices ||
+            data.prices.length === 0
         ) {
 
             throw new Error(
-                `No price data available for ${stock}`
+                "No price data available"
             );
+
         }
 
 
         // =================================================
-        // CREATE LABELS
+        // LABELS
         // =================================================
 
-        const labels = priceData.prices.map(
-            item => item.date
-        );
+        const labels =
+            data.prices.map(
+                item => item.date
+            );
 
 
         // =================================================
-        // CREATE PRICES
+        // PRICES
         // =================================================
 
-        const prices = priceData.prices.map(
-            item => Number(item.price)
-        );
+        const prices =
+            data.prices.map(
+                item => Number(item.price)
+            );
 
 
         console.log(
-            `${stock} price data loaded:`,
+            `✅ ${stock} prices loaded`,
             prices
         );
 
@@ -353,148 +458,186 @@ async function updateStockChart(stock, companyName = stock) {
             stockChart.destroy();
 
             stockChart = null;
+
         }
 
 
         // =================================================
-        // UPDATE CHART TITLE
+        // FORCE COMPANY NAME
         // =================================================
 
-        const chartTitle =
-            document.querySelector(".chart-header h3");
+        let displayName =
+            companyName || stock;
 
-        if (chartTitle) {
 
-            chartTitle.textContent =
-                `${companyName || stock} Price Movement`;
+        if (stock === "HDFC") {
+
+            displayName =
+                "HDFC Bank";
+
         }
 
 
         // =================================================
-        // UPDATE SELECTED STOCK TEXT
+        // UPDATE CHART HEADER
         // =================================================
 
         const selectedStock =
-            document.querySelector(".chart-header span");
+            document.querySelector(
+                ".chart-header span"
+            );
+
 
         if (selectedStock) {
 
             selectedStock.textContent =
-                `${companyName || stock} (${stock})`;
+                `${displayName} (${stock})`;
+
+        }
+
+
+        const chartTitle =
+            document.querySelector(
+                ".chart-header h3"
+            );
+
+
+        if (chartTitle) {
+
+            chartTitle.textContent =
+                `${displayName} Price Movement`;
+
         }
 
 
         // =================================================
-        // CREATE NEW CHART
+        // CREATE CHART
         // =================================================
 
-        stockChart = new Chart(
-            canvas.getContext("2d"),
-            {
+        stockChart =
+            new Chart(
+                canvas.getContext("2d"),
+                {
 
-                type: "line",
-
-                data: {
-
-                    labels: labels,
-
-                    datasets: [
-
-                        {
-
-                            label:
-                                `${companyName || stock} (${stock})`,
-
-                            data: prices,
-
-                            borderWidth: 3,
-
-                            tension: 0.35,
-
-                            fill: true,
-
-                            pointRadius: 4,
-
-                            pointHoverRadius: 7
-
-                        }
-
-                    ]
-
-                },
+                    type: "line",
 
 
-                options: {
+                    data: {
 
-                    responsive: true,
+                        labels: labels,
 
-                    maintainAspectRatio: false,
+                        datasets: [
 
+                            {
 
-                    interaction: {
+                                label:
+                                    `${displayName} (${stock})`,
 
-                        intersect: false,
+                                data: prices,
 
-                        mode: "index"
+                                borderWidth: 3,
+
+                                tension: 0.35,
+
+                                fill: true,
+
+                                pointRadius: 4,
+
+                                pointHoverRadius: 7
+
+                            }
+
+                        ]
 
                     },
 
 
-                    plugins: {
+                    options: {
 
-                        legend: {
+                        responsive: true,
 
-                            display: true,
+                        maintainAspectRatio: false,
 
-                            labels: {
 
-                                color: "#9fb0c5",
+                        interaction: {
 
-                                font: {
-                                    size: 12
+                            intersect: false,
+
+                            mode: "index"
+
+                        },
+
+
+                        plugins: {
+
+                            legend: {
+
+                                display: true,
+
+                                labels: {
+
+                                    color:
+                                        "#9fb0c5",
+
+                                    font: {
+
+                                        size: 12
+
+                                    }
+
                                 }
 
+                            },
+
+
+                            tooltip: {
+
+                                enabled: true
+
                             }
 
                         },
 
 
-                        tooltip: {
+                        scales: {
 
-                            enabled: true
+                            x: {
 
-                        }
+                                ticks: {
 
-                    },
+                                    color:
+                                        "#71849a"
 
+                                },
 
-                    scales: {
+                                grid: {
 
-                        x: {
+                                    color:
+                                        "rgba(255,255,255,0.05)"
 
-                            ticks: {
-                                color: "#71849a"
+                                }
+
                             },
 
-                            grid: {
-                                color:
-                                    "rgba(255,255,255,0.05)"
-                            }
 
-                        },
+                            y: {
 
+                                beginAtZero: false,
 
-                        y: {
+                                ticks: {
 
-                            beginAtZero: false,
+                                    color:
+                                        "#71849a"
 
-                            ticks: {
-                                color: "#71849a"
-                            },
+                                },
 
-                            grid: {
-                                color:
-                                    "rgba(255,255,255,0.05)"
+                                grid: {
+
+                                    color:
+                                        "rgba(255,255,255,0.05)"
+
+                                }
+
                             }
 
                         }
@@ -502,13 +645,11 @@ async function updateStockChart(stock, companyName = stock) {
                     }
 
                 }
-
-            }
-        );
+            );
 
 
         console.log(
-            `${stock} chart created successfully`
+            `🎉 ${displayName} chart created`
         );
 
     }
@@ -517,7 +658,7 @@ async function updateStockChart(stock, companyName = stock) {
     catch (error) {
 
         console.error(
-            `Chart error for ${stock}:`,
+            `❌ Chart error (${stock}):`,
             error
         );
 
@@ -528,7 +669,7 @@ async function updateStockChart(stock, companyName = stock) {
 
 
 // =====================================================
-// QUICK STOCK BUTTON
+// TRY BUTTON
 // =====================================================
 
 function setStock(symbol) {
@@ -536,20 +677,22 @@ function setStock(symbol) {
     if (!stockInput) {
 
         console.error(
-            "Stock input not found."
+            "Stock input not found"
         );
 
         return;
+
     }
 
 
-    // Put selected stock into input
+    // Set value
 
-    stockInput.value = symbol;
+    stockInput.value =
+        symbol.toUpperCase();
 
 
     // IMPORTANT:
-    // Analyze immediately on FIRST click
+    // Run immediately on FIRST click
 
     analyzeStock();
 
@@ -558,14 +701,14 @@ function setStock(symbol) {
 
 
 // =====================================================
-// ENTER KEY SUPPORT
+// ENTER KEY
 // =====================================================
 
 if (stockInput) {
 
     stockInput.addEventListener(
         "keydown",
-        function (event) {
+        function(event) {
 
             if (event.key === "Enter") {
 
@@ -583,20 +726,9 @@ if (stockInput) {
 
 
 // =====================================================
-// PAGE LOAD
+// PAGE LOADED
 // =====================================================
 
-document.addEventListener(
-    "DOMContentLoaded",
-    function () {
-
-        console.log(
-            "AI Stock Market Analyser loaded successfully."
-        );
-
-        console.log(
-            "Flask API connection ready."
-        );
-
-    }
+console.log(
+    "✅ AI Stock Market Analyser JavaScript loaded"
 );
