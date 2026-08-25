@@ -97,6 +97,10 @@ async function analyzeStock() {
     `;
 
 
+    // =================================================
+    // DISABLE BUTTON
+    // =================================================
+
     if (analyzeBtn) {
 
         analyzeBtn.disabled = true;
@@ -110,9 +114,6 @@ async function analyzeStock() {
     // =================================================
     // START CHART IMMEDIATELY
     // =================================================
-
-    // IMPORTANT:
-    // Chart request is NOT waiting for analysis API.
 
     const chartPromise =
         updateStockChart(
@@ -136,6 +137,10 @@ async function analyzeStock() {
         const data =
             await response.json();
 
+
+        // =================================================
+        // API ERROR
+        // =================================================
 
         if (!response.ok) {
 
@@ -217,16 +222,22 @@ async function analyzeStock() {
                     🤖 AI ANALYSIS COMPLETE
                 </h3>
 
+
                 <h2>
                     ${data.name || companyName}
                 </h2>
+
 
                 <p>
                     Stock Symbol:
                     <strong>${stock}</strong>
                 </p>
 
+
                 <div class="analysis-details">
+
+
+                    <!-- SENTIMENT -->
 
                     <div>
 
@@ -241,6 +252,8 @@ async function analyzeStock() {
 
                     </div>
 
+
+                    <!-- RECOMMENDATION -->
 
                     <div>
 
@@ -259,6 +272,8 @@ async function analyzeStock() {
                     </div>
 
 
+                    <!-- CONFIDENCE -->
+
                     <div>
 
                         <span>
@@ -271,7 +286,9 @@ async function analyzeStock() {
 
                     </div>
 
+
                 </div>
+
 
                 <p style="
                     margin-top:20px;
@@ -289,12 +306,18 @@ async function analyzeStock() {
         `;
 
 
-        // Wait for chart to finish
+        // =================================================
+        // WAIT FOR CHART
+        // =================================================
 
         await chartPromise;
 
     }
 
+
+    // =================================================
+    // ERROR
+    // =================================================
 
     catch (error) {
 
@@ -312,10 +335,12 @@ async function analyzeStock() {
                     ❌ ERROR
                 </h3>
 
+
                 <h2>
                     ${error.message ||
                     "Unable to analyze stock"}
                 </h2>
+
 
                 <p>
                     Please check the stock symbol
@@ -328,6 +353,10 @@ async function analyzeStock() {
 
     }
 
+
+    // =================================================
+    // ENABLE BUTTON
+    // =================================================
 
     finally {
 
@@ -357,15 +386,15 @@ async function updateStockChart(
     companyName
 ) {
 
-    const canvas =
+    // =================================================
+    // FIND OLD CANVAS
+    // =================================================
+
+    const oldCanvas =
         document.getElementById("stockChart");
 
 
-    // =================================================
-    // CANVAS CHECK
-    // =================================================
-
-    if (!canvas) {
+    if (!oldCanvas) {
 
         console.error(
             "❌ stockChart canvas not found"
@@ -384,7 +413,7 @@ async function updateStockChart(
 
 
         // =================================================
-        // PRICE API
+        // GET PRICE DATA
         // =================================================
 
         const response =
@@ -397,6 +426,10 @@ async function updateStockChart(
             await response.json();
 
 
+        // =================================================
+        // API ERROR
+        // =================================================
+
         if (!response.ok) {
 
             throw new Error(
@@ -408,7 +441,7 @@ async function updateStockChart(
 
 
         // =================================================
-        // CHECK PRICES
+        // CHECK PRICE DATA
         // =================================================
 
         if (
@@ -424,7 +457,7 @@ async function updateStockChart(
 
 
         // =================================================
-        // LABELS
+        // CREATE LABELS
         // =================================================
 
         const labels =
@@ -434,7 +467,7 @@ async function updateStockChart(
 
 
         // =================================================
-        // PRICES
+        // CREATE PRICE ARRAY
         // =================================================
 
         const prices =
@@ -446,6 +479,27 @@ async function updateStockChart(
         console.log(
             `✅ ${stock} prices loaded`,
             prices
+        );
+
+
+        // =================================================
+        // GET CORRECT COMPANY NAME
+        // =================================================
+
+        const displayName =
+            stockNames[stock] ||
+            companyName ||
+            stock;
+
+
+        console.log(
+            "Stock:",
+            stock
+        );
+
+        console.log(
+            "Company:",
+            displayName
         );
 
 
@@ -463,10 +517,21 @@ async function updateStockChart(
 
 
         // =================================================
-        // FORCE COMPANY NAME
+        // COMPLETELY REPLACE CANVAS
         // =================================================
 
-      let displayName = stockNames[stock] || stock;
+        const newCanvas =
+            document.createElement("canvas");
+
+
+        newCanvas.id =
+            "stockChart";
+
+
+        oldCanvas.parentNode.replaceChild(
+            newCanvas,
+            oldCanvas
+        );
 
 
         // =================================================
@@ -487,6 +552,10 @@ async function updateStockChart(
         }
 
 
+        // =================================================
+        // UPDATE CHART TITLE
+        // =================================================
+
         const chartTitle =
             document.querySelector(
                 ".chart-header h3"
@@ -502,20 +571,25 @@ async function updateStockChart(
 
 
         // =================================================
-        // CREATE CHART
+        // CREATE NEW CHART
         // =================================================
 
         stockChart =
             new Chart(
-                canvas.getContext("2d"),
+                newCanvas.getContext("2d"),
                 {
 
                     type: "line",
 
 
+                    // =====================================
+                    // DATA
+                    // =====================================
+
                     data: {
 
                         labels: labels,
+
 
                         datasets: [
 
@@ -543,6 +617,10 @@ async function updateStockChart(
                     },
 
 
+                    // =====================================
+                    // OPTIONS
+                    // =====================================
+
                     options: {
 
                         responsive: true,
@@ -558,6 +636,10 @@ async function updateStockChart(
 
                         },
 
+
+                        // =================================
+                        // PLUGINS
+                        // =================================
 
                         plugins: {
 
@@ -590,6 +672,10 @@ async function updateStockChart(
                         },
 
 
+                        // =================================
+                        // SCALES
+                        // =================================
+
                         scales: {
 
                             x: {
@@ -600,6 +686,7 @@ async function updateStockChart(
                                         "#71849a"
 
                                 },
+
 
                                 grid: {
 
@@ -615,12 +702,14 @@ async function updateStockChart(
 
                                 beginAtZero: false,
 
+
                                 ticks: {
 
                                     color:
                                         "#71849a"
 
                                 },
+
 
                                 grid: {
 
@@ -639,12 +728,20 @@ async function updateStockChart(
             );
 
 
+        // =================================================
+        // SUCCESS
+        // =================================================
+
         console.log(
-            `🎉 ${displayName} chart created`
+            `🎉 ${displayName} chart created successfully`
         );
 
     }
 
+
+    // =================================================
+    // CHART ERROR
+    // =================================================
 
     catch (error) {
 
@@ -660,7 +757,7 @@ async function updateStockChart(
 
 
 // =====================================================
-// TRY BUTTON
+// TRY STOCK BUTTON
 // =====================================================
 
 function setStock(symbol) {
@@ -668,7 +765,7 @@ function setStock(symbol) {
     if (!stockInput) {
 
         console.error(
-            "Stock input not found"
+            "❌ Stock input not found"
         );
 
         return;
@@ -676,14 +773,17 @@ function setStock(symbol) {
     }
 
 
-    // Set value
+    // =================================================
+    // SET STOCK VALUE
+    // =================================================
 
     stockInput.value =
         symbol.toUpperCase();
 
 
-    // IMPORTANT:
-    // Run immediately on FIRST click
+    // =================================================
+    // ANALYZE IMMEDIATELY
+    // =================================================
 
     analyzeStock();
 
@@ -692,7 +792,7 @@ function setStock(symbol) {
 
 
 // =====================================================
-// ENTER KEY
+// ENTER KEY SUPPORT
 // =====================================================
 
 if (stockInput) {
@@ -717,9 +817,21 @@ if (stockInput) {
 
 
 // =====================================================
-// PAGE LOADED
+// PAGE LOAD
 // =====================================================
 
 console.log(
-    "✅ AI Stock Market Analyser JavaScript loaded"
+    "======================================"
+);
+
+console.log(
+    "✅ AI Stock Market Analyser loaded"
+);
+
+console.log(
+    "✅ JavaScript connected successfully"
+);
+
+console.log(
+    "======================================"
 );
