@@ -3,11 +3,6 @@
 // FRONTEND JAVASCRIPT
 // =====================================================
 
-
-// =====================================================
-// GLOBAL CHART VARIABLE
-// =====================================================
-
 let stockChart = null;
 
 
@@ -15,14 +10,9 @@ let stockChart = null;
 // DOM ELEMENTS
 // =====================================================
 
-const stockInput =
-    document.getElementById("stockInput");
-
-const result =
-    document.getElementById("result");
-
-const analyzeBtn =
-    document.getElementById("analyzeBtn");
+const stockInput = document.getElementById("stockInput");
+const result = document.getElementById("result");
+const analyzeBtn = document.getElementById("analyzeBtn");
 
 
 // =====================================================
@@ -31,22 +21,74 @@ const analyzeBtn =
 
 const stockNames = {
 
-    RELIANCE:
-        "Reliance Industries",
-
-    TCS:
-        "Tata Consultancy Services",
-
-    INFY:
-        "Infosys",
-
-    HDFC:
-        "HDFC Bank",
-
-    ITC:
-        "ITC Limited"
+    RELIANCE: "Reliance Industries",
+    TCS: "Tata Consultancy Services",
+    INFY: "Infosys",
+    HDFC: "HDFC Bank",
+    ITC: "ITC Limited"
 
 };
+
+
+// =====================================================
+// WAIT FOR CHART.JS
+// =====================================================
+
+function waitForChartJS() {
+
+    return new Promise((resolve) => {
+
+        if (typeof Chart !== "undefined") {
+            resolve();
+            return;
+        }
+
+        const timer = setInterval(() => {
+
+            if (typeof Chart !== "undefined") {
+
+                clearInterval(timer);
+                resolve();
+
+            }
+
+        }, 100);
+
+    });
+
+}
+
+
+// =====================================================
+// WAIT FOR CANVAS
+// =====================================================
+
+function waitForCanvas() {
+
+    return new Promise((resolve) => {
+
+        const checkCanvas = () => {
+
+            const canvas =
+                document.getElementById("stockChart");
+
+            if (canvas) {
+
+                resolve(canvas);
+
+            } else {
+
+                requestAnimationFrame(checkCanvas);
+
+            }
+
+        };
+
+        checkCanvas();
+
+    });
+
+}
 
 
 // =====================================================
@@ -56,9 +98,7 @@ const stockNames = {
 async function analyzeStock() {
 
     const stock =
-        stockInput.value
-            .trim()
-            .toUpperCase();
+        stockInput.value.trim().toUpperCase();
 
 
     // =================================================
@@ -79,8 +119,7 @@ async function analyzeStock() {
 
                 <p>
                     Example:
-                    RELIANCE, TCS, INFY,
-                    HDFC or ITC
+                    RELIANCE, TCS, INFY, HDFC or ITC
                 </p>
 
             </div>
@@ -88,35 +127,7 @@ async function analyzeStock() {
         `;
 
         return;
-    }
 
-
-    // =================================================
-    // SUPPORTED STOCK CHECK
-    // =================================================
-
-    if (!stockNames[stock]) {
-
-        result.innerHTML = `
-
-            <div class="analysis-result">
-
-                <h3>⚠ STOCK NOT SUPPORTED</h3>
-
-                <h2>
-                    ${stock}
-                </h2>
-
-                <p>
-                    Please use RELIANCE, TCS,
-                    INFY, HDFC or ITC.
-                </p>
-
-            </div>
-
-        `;
-
-        return;
     }
 
 
@@ -125,20 +136,18 @@ async function analyzeStock() {
     // =================================================
 
     const companyName =
-        stockNames[stock];
+        stockNames[stock] || stock;
 
 
     // =================================================
-    // LOADING
+    // SHOW LOADING
     // =================================================
 
     result.innerHTML = `
 
         <div class="analysis-result">
 
-            <h3>
-                🤖 AI ANALYSIS
-            </h3>
+            <h3>🤖 AI ANALYSIS</h3>
 
             <h2>
                 Analyzing ${companyName}...
@@ -154,7 +163,7 @@ async function analyzeStock() {
 
 
     // =================================================
-    // DISABLE ANALYZE BUTTON
+    // DISABLE BUTTON
     // =================================================
 
     if (analyzeBtn) {
@@ -168,13 +177,7 @@ async function analyzeStock() {
 
 
     // =================================================
-    // START CHART IMMEDIATELY
-    // =================================================
-    //
-    // The chart starts at the same time as the
-    // analysis request.
-    //
-    // This fixes the first-click problem.
+    // START CHART
     // =================================================
 
     const chartPromise =
@@ -184,11 +187,11 @@ async function analyzeStock() {
         );
 
 
-    try {
+    // =================================================
+    // ANALYSIS API
+    // =================================================
 
-        // =================================================
-        // ANALYSIS API
-        // =================================================
+    try {
 
         const response =
             await fetch(
@@ -218,29 +221,24 @@ async function analyzeStock() {
         // SENTIMENT ICON
         // =================================================
 
-        let sentimentIcon =
-            "😐";
+        let sentimentIcon = "😐";
 
 
         if (
             data.sentiment &&
-            data.sentiment.toLowerCase() ===
-            "positive"
+            data.sentiment.toLowerCase() === "positive"
         ) {
 
-            sentimentIcon =
-                "😊";
+            sentimentIcon = "😊";
 
         }
 
         else if (
             data.sentiment &&
-            data.sentiment.toLowerCase() ===
-            "negative"
+            data.sentiment.toLowerCase() === "negative"
         ) {
 
-            sentimentIcon =
-                "😟";
+            sentimentIcon = "😟";
 
         }
 
@@ -256,10 +254,7 @@ async function analyzeStock() {
             "⏸️";
 
 
-        if (
-            data.recommendation ===
-            "BUY"
-        ) {
+        if (data.recommendation === "BUY") {
 
             recommendationClass =
                 "buy";
@@ -269,10 +264,7 @@ async function analyzeStock() {
 
         }
 
-        else if (
-            data.recommendation ===
-            "SELL"
-        ) {
+        else if (data.recommendation === "SELL") {
 
             recommendationClass =
                 "sell";
@@ -284,7 +276,7 @@ async function analyzeStock() {
 
 
         // =================================================
-        // DISPLAY ANALYSIS RESULT
+        // DISPLAY ANALYSIS
         // =================================================
 
         result.innerHTML = `
@@ -295,17 +287,13 @@ async function analyzeStock() {
                     🤖 AI ANALYSIS COMPLETE
                 </h3>
 
-
                 <h2>
                     ${data.name || companyName}
                 </h2>
 
-
                 <p>
                     Stock Symbol:
-                    <strong>
-                        ${stock}
-                    </strong>
+                    <strong>${stock}</strong>
                 </p>
 
 
@@ -321,8 +309,11 @@ async function analyzeStock() {
                         </span>
 
                         <strong>
+
                             ${sentimentIcon}
+
                             ${data.sentiment || "N/A"}
+
                         </strong>
 
                     </div>
@@ -358,11 +349,12 @@ async function analyzeStock() {
                         </span>
 
                         <strong>
+
                             ${data.confidence ?? "N/A"}%
+
                         </strong>
 
                     </div>
-
 
                 </div>
 
@@ -379,6 +371,10 @@ async function analyzeStock() {
 
     }
 
+
+    // =================================================
+    // ERROR
+    // =================================================
 
     catch (error) {
 
@@ -402,7 +398,8 @@ async function analyzeStock() {
                 </h2>
 
                 <p>
-                    Please try again.
+                    Please check the stock symbol
+                    and try again.
                 </p>
 
             </div>
@@ -412,16 +409,15 @@ async function analyzeStock() {
     }
 
 
-    finally {
+    // =================================================
+    // ENABLE BUTTON
+    // =================================================
 
-        // =================================================
-        // ENABLE BUTTON AGAIN
-        // =================================================
+    finally {
 
         if (analyzeBtn) {
 
-            analyzeBtn.disabled =
-                false;
+            analyzeBtn.disabled = false;
 
             analyzeBtn.innerHTML = `
                 ANALYZE
@@ -444,36 +440,45 @@ async function updateStockChart(
     companyName
 ) {
 
-    const canvas =
-        document.getElementById(
-            "stockChart"
-        );
-
-
-    // =================================================
-    // CANVAS CHECK
-    // =================================================
-
-    if (!canvas) {
-
-        console.error(
-            "Stock chart canvas not found."
-        );
-
-        return;
-
-    }
-
-
     try {
 
+        // =================================================
+        // WAIT FOR CHART.JS
+        // =================================================
+
+        await waitForChartJS();
+
+
+        // =================================================
+        // WAIT FOR CANVAS
+        // =================================================
+
+        const canvas =
+            await waitForCanvas();
+
+
+        // =================================================
+        // WAIT FOR BROWSER RENDER
+        // =================================================
+
+        await new Promise(resolve => {
+
+            requestAnimationFrame(() => {
+
+                requestAnimationFrame(resolve);
+
+            });
+
+        });
+
+
         console.log(
-            `Loading ${stock} chart...`
+            `📊 Loading ${stock} chart...`
         );
 
 
         // =================================================
-        // PRICE API
+        // GET STOCK DATA
         // =================================================
 
         const response =
@@ -494,14 +499,14 @@ async function updateStockChart(
 
             throw new Error(
                 data.error ||
-                "Unable to load stock price"
+                "Unable to load price data"
             );
 
         }
 
 
         // =================================================
-        // CHECK DATA
+        // CHECK PRICE DATA
         // =================================================
 
         if (
@@ -517,47 +522,58 @@ async function updateStockChart(
 
 
         // =================================================
-        // CREATE LABELS
+        // LABELS
         // =================================================
 
         const labels =
             data.prices.map(
-                item =>
-                    item.date
+                item => item.date
             );
 
 
         // =================================================
-        // CREATE PRICES
+        // PRICES
         // =================================================
 
         const prices =
             data.prices.map(
-                item =>
-                    Number(item.price)
+                item => Number(item.price)
             );
 
 
-        // =================================================
-        // CORRECT COMPANY NAME
-        // =================================================
-
-        const displayName =
-            stockNames[stock] ||
-            companyName ||
-            stock;
+        console.log(
+            `✅ ${stock} prices loaded`,
+            prices
+        );
 
 
         // =================================================
-        // DESTROY OLD CHART
+        // FORCE CORRECT COMPANY NAME
+        // =================================================
+
+        let displayName =
+            stockNames[stock] || companyName || stock;
+
+
+        // HDFC FIX
+
+        if (stock === "HDFC") {
+
+            displayName =
+                "HDFC Bank";
+
+        }
+
+
+        // =================================================
+        // DESTROY PREVIOUS CHART
         // =================================================
 
         if (stockChart) {
 
             stockChart.destroy();
 
-            stockChart =
-                null;
+            stockChart = null;
 
         }
 
@@ -580,10 +596,6 @@ async function updateStockChart(
         }
 
 
-        // =================================================
-        // UPDATE CHART TITLE
-        // =================================================
-
         const chartTitle =
             document.querySelector(
                 ".chart-header h3"
@@ -599,7 +611,7 @@ async function updateStockChart(
 
 
         // =================================================
-        // CREATE NEW CHART
+        // CREATE CHART
         // =================================================
 
         stockChart =
@@ -609,10 +621,14 @@ async function updateStockChart(
 
                     type: "line",
 
+
+                    // =====================================
+                    // DATA
+                    // =====================================
+
                     data: {
 
-                        labels:
-                            labels,
+                        labels: labels,
 
                         datasets: [
 
@@ -621,23 +637,17 @@ async function updateStockChart(
                                 label:
                                     `${displayName} (${stock})`,
 
-                                data:
-                                    prices,
+                                data: prices,
 
-                                borderWidth:
-                                    3,
+                                borderWidth: 3,
 
-                                tension:
-                                    0.35,
+                                tension: 0.35,
 
-                                fill:
-                                    true,
+                                fill: true,
 
-                                pointRadius:
-                                    4,
+                                pointRadius: 4,
 
-                                pointHoverRadius:
-                                    7
+                                pointHoverRadius: 7
 
                             }
 
@@ -646,22 +656,22 @@ async function updateStockChart(
                     },
 
 
+                    // =====================================
+                    // OPTIONS
+                    // =====================================
+
                     options: {
 
-                        responsive:
-                            true,
+                        responsive: true,
 
-                        maintainAspectRatio:
-                            false,
+                        maintainAspectRatio: false,
 
 
                         interaction: {
 
-                            intersect:
-                                false,
+                            intersect: false,
 
-                            mode:
-                                "index"
+                            mode: "index"
 
                         },
 
@@ -670,8 +680,7 @@ async function updateStockChart(
 
                             legend: {
 
-                                display:
-                                    true,
+                                display: true,
 
                                 labels: {
 
@@ -680,8 +689,7 @@ async function updateStockChart(
 
                                     font: {
 
-                                        size:
-                                            12
+                                        size: 12
 
                                     }
 
@@ -692,8 +700,7 @@ async function updateStockChart(
 
                             tooltip: {
 
-                                enabled:
-                                    true
+                                enabled: true
 
                             }
 
@@ -723,8 +730,7 @@ async function updateStockChart(
 
                             y: {
 
-                                beginAtZero:
-                                    false,
+                                beginAtZero: false,
 
                                 ticks: {
 
@@ -747,20 +753,34 @@ async function updateStockChart(
                     }
 
                 }
+
             );
 
 
+        // =================================================
+        // FORCE CHART UPDATE
+        // =================================================
+
+        stockChart.resize();
+
+        stockChart.update();
+
+
         console.log(
-            `${displayName} chart created successfully`
+            `🎉 ${displayName} chart created successfully`
         );
 
     }
 
 
+    // =================================================
+    // CHART ERROR
+    // =================================================
+
     catch (error) {
 
         console.error(
-            `Chart error (${stock}):`,
+            `❌ Chart error (${stock}):`,
             error
         );
 
@@ -778,7 +798,7 @@ function setStock(symbol) {
     if (!stockInput) {
 
         console.error(
-            "Stock input not found."
+            "Stock input not found"
         );
 
         return;
@@ -786,16 +806,45 @@ function setStock(symbol) {
     }
 
 
-    // Put symbol in input
+    // =================================================
+    // SET STOCK
+    // =================================================
 
     stockInput.value =
         symbol.toUpperCase();
 
 
-    // Run analysis immediately
-    // on the FIRST click.
+    // =================================================
+    // SCROLL TO ANALYSIS
+    // =================================================
 
-    analyzeStock();
+    const analysisSection =
+        document.getElementById("analysis");
+
+
+    if (analysisSection) {
+
+        analysisSection.scrollIntoView({
+            behavior: "smooth",
+            block: "start"
+        });
+
+    }
+
+
+    // =================================================
+    // WAIT FOR RENDER
+    // =================================================
+
+    requestAnimationFrame(() => {
+
+        setTimeout(() => {
+
+            analyzeStock();
+
+        }, 300);
+
+    });
 
 }
 
@@ -810,10 +859,7 @@ if (stockInput) {
         "keydown",
         function(event) {
 
-            if (
-                event.key ===
-                "Enter"
-            ) {
+            if (event.key === "Enter") {
 
                 event.preventDefault();
 
@@ -828,7 +874,7 @@ if (stockInput) {
 
 
 // =====================================================
-// PAGE LOADED
+// PAGE LOAD
 // =====================================================
 
 document.addEventListener(
@@ -836,8 +882,25 @@ document.addEventListener(
     function() {
 
         console.log(
-            "AI Stock Market Analyser loaded successfully."
+            "✅ AI Stock Market Analyser loaded"
+        );
+
+        console.log(
+            "✅ Chart.js ready"
         );
 
     }
 );
+
+
+// =====================================================
+// INITIAL CHART.JS CHECK
+// =====================================================
+
+waitForChartJS().then(() => {
+
+    console.log(
+        "📊 Chart.js successfully loaded"
+    );
+
+});
