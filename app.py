@@ -6,7 +6,6 @@ import os
 app = Flask(__name__)
 CORS(app)
 
-
 # ========================================
 # WEBSITE DIRECTORY
 # ========================================
@@ -39,7 +38,7 @@ def static_files(filename):
 
 
 # ========================================
-# STOCK DATA
+# STOCK ANALYSIS DATA
 # ========================================
 
 stock_data = {
@@ -95,7 +94,7 @@ def health():
 
 
 # ========================================
-# ANALYZE STOCK API
+# ANALYZE STOCK
 # ========================================
 
 @app.route("/analyze", methods=["GET"])
@@ -106,27 +105,21 @@ def analyze():
         ""
     ).strip().upper()
 
-
-    # Empty input
-
+    # Empty stock
     if stock == "":
 
         return jsonify({
             "error": "Please provide a stock symbol"
         }), 400
 
-
-    # Check supported stock
-
+    # Unsupported stock
     if stock not in stock_data:
 
         return jsonify({
             "error": "Stock not available"
         }), 404
 
-
-    # Return analysis
-
+    # Return stock analysis
     return jsonify(
         stock_data[stock]
     )
@@ -149,10 +142,30 @@ def get_price(symbol):
 
 
         # ------------------------------------
-        # NSE SYMBOL
+        # YAHOO FINANCE SYMBOL MAPPING
         # ------------------------------------
 
-        ticker_symbol = symbol + ".NS"
+        ticker_symbols = {
+
+            "RELIANCE": "RELIANCE.NS",
+
+            "TCS": "TCS.NS",
+
+            "INFY": "INFY.NS",
+
+            # IMPORTANT:
+            # HDFC Bank Yahoo ticker
+            "HDFC": "HDFCBANK.NS",
+
+            "ITC": "ITC.NS"
+        }
+
+
+        # Use mapped ticker
+        ticker_symbol = ticker_symbols.get(
+            symbol,
+            symbol + ".NS"
+        )
 
 
         print(
@@ -161,7 +174,7 @@ def get_price(symbol):
 
 
         # ------------------------------------
-        # CREATE YFINANCE TICKER
+        # YFINANCE
         # ------------------------------------
 
         ticker = yf.Ticker(
@@ -170,7 +183,7 @@ def get_price(symbol):
 
 
         # ------------------------------------
-        # GET 7 DAYS DATA
+        # GET LAST 7 DAYS
         # ------------------------------------
 
         data = ticker.history(
@@ -210,14 +223,13 @@ def get_price(symbol):
             )
 
 
-            # Skip missing values
+            # Skip missing price
 
             if close_price is None:
-
                 continue
 
 
-            # Convert price to float
+            # Convert to float
 
             try:
 
@@ -247,12 +259,11 @@ def get_price(symbol):
                         close_price,
                         2
                     )
-
             })
 
 
         # ------------------------------------
-        # CHECK VALID PRICES
+        # CHECK VALID PRICE DATA
         # ------------------------------------
 
         if not prices:
@@ -264,12 +275,19 @@ def get_price(symbol):
 
 
         # ------------------------------------
-        # RETURN DATA
+        # SUCCESS
         # ------------------------------------
 
         print(
-            f"Successfully loaded {symbol}: "
-            f"{len(prices)} prices"
+            f"Successfully loaded {symbol}"
+        )
+
+        print(
+            f"Yahoo ticker: {ticker_symbol}"
+        )
+
+        print(
+            f"Number of prices: {len(prices)}"
         )
 
 
@@ -283,7 +301,7 @@ def get_price(symbol):
 
 
     # ========================================
-    # ERROR HANDLING
+    # ERROR
     # ========================================
 
     except Exception as e:
