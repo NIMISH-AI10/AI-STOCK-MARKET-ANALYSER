@@ -5,7 +5,7 @@
 
 
 // =====================================================
-// GLOBAL VARIABLES
+// GLOBAL CHART VARIABLE
 // =====================================================
 
 let stockChart = null;
@@ -92,7 +92,7 @@ async function analyzeStock() {
 
 
     // =================================================
-    // CHECK SUPPORTED STOCK
+    // SUPPORTED STOCK CHECK
     // =================================================
 
     if (!stockNames[stock]) {
@@ -129,7 +129,7 @@ async function analyzeStock() {
 
 
     // =================================================
-    // LOADING MESSAGE
+    // LOADING
     // =================================================
 
     result.innerHTML = `
@@ -154,7 +154,7 @@ async function analyzeStock() {
 
 
     // =================================================
-    // DISABLE BUTTON
+    // DISABLE ANALYZE BUTTON
     // =================================================
 
     if (analyzeBtn) {
@@ -168,7 +168,13 @@ async function analyzeStock() {
 
 
     // =================================================
-    // START CHART AND ANALYSIS TOGETHER
+    // START CHART IMMEDIATELY
+    // =================================================
+    //
+    // The chart starts at the same time as the
+    // analysis request.
+    //
+    // This fixes the first-click problem.
     // =================================================
 
     const chartPromise =
@@ -181,7 +187,7 @@ async function analyzeStock() {
     try {
 
         // =================================================
-        // CALL ANALYSIS API
+        // ANALYSIS API
         // =================================================
 
         const response =
@@ -218,8 +224,7 @@ async function analyzeStock() {
 
         if (
             data.sentiment &&
-            data.sentiment
-                .toLowerCase() ===
+            data.sentiment.toLowerCase() ===
             "positive"
         ) {
 
@@ -230,8 +235,7 @@ async function analyzeStock() {
 
         else if (
             data.sentiment &&
-            data.sentiment
-                .toLowerCase() ===
+            data.sentiment.toLowerCase() ===
             "negative"
         ) {
 
@@ -280,7 +284,7 @@ async function analyzeStock() {
 
 
         // =================================================
-        // DISPLAY ANALYSIS
+        // DISPLAY ANALYSIS RESULT
         // =================================================
 
         result.innerHTML = `
@@ -376,10 +380,6 @@ async function analyzeStock() {
     }
 
 
-    // =================================================
-    // ERROR
-    // =================================================
-
     catch (error) {
 
         console.error(
@@ -412,11 +412,11 @@ async function analyzeStock() {
     }
 
 
-    // =================================================
-    // ENABLE BUTTON
-    // =================================================
-
     finally {
+
+        // =================================================
+        // ENABLE BUTTON AGAIN
+        // =================================================
 
         if (analyzeBtn) {
 
@@ -473,7 +473,7 @@ async function updateStockChart(
 
 
         // =================================================
-        // GET PRICE DATA
+        // PRICE API
         // =================================================
 
         const response =
@@ -517,7 +517,7 @@ async function updateStockChart(
 
 
         // =================================================
-        // LABELS
+        // CREATE LABELS
         // =================================================
 
         const labels =
@@ -528,7 +528,7 @@ async function updateStockChart(
 
 
         // =================================================
-        // PRICES
+        // CREATE PRICES
         // =================================================
 
         const prices =
@@ -539,7 +539,17 @@ async function updateStockChart(
 
 
         // =================================================
-        // DESTROY PREVIOUS CHART
+        // CORRECT COMPANY NAME
+        // =================================================
+
+        const displayName =
+            stockNames[stock] ||
+            companyName ||
+            stock;
+
+
+        // =================================================
+        // DESTROY OLD CHART
         // =================================================
 
         if (stockChart) {
@@ -548,26 +558,6 @@ async function updateStockChart(
 
             stockChart =
                 null;
-
-        }
-
-
-        // =================================================
-        // FORCE CORRECT COMPANY NAME
-        // =================================================
-
-        let displayName =
-            stockNames[stock] ||
-            companyName ||
-            stock;
-
-
-        // IMPORTANT HDFC FIX
-
-        if (stock === "HDFC") {
-
-            displayName =
-                "HDFC Bank";
 
         }
 
@@ -590,6 +580,10 @@ async function updateStockChart(
         }
 
 
+        // =================================================
+        // UPDATE CHART TITLE
+        // =================================================
+
         const chartTitle =
             document.querySelector(
                 ".chart-header h3"
@@ -605,7 +599,7 @@ async function updateStockChart(
 
 
         // =================================================
-        // CREATE CHART
+        // CREATE NEW CHART
         // =================================================
 
         stockChart =
@@ -776,7 +770,7 @@ async function updateStockChart(
 
 
 // =====================================================
-// QUICK TRY BUTTON
+// TRY STOCK BUTTON
 // =====================================================
 
 function setStock(symbol) {
@@ -792,18 +786,22 @@ function setStock(symbol) {
     }
 
 
+    // Put symbol in input
+
     stockInput.value =
         symbol.toUpperCase();
 
 
-    // Analyze immediately
+    // Run analysis immediately
+    // on the FIRST click.
+
     analyzeStock();
 
 }
 
 
 // =====================================================
-// ENTER KEY
+// ENTER KEY SUPPORT
 // =====================================================
 
 if (stockInput) {
