@@ -2,94 +2,215 @@
 <html lang="en">
 
 <head>
+
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-    <title>AI Stock Market Analyser</title>
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
 
-    <link rel="stylesheet" href="./style.css">
+    <title>
+        AI Stock Market Analyser
+    </title>
+
+
+    <!-- CSS -->
+
+    <link
+        rel="stylesheet"
+        href="./style.css"
+    >
+
 
     <!-- Chart.js -->
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+    <script
+        src="https://cdn.jsdelivr.net/npm/chart.js"
+    ></script>
+
 </head>
+
 
 <body>
 
-    <!-- ================= NAVBAR ================= -->
+
+    <!-- =================================================
+         NAVBAR
+    ================================================== -->
 
     <nav class="navbar">
 
         <div class="brand">
-            <div class="brand-icon">📈</div>
+
+            <div class="brand-icon">
+                📈
+            </div>
 
             <div>
-                <h2>AI Stock Market</h2>
-                <span>ANALYSER</span>
+
+                <h2>
+                    AI Stock Market
+                </h2>
+
+                <span>
+                    ANALYSER
+                </span>
+
             </div>
+
         </div>
 
+
         <ul class="nav-links">
-            <li><a href="#home">Home</a></li>
-            <li><a href="#market">Market</a></li>
-            <li><a href="#analysis">Analysis</a></li>
-            <li><a href="#ai-insights">AI Insights</a></li>
-            <li><a href="#how-it-works">How It Works</a></li>
+
+            <li>
+                <a href="#home">
+                    Home
+                </a>
+            </li>
+
+            <li>
+                <a href="#market">
+                    Market
+                </a>
+            </li>
+
+            <li>
+                <a href="#analysis">
+                    Analysis
+                </a>
+            </li>
+
+            <li>
+                <a href="#ai-insights">
+                    AI Insights
+                </a>
+            </li>
+
+            <li>
+                <a href="#how-it-works">
+                    How It Works
+                </a>
+            </li>
+
         </ul>
 
-        <div class="live-status">
-            <span></span> LIVE
+
+        <!-- BACKEND STATUS -->
+
+        <div
+            class="live-status"
+            id="backendStatus"
+        >
+
+            <span class="status-dot"></span>
+
+            CHECKING...
+
         </div>
 
     </nav>
 
 
-    <!-- ================= HERO ================= -->
 
-    <section class="hero" id="home">
+    <!-- =================================================
+         HERO
+    ================================================== -->
+
+    <section
+        class="hero"
+        id="home"
+    >
 
         <div class="hero-content">
 
             <div class="hero-badge">
+
                 🤖 AI-POWERED MARKET INTELLIGENCE
+
             </div>
 
+
             <h1>
+
                 Understand the Market.
-                <span>Predict with Intelligence.</span>
+
+                <span>
+                    Predict with Intelligence.
+                </span>
+
             </h1>
 
+
             <p>
-                Analyze stock market data, understand investor sentiment,
-                and generate intelligent BUY, HOLD or SELL insights.
+
+                Analyze stock market data,
+                understand investor sentiment,
+                and generate intelligent
+                BUY, HOLD or SELL insights.
+
             </p>
+
 
             <div class="hero-buttons">
 
-                <a href="#analysis" class="primary-btn">
+                <a
+                    href="#analysis"
+                    class="primary-btn"
+                >
                     Analyze a Stock →
                 </a>
 
-                <a href="#how-it-works" class="secondary-btn">
+
+                <a
+                    href="#how-it-works"
+                    class="secondary-btn"
+                >
                     How It Works
                 </a>
 
             </div>
 
+
             <div class="hero-stats">
 
                 <div>
-                    <strong>AI</strong>
-                    <span>Powered Analysis</span>
+
+                    <strong>
+                        AI
+                    </strong>
+
+                    <span>
+                        Powered Analysis
+                    </span>
+
                 </div>
 
-                <div>
-                    <strong>24/7</strong>
-                    <span>Market Monitoring</span>
-                </div>
 
                 <div>
-                    <strong>3</strong>
-                    <span>AI Signals</span>
+
+                    <strong>
+                        24/7
+                    </strong>
+
+                    <span>
+                        Market Monitoring
+                    </span>
+
+                </div>
+
+
+                <div>
+
+                    <strong>
+                        3
+                    </strong>
+
+                    <span>
+                        AI Signals
+                    </span>
+
                 </div>
 
             </div>
@@ -99,19 +220,36 @@
     </section>
 
 
-    <!-- ================= MARKET SNAPSHOT ================= -->
 
-    <section class="market-section" id="market">
+    <!-- =================================================
+         MARKET SNAPSHOT
+    ================================================== -->
+
+    <section
+        class="market-section"
+        id="market"
+    >
 
         <div class="section-heading">
 
             <div>
-                <span class="section-label">MARKET OVERVIEW</span>
-                <h2>Market Snapshot</h2>
+
+                <span class="section-label">
+                    MARKET OVERVIEW
+                </span>
+
+                <h2>
+                    Market Snapshot
+                </h2>
+
             </div>
 
+
             <p>
-                Selected stocks and their latest market indicators.
+
+                Select a stock card to
+                instantly analyze it.
+
             </p>
 
         </div>
@@ -119,106 +257,206 @@
 
         <div class="market-grid">
 
+
             <!-- RELIANCE -->
 
-            <div class="market-card">
+            <div
+                class="market-card"
+                onclick="analyzeCard('RELIANCE')"
+                style="cursor:pointer"
+            >
 
                 <div class="card-top">
-                    <div class="stock-logo">R</div>
 
-                    <div>
-                        <h3>Reliance Industries</h3>
-                        <span>RELIANCE</span>
+                    <div class="stock-logo">
+                        R
                     </div>
 
-                    <div class="trend up">↗</div>
+                    <div>
+
+                        <h3>
+                            Reliance Industries
+                        </h3>
+
+                        <span>
+                            RELIANCE
+                        </span>
+
+                    </div>
+
+                    <div class="trend up">
+                        ↗
+                    </div>
+
                 </div>
+
 
                 <div class="market-price">
                     ₹2,950
                 </div>
 
+
                 <div class="market-change positive">
                     ▲ +2.45%
                 </div>
 
+
+                <small>
+                    Click to analyze →
+                </small>
+
             </div>
+
 
 
             <!-- TCS -->
 
-            <div class="market-card">
+            <div
+                class="market-card"
+                onclick="analyzeCard('TCS')"
+                style="cursor:pointer"
+            >
 
                 <div class="card-top">
-                    <div class="stock-logo">T</div>
 
-                    <div>
-                        <h3>Tata Consultancy</h3>
-                        <span>TCS</span>
+                    <div class="stock-logo">
+                        T
                     </div>
 
-                    <div class="trend up">↗</div>
+                    <div>
+
+                        <h3>
+                            Tata Consultancy
+                        </h3>
+
+                        <span>
+                            TCS
+                        </span>
+
+                    </div>
+
+                    <div class="trend up">
+                        ↗
+                    </div>
+
                 </div>
+
 
                 <div class="market-price">
                     ₹4,120
                 </div>
 
+
                 <div class="market-change positive">
                     ▲ +1.82%
                 </div>
 
+
+                <small>
+                    Click to analyze →
+                </small>
+
             </div>
+
 
 
             <!-- INFY -->
 
-            <div class="market-card">
+            <div
+                class="market-card"
+                onclick="analyzeCard('INFY')"
+                style="cursor:pointer"
+            >
 
                 <div class="card-top">
-                    <div class="stock-logo">I</div>
 
-                    <div>
-                        <h3>Infosys</h3>
-                        <span>INFY</span>
+                    <div class="stock-logo">
+                        I
                     </div>
 
-                    <div class="trend down">↘</div>
+                    <div>
+
+                        <h3>
+                            Infosys
+                        </h3>
+
+                        <span>
+                            INFY
+                        </span>
+
+                    </div>
+
+                    <div class="trend down">
+                        ↘
+                    </div>
+
                 </div>
+
 
                 <div class="market-price">
                     ₹1,870
                 </div>
 
+
                 <div class="market-change negative">
                     ▼ -0.74%
                 </div>
 
+
+                <small>
+                    Click to analyze →
+                </small>
+
             </div>
+
 
 
             <!-- HDFC -->
 
-            <div class="market-card">
+            <div
+                class="market-card"
+                onclick="analyzeCard('HDFC')"
+                style="cursor:pointer"
+            >
 
                 <div class="card-top">
-                    <div class="stock-logo">H</div>
 
-                    <div>
-                        <h3>HDFC Bank</h3>
-                        <span>HDFC</span>
+                    <div class="stock-logo">
+                        H
                     </div>
 
-                    <div class="trend up">↗</div>
+                    <div>
+
+                        <h3>
+                            HDFC Bank
+                        </h3>
+
+                        <span>
+                            HDFC
+                        </span>
+
+                    </div>
+
+                    <div class="trend up">
+                        ↗
+                    </div>
+
                 </div>
+
 
                 <div class="market-price">
                     ₹1,710
                 </div>
 
+
                 <div class="market-change positive">
                     ▲ +1.20%
                 </div>
+
+
+                <small>
+                    Click to analyze →
+                </small>
 
             </div>
 
@@ -227,19 +465,34 @@
     </section>
 
 
-    <!-- ================= ANALYSIS ================= -->
 
-    <section class="analysis-section" id="analysis">
+    <!-- =================================================
+         ANALYSIS
+    ================================================== -->
+
+    <section
+        class="analysis-section"
+        id="analysis"
+    >
 
         <div class="section-heading centered">
 
-            <span class="section-label">AI ANALYSIS ENGINE</span>
+            <span class="section-label">
+                AI ANALYSIS ENGINE
+            </span>
 
-            <h2>Analyze Any Stock</h2>
+
+            <h2>
+                Analyze Any Stock
+            </h2>
+
 
             <p>
-                Enter a stock symbol and let our system generate
-                an intelligent market analysis.
+
+                Enter a stock symbol and let
+                the system generate an
+                intelligent market analysis.
+
             </p>
 
         </div>
@@ -247,11 +500,13 @@
 
         <div class="analysis-panel">
 
+
             <div class="search-area">
 
                 <div class="search-icon">
                     🔍
                 </div>
+
 
                 <input
                     type="text"
@@ -260,42 +515,69 @@
                     autocomplete="off"
                 >
 
+
                 <button
                     id="analyzeBtn"
                     onclick="analyzeStock()"
                 >
+
                     ANALYZE
-                    <span>→</span>
+
+                    <span>
+                        →
+                    </span>
+
                 </button>
 
             </div>
 
 
+
+            <!-- QUICK STOCK BUTTONS -->
+
             <div class="supported-stocks">
 
-                <span>Try:</span>
+                <span>
+                    Try:
+                </span>
 
-                <button onclick="setStock('RELIANCE')">
+
+                <button
+                    onclick="setStock('RELIANCE')"
+                >
                     RELIANCE
                 </button>
 
-                <button onclick="setStock('TCS')">
+
+                <button
+                    onclick="setStock('TCS')"
+                >
                     TCS
                 </button>
 
-                <button onclick="setStock('INFY')">
+
+                <button
+                    onclick="setStock('INFY')"
+                >
                     INFY
                 </button>
 
-                <button onclick="setStock('HDFC')">
+
+                <button
+                    onclick="setStock('HDFC')"
+                >
                     HDFC
                 </button>
 
-                <button onclick="setStock('ITC')">
+
+                <button
+                    onclick="setStock('ITC')"
+                >
                     ITC
                 </button>
 
             </div>
+
 
 
             <!-- API RESULT -->
@@ -308,11 +590,18 @@
                         🧠
                     </div>
 
-                    <h3>Ready for Analysis</h3>
+
+                    <h3>
+                        Ready for Analysis
+                    </h3>
+
 
                     <p>
-                        Enter a stock symbol above to receive
+
+                        Enter a stock symbol
+                        above to receive
                         AI-powered market insights.
+
                     </p>
 
                 </div>
@@ -324,16 +613,28 @@
     </section>
 
 
-    <!-- ================= STOCK CHART ================= -->
+
+    <!-- =================================================
+         STOCK CHART
+    ================================================== -->
 
     <section class="chart-section">
 
         <div class="section-heading">
 
             <div>
-                <span class="section-label">MARKET DATA</span>
-                <h2>Stock Price Performance</h2>
+
+                <span class="section-label">
+                    MARKET DATA
+                </span>
+
+
+                <h2>
+                    Stock Price Performance
+                </h2>
+
             </div>
+
 
             <div class="chart-live">
                 ● LIVE DATA
@@ -342,14 +643,25 @@
         </div>
 
 
+
         <div class="chart-card">
+
 
             <div class="chart-header">
 
                 <div>
-                    <span>Selected Stock</span>
-                    <h3>Price Movement</h3>
+
+                    <span>
+                        Select a stock
+                    </span>
+
+
+                    <h3>
+                        Price Movement
+                    </h3>
+
                 </div>
+
 
                 <div class="chart-icon">
                     📊
@@ -357,9 +669,116 @@
 
             </div>
 
+
+
+            <!-- CURRENT PRICE -->
+
+            <div
+                class="chart-summary"
+                style="
+                    display:flex;
+                    justify-content:space-between;
+                    align-items:center;
+                    margin:15px 0;
+                    gap:20px;
+                    flex-wrap:wrap;
+                "
+            >
+
+                <div>
+
+                    <span
+                        style="
+                            display:block;
+                            color:#71849a;
+                            font-size:0.8rem;
+                        "
+                    >
+                        CURRENT PRICE
+                    </span>
+
+
+                    <strong
+                        id="currentPrice"
+                        style="
+                            display:block;
+                            font-size:1.7rem;
+                            margin-top:4px;
+                        "
+                    >
+                        —
+                    </strong>
+
+                </div>
+
+
+                <div>
+
+                    <span
+                        style="
+                            display:block;
+                            color:#71849a;
+                            font-size:0.8rem;
+                        "
+                    >
+                        DAILY CHANGE
+                    </span>
+
+
+                    <strong
+                        id="priceChange"
+                        style="
+                            display:block;
+                            font-size:1.1rem;
+                            margin-top:4px;
+                        "
+                    >
+                        —
+                    </strong>
+
+                </div>
+
+
+                <div>
+
+                    <span
+                        id="lastUpdated"
+                        style="
+                            color:#71849a;
+                            font-size:0.8rem;
+                        "
+                    >
+                        Waiting for market data...
+                    </span>
+
+                </div>
+
+            </div>
+
+
+
+            <!-- CHART ERROR -->
+
+            <div
+                id="chartError"
+                style="
+                    display:none;
+                    padding:12px;
+                    margin-bottom:12px;
+                    border-radius:8px;
+                    color:#ff6b6b;
+                    background:rgba(255,107,107,0.08);
+                    font-size:0.85rem;
+                "
+            ></div>
+
+
+
             <div class="chart-container">
 
-                <canvas id="stockChart"></canvas>
+                <canvas
+                    id="stockChart"
+                ></canvas>
 
             </div>
 
@@ -368,9 +787,15 @@
     </section>
 
 
-    <!-- ================= AI INSIGHTS ================= -->
 
-    <section class="insights-section" id="ai-insights">
+    <!-- =================================================
+         AI INSIGHTS
+    ================================================== -->
+
+    <section
+        class="insights-section"
+        id="ai-insights"
+    >
 
         <div class="section-heading centered">
 
@@ -378,20 +803,25 @@
                 ARTIFICIAL INTELLIGENCE
             </span>
 
-            <h2>AI Market Insights</h2>
+
+            <h2>
+                AI Market Insights
+            </h2>
+
 
             <p>
-                Understand how market sentiment influences
-                the final recommendation.
+
+                Understand how market sentiment
+                influences the final recommendation.
+
             </p>
 
         </div>
 
 
+
         <div class="insight-grid">
 
-
-            <!-- POSITIVE -->
 
             <div class="insight-card positive-card">
 
@@ -399,15 +829,18 @@
                     😊
                 </div>
 
+
                 <div>
 
                     <span class="insight-label">
                         POSITIVE
                     </span>
 
+
                     <div class="insight-score">
                         72%
                     </div>
+
 
                     <p>
                         Positive market signals detected.
@@ -418,7 +851,6 @@
             </div>
 
 
-            <!-- NEUTRAL -->
 
             <div class="insight-card neutral-card">
 
@@ -426,15 +858,18 @@
                     😐
                 </div>
 
+
                 <div>
 
                     <span class="insight-label">
                         NEUTRAL
                     </span>
 
+
                     <div class="insight-score">
                         18%
                     </div>
+
 
                     <p>
                         Stable or uncertain market signals.
@@ -445,7 +880,6 @@
             </div>
 
 
-            <!-- NEGATIVE -->
 
             <div class="insight-card negative-card">
 
@@ -453,15 +887,18 @@
                     😟
                 </div>
 
+
                 <div>
 
                     <span class="insight-label">
                         NEGATIVE
                     </span>
 
+
                     <div class="insight-score">
                         10%
                     </div>
+
 
                     <p>
                         Negative market signals detected.
@@ -476,7 +913,10 @@
     </section>
 
 
-    <!-- ================= RECOMMENDATION ================= -->
+
+    <!-- =================================================
+         RECOMMENDATION
+    ================================================== -->
 
     <section class="recommendation-section">
 
@@ -488,11 +928,18 @@
                     AI DECISION SIGNAL
                 </span>
 
-                <h2>Smart Recommendation</h2>
+
+                <h2>
+                    Smart Recommendation
+                </h2>
+
 
                 <p>
-                    The recommendation is generated using
-                    market sentiment and analysis signals.
+
+                    The recommendation is generated
+                    using market sentiment and
+                    analysis signals.
+
                 </p>
 
             </div>
@@ -504,17 +951,24 @@
                     🎯
                 </div>
 
+
                 <div class="signal-content">
 
-                    <span>CURRENT SIGNAL</span>
+                    <span>
+                        CURRENT SIGNAL
+                    </span>
+
 
                     <strong class="buy">
                         BUY
                     </strong>
 
+
                     <p>
+
                         Confidence Score:
                         <b>86%</b>
+
                     </p>
 
                 </div>
@@ -526,9 +980,15 @@
     </section>
 
 
-    <!-- ================= HOW AI WORKS ================= -->
 
-    <section class="process-section" id="how-it-works">
+    <!-- =================================================
+         HOW AI WORKS
+    ================================================== -->
+
+    <section
+        class="process-section"
+        id="how-it-works"
+    >
 
         <div class="section-heading centered">
 
@@ -536,14 +996,21 @@
                 SYSTEM WORKFLOW
             </span>
 
-            <h2>How Our AI Works</h2>
+
+            <h2>
+                How Our System Works
+            </h2>
+
 
             <p>
-                From market information to an intelligent
-                recommendation.
+
+                From market information
+                to an intelligent recommendation.
+
             </p>
 
         </div>
+
 
 
         <div class="process-grid">
@@ -555,23 +1022,33 @@
                     01
                 </div>
 
+
                 <div class="process-icon">
                     📰
                 </div>
 
-                <h3>Market Data</h3>
+
+                <h3>
+                    Market Data
+                </h3>
+
 
                 <p>
-                    Relevant stock and market information
-                    is collected for analysis.
+
+                    Stock market information
+                    is retrieved through
+                    the backend API.
+
                 </p>
 
             </div>
 
 
+
             <div class="process-connector">
                 →
             </div>
+
 
 
             <div class="process-card">
@@ -580,23 +1057,33 @@
                     02
                 </div>
 
+
                 <div class="process-icon">
                     🧠
                 </div>
 
-                <h3>AI Analysis</h3>
+
+                <h3>
+                    AI Analysis
+                </h3>
+
 
                 <p>
-                    The machine learning system processes
-                    the available information.
+
+                    The project's AI/ML component
+                    processes the available
+                    information.
+
                 </p>
 
             </div>
 
 
+
             <div class="process-connector">
                 →
             </div>
+
 
 
             <div class="process-card">
@@ -605,23 +1092,32 @@
                     03
                 </div>
 
+
                 <div class="process-icon">
                     📊
                 </div>
 
-                <h3>Sentiment</h3>
+
+                <h3>
+                    Sentiment
+                </h3>
+
 
                 <p>
-                    Market signals are classified as
-                    positive, neutral or negative.
+
+                    Market signals are classified
+                    as positive, neutral or negative.
+
                 </p>
 
             </div>
 
 
+
             <div class="process-connector">
                 →
             </div>
+
 
 
             <div class="process-card">
@@ -630,15 +1126,22 @@
                     04
                 </div>
 
+
                 <div class="process-icon">
                     🎯
                 </div>
 
-                <h3>Recommendation</h3>
+
+                <h3>
+                    Recommendation
+                </h3>
+
 
                 <p>
-                    The final system output provides
+
+                    The final system displays
                     BUY, HOLD or SELL.
+
                 </p>
 
             </div>
@@ -648,11 +1151,15 @@
     </section>
 
 
-    <!-- ================= PROJECT INFO ================= -->
+
+    <!-- =================================================
+         TECHNICAL INFORMATION
+    ================================================== -->
 
     <section class="info-section">
 
         <div class="info-grid">
+
 
             <div class="info-box">
 
@@ -660,14 +1167,22 @@
                     ⚡
                 </div>
 
-                <h3>Fast Analysis</h3>
+
+                <h3>
+                    Fast Analysis
+                </h3>
+
 
                 <p>
-                    Analyze supported stocks through
-                    a simple and responsive interface.
+
+                    Analyze supported stocks
+                    through a responsive
+                    frontend interface.
+
                 </p>
 
             </div>
+
 
 
             <div class="info-box">
@@ -676,27 +1191,42 @@
                     📈
                 </div>
 
-                <h3>Market Data</h3>
+
+                <h3>
+                    Real Market Data
+                </h3>
+
 
                 <p>
-                    Historical stock prices are retrieved
-                    through the backend API.
+
+                    Historical stock prices
+                    are retrieved through
+                    the Flask backend.
+
                 </p>
 
             </div>
 
 
+
             <div class="info-box">
 
                 <div class="info-icon">
-                    🤖
+                    🔗
                 </div>
 
-                <h3>AI Integration</h3>
+
+                <h3>
+                    API Integration
+                </h3>
+
 
                 <p>
-                    Designed to integrate the team's
-                    machine learning prediction model.
+
+                    Frontend JavaScript communicates
+                    with Flask REST endpoints to
+                    retrieve market information.
+
                 </p>
 
             </div>
@@ -706,34 +1236,65 @@
     </section>
 
 
-    <!-- ================= FOOTER ================= -->
+
+    <!-- =================================================
+         FOOTER
+    ================================================== -->
 
     <footer>
 
         <div class="footer-brand">
+
             📈 AI Stock Market Analyser
+
         </div>
 
+
         <p>
-            AI-powered stock sentiment and recommendation system.
+
+            AI-powered stock sentiment
+            and recommendation system.
+
         </p>
+
 
         <div class="footer-line"></div>
 
+
         <small>
-            © 2026 AI Stock Market Analyser · Educational Project
+
+            Frontend: HTML • CSS • JavaScript
+            <br>
+
+            Backend: Python • Flask
+            <br>
+
+            Market Data: Yahoo Finance
+            <br>
+
+            Charts: Chart.js
+
         </small>
 
+
         <div class="disclaimer">
-            ⚠ For educational purposes only. Not financial advice.
+
+            ⚠ For educational purposes only.
+            Not financial advice.
+
         </div>
 
     </footer>
 
 
+
+    <!-- =================================================
+         JAVASCRIPT
+    ================================================== -->
+
     <script src="./script.js"></script>
 
-   
+
 </body>
 
 </html>
