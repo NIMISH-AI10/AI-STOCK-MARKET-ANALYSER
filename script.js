@@ -466,16 +466,7 @@ async function updateStockChart(
         // FORCE COMPANY NAME
         // =================================================
 
-        let displayName =
-            companyName || stock;
-
-
-        if (stock === "HDFC") {
-
-            displayName =
-                "HDFC Bank";
-
-        }
+      let displayName = stockNames[stock] || stock;
 
 
         // =================================================
