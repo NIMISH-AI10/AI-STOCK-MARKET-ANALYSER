@@ -1,6 +1,3 @@
-// ==============================
-// DOM ELEMENTS
-// ==============================
 
 const stockInput =
     document.getElementById("stockInput");
@@ -15,17 +12,10 @@ const stockChartCanvas =
     document.getElementById("stockChart");
 
 
-// ==============================
-// API URL
-// ==============================
 
 const API_URL =
     "https://ai-stock-market-analyser-1-gfsd.onrender.com";
 
-
-// ==============================
-// STOCK NAMES
-// ==============================
 
 const stockNames = {
     RELIANCE: "Reliance Industries",
@@ -36,9 +26,7 @@ const stockNames = {
 };
 
 
-// ==============================
-// AI DECISION SIGNAL
-// ==============================
+
 
 function updateDecisionSignal(data) {
 
@@ -131,9 +119,7 @@ function waitForChartJS() {
 }
 
 
-// ==============================
-// WAIT FOR CANVAS
-// ==============================
+
 
 function waitForCanvas() {
 
@@ -157,9 +143,6 @@ function waitForCanvas() {
 }
 
 
-// ==============================
-// ANALYZE STOCK
-// ==============================
 
 async function analyzeStock(stock) {
 
@@ -242,17 +225,8 @@ async function analyzeStock(stock) {
             data
         );
 
-
-        // ==============================
-        // UPDATE AI DECISION SIGNAL
-        // ==============================
-
         updateDecisionSignal(data);
 
-
-        // ==============================
-        // UPDATE RESULT SECTION
-        // ==============================
 
         if (result) {
 
@@ -346,9 +320,7 @@ async function analyzeStock(stock) {
         updateDecisionSignal(data);
 
 
-        // ==============================
-        // UPDATE CHART
-        // ==============================
+ 
 
         updateStockChart(data);
 
@@ -396,9 +368,7 @@ async function analyzeStock(stock) {
 }
 
 
-// ==============================
-// STOCK CHART
-// ==============================
+
 
 async function updateStockChart(data) {
 
@@ -502,9 +472,6 @@ async function updateStockChart(data) {
 }
 
 
-// ==============================
-// SET STOCK
-// ==============================
 
 function setStock(stock) {
 
@@ -518,9 +485,7 @@ function setStock(stock) {
 }
 
 
-// ==============================
-// ENTER KEY SUPPORT
-// ==============================
+
 
 if (stockInput) {
 
@@ -541,10 +506,6 @@ if (stockInput) {
 }
 
 
-// ==============================
-// ANALYZE BUTTON
-// ==============================
-
 if (analyzeBtn) {
 
     analyzeBtn.addEventListener(
@@ -559,9 +520,6 @@ if (analyzeBtn) {
 }
 
 
-// ==============================
-// PAGE LOAD
-// ==============================
 
 document.addEventListener(
     "DOMContentLoaded",
