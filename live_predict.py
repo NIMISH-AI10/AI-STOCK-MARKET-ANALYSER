@@ -4,6 +4,7 @@ import time
 
 import pandas as pd
 from curl_cffi import requests
+from sklearn.ensemble import RandomForestClassifier
 
 from ml.features import create_features
 
@@ -97,25 +98,23 @@ _model = None
 
 
 def load_model():
-
     global _model
 
     if _model is not None:
         return _model
 
     if not os.path.exists(MODEL_PATH):
-        raise FileNotFoundError(
-            f"Model not found: {MODEL_PATH}"
-        )
-     with open(MODEL_PATH, "rb") as file:
-         model_package = pickle.load(file)
+        raise FileNotFoundError(f"Model not found: {MODEL_PATH}")
 
-     if isinstance(model_package, dict):
-         _model = model_package["model"]
-     else:
-         _model = model_package
+    with open(MODEL_PATH, "rb") as file:
+        model_package = pickle.load(file)
 
-     return _model
+    if isinstance(model_package, dict) and "model" in model_package:
+        _model = model_package["model"]
+    else:
+        _model = model_package
+
+    return _model
 
 
 # ============================================================
