@@ -1,1 +1,69 @@
-
+{
+    "accuracy": 0.4021486321851811,
+    "precision_macro": 0.3889972332136193,
+    "recall_macro": 0.3939497026064897,
+    "f1_macro": 0.3876569209032383,
+    "train_rows": 36112,
+    "test_rows": 9029,
+    "features": [
+        "Open",
+        "High",
+        "Low",
+        "Close",
+        "Volume",
+        "Return_1D",
+        "Return_5D",
+        "Return_20D",
+        "SMA_10",
+        "SMA_20",
+        "SMA_50",
+        "SMA_200",
+        "EMA_12",
+        "EMA_26",
+        "RSI",
+        "MACD",
+        "MACD_Signal",
+        "MACD_Histogram",
+        "BB_High",
+        "BB_Low",
+        "BB_Middle",
+        "BB_Width",
+        "ATR",
+        "ADX",
+        "Volume_Change",
+        "Volume_SMA_20",
+        "Volume_Ratio",
+        "Volatility_20D",
+        "Price_vs_SMA20",
+        "Price_vs_SMA50",
+        "Price_vs_SMA200",
+        "Daily_Range",
+        "NIFTY_Close",
+        "NIFTY_Return_1D",
+        "NIFTY_Return_5D",
+        "NIFTY_SMA20",
+        "NIFTY_Trend"
+    ],
+    "target_definition": {
+        "SELL": "< -2%",
+        "HOLD": "-2% to +2%",
+        "BUY": "> +2%"
+    },
+    "confusion_matrix": [
+        [
+            682,
+            718,
+            678
+        ],
+        [
+            1147,
+            1809,
+            1387
+        ],
+        [
+            534,
+            934,
+            1140
+        ]
+    ]
+}
