@@ -250,159 +250,47 @@ def predict(symbol):
 # =====================================================
 # REAL STOCK PRICE API
 # =====================================================
-
 @app.route("/price/<symbol>", methods=["GET"])
 def get_price(symbol):
+    symbol = symbol.strip().upper()
+
+    ticker_map = {
+        "RELIANCE": "RELIANCE.NS",
+        "TCS": "TCS.NS",
+        "INFY": "INFY.NS",
+        "HDFC": "HDFCBANK.NS",
+        "ITC": "ITC.NS"
+    }
+
+    if symbol not in ticker_map:
+        return jsonify({
+            "error": "Stock not available",
+            "symbol": symbol
+        }), 404
 
     try:
-
-        symbol = symbol.strip().upper()
-
-        # -------------------------------------------------
-        # WEBSITE SYMBOL -> YAHOO FINANCE SYMBOL
-        # -------------------------------------------------
-
-        ticker_map = {
-
-            "RELIANCE": "RELIANCE.NS",
-
-            "TCS": "TCS.NS",
-
-            "INFY": "INFY.NS",
-
-            "HDFC": "HDFCBANK.NS",
-
-            "ITC": "ITC.NS"
-
-        }
-
-        yf_symbol = ticker_map.get(
-            symbol,
-            symbol + ".NS"
-        )
-
-        print(
-            f"Fetching stock: {symbol} -> {yf_symbol}"
-        )
-
-        # -------------------------------------------------
-        # FETCH MARKET DATA
-        # -------------------------------------------------
-
-        ticker = yf.Ticker(yf_symbol)
-
-        data = ticker.history(
-            period="7d",
-            interval="1d",
-            auto_adjust=False
-        )
-
-        # -------------------------------------------------
-        # EMPTY DATA
-        # -------------------------------------------------
-
-        if data.empty:
-
-            return jsonify({
-
-                "error":
-                    f"No price data available for {symbol}",
-
-                "symbol":
-                    symbol,
-
-                "yf_symbol":
-                    yf_symbol
-
-            }), 404
-
-        # -------------------------------------------------
-        # FORMAT DATA
-        # -------------------------------------------------
-
-        prices = []
-
-        for date, row in data.iterrows():
-
-            close_price = row.get("Close")
-
-            if close_price is None:
-                continue
-
-            try:
-
-                price = float(close_price)
-
-            except (TypeError, ValueError):
-
-                continue
-
-            prices.append({
-
-                "date":
-                    date.strftime("%Y-%m-%d"),
-
-                "price":
-                    round(price, 2)
-
-            })
-
-        # -------------------------------------------------
-        # NO VALID PRICES
-        # -------------------------------------------------
-
-        if not prices:
-
-            return jsonify({
-
-                "error":
-                    f"No valid price data available for {symbol}",
-
-                "symbol":
-                    symbol,
-
-                "yf_symbol":
-                    yf_symbol
-
-            }), 404
-
-        # -------------------------------------------------
-        # SUCCESS
-        # -------------------------------------------------
+        # Keep price endpoint lightweight.
+        # The main prediction is handled by /analyze.
+        result = predict_stock(symbol)
 
         return jsonify({
-
-            "symbol":
-                symbol,
-
-            "yf_symbol":
-                yf_symbol,
-
-            "prices":
-                prices
-
+            "symbol": symbol,
+            "prices": [
+                {
+                    "date": result["date"],
+                    "price": result["price"]
+                }
+            ]
         })
 
     except Exception as e:
-
-        print(
-            "PRICE API ERROR:",
-            str(e)
-        )
+        print("PRICE API ERROR:", str(e))
 
         return jsonify({
-
-            "error":
-                f"Unable to fetch stock price data for {symbol}",
-
-            "details":
-                str(e),
-
-            "symbol":
-                symbol
-
+            "error": f"Unable to fetch price data for {symbol}",
+            "details": str(e),
+            "symbol": symbol
         }), 500
-
 
 # =====================================================
 # START FLASK SERVER
