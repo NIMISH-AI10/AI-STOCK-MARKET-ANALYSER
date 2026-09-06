@@ -4,6 +4,7 @@ import time
 
 import pandas as pd
 import yfinance as yf
+from curl_cffi import requests
 
 from ml.features import create_features
 
@@ -78,6 +79,13 @@ FEATURE_COLUMNS = [
 _data_cache = None
 _cache_time = 0
 
+# ============================================================
+# YAHOO FINANCE SESSION
+# ============================================================
+
+yf_session = requests.Session(
+    impersonate="chrome"
+)
 
 # ============================================================
 # LOAD TRAINED MODEL
@@ -146,13 +154,14 @@ def download_market_data():
     tickers = list(STOCK_SYMBOLS.values()) + ["^NSEI"]
 
     data = yf.download(
-        tickers,
-        period="2y",
-        interval="1d",
-        auto_adjust=False,
-        progress=False,
-        threads=False,
-        timeout=20
+         tickers,
+         period="2y",
+         interval="1d",
+         auto_adjust=False,
+         progress=False,
+         threads=False,
+         timeout=20,
+         session=yf_session
     )
 
     if data is None or data.empty:
