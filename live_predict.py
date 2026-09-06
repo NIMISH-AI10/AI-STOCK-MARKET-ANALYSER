@@ -1,5 +1,6 @@
 import os
 import pickle
+import time
 
 import pandas as pd
 import yfinance as yf
@@ -13,6 +14,8 @@ from ml.features import create_features
 
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 MODEL_PATH = os.path.join(BASE_DIR, "models", "stock_model.pkl")
+
+CACHE_SECONDS = 600  # 10 minutes
 
 STOCK_SYMBOLS = {
     "RELIANCE": "RELIANCE.NS",
@@ -69,6 +72,14 @@ FEATURE_COLUMNS = [
 
 
 # ============================================================
+# SIMPLE DATA CACHE
+# ============================================================
+
+_data_cache = None
+_cache_time = 0
+
+
+# ============================================================
 # LOAD TRAINED MODEL
 # ============================================================
 
@@ -79,128 +90,138 @@ def load_model():
             f"Model not found: {MODEL_PATH}"
         )
 
-    with open(
-        MODEL_PATH,
-        "rb"
-    ) as file:
-
+    with open(MODEL_PATH, "rb") as file:
         model = pickle.load(file)
 
     return model
 
 
 # ============================================================
-# DOWNLOAD STOCK DATA
+# CLEAN DOWNLOADED DATA
 # ============================================================
 
-def get_stock_data(symbol):
+def clean_data(data):
+
+    if data is None or data.empty:
+        raise ValueError("No market data received from Yahoo Finance.")
+
+    # yfinance can return MultiIndex columns
+    if isinstance(data.columns, pd.MultiIndex):
+        data.columns = data.columns.get_level_values(0)
+
+    data = data.reset_index()
+
+    if "Date" not in data.columns:
+        raise ValueError("Date column missing from market data.")
+
+    data["Date"] = pd.to_datetime(data["Date"])
+
+    try:
+        data["Date"] = data["Date"].dt.tz_localize(None)
+    except TypeError:
+        pass
+
+    return data
+
+
+# ============================================================
+# DOWNLOAD STOCK + NIFTY DATA TOGETHER
+# ============================================================
+
+def download_market_data():
+
+    global _data_cache
+    global _cache_time
+
+    # Use cache if still fresh
+    if (
+        _data_cache is not None
+        and (time.time() - _cache_time) < CACHE_SECONDS
+    ):
+        print("Using cached market data...")
+        return _data_cache
+
+    print("Downloading stock and NIFTY data...")
+
+    tickers = list(STOCK_SYMBOLS.values()) + ["^NSEI"]
+
+    data = yf.download(
+        tickers,
+        period="2y",
+        interval="1d",
+        auto_adjust=False,
+        progress=False,
+        threads=False,
+        timeout=20
+    )
+
+    if data is None or data.empty:
+        raise ValueError(
+            "Yahoo Finance returned no market data."
+        )
+
+    _data_cache = data
+    _cache_time = time.time()
+
+    return data
+
+
+# ============================================================
+# GET INDIVIDUAL DATA FROM COMBINED DOWNLOAD
+# ============================================================
+
+def get_stock_data(symbol, market_data):
 
     ticker = STOCK_SYMBOLS[symbol]
 
-    print(
-        f"Downloading {symbol} data..."
-    )
-    data = yf.download(
-         ticker,
-         period="2y",
-         interval="1d",
-         auto_adjust=False,
-         progress=False,
-         threads=False,
-         timeout=10
-    )
-   
-    if data.empty:
-
-        raise ValueError(
-            f"No data found for {symbol}"
-        )
-
-    # yfinance can return MultiIndex columns
-    if isinstance(
-        data.columns,
-        pd.MultiIndex
-    ):
-
-        data.columns = (
-            data.columns
-            .get_level_values(0)
-        )
-
-    data = data.reset_index()
-
-    # Convert Date
-    data["Date"] = pd.to_datetime(
-        data["Date"]
-    )
-
-    # Remove timezone if present
-    try:
-
-        data["Date"] = (
-            data["Date"]
-            .dt.tz_localize(None)
-        )
-
-    except TypeError:
-        pass
-
-    return data
-
-
-# ============================================================
-# DOWNLOAD NIFTY DATA
-# ============================================================
-
-def get_nifty_data():
-
-    print(
-        "Downloading NIFTY 50 data..."
-    )
-
-    data = yf.download(
-         "^NSEI",
-         period="2y",
-         interval="1d",
-         auto_adjust=False,
-         progress=False,
-         threads=False,
-         timeout=10
-    )
-
-    if data.empty:
-
-        raise ValueError(
-            "No NIFTY 50 data found"
-        )
-
-    if isinstance(
-        data.columns,
-        pd.MultiIndex
-    ):
-
-        data.columns = (
-            data.columns
-            .get_level_values(0)
-        )
-
-    data = data.reset_index()
-
-    data["Date"] = pd.to_datetime(
-        data["Date"]
-    )
+    print(f"Preparing {symbol} data...")
 
     try:
 
-        data["Date"] = (
-            data["Date"]
-            .dt.tz_localize(None)
+        if isinstance(market_data.columns, pd.MultiIndex):
+
+            data = market_data.xs(
+                ticker,
+                axis=1,
+                level=1
+            ).copy()
+
+        else:
+            data = market_data.copy()
+
+    except Exception as error:
+
+        raise ValueError(
+            f"Unable to prepare {symbol} data: {error}"
         )
 
-    except TypeError:
-        pass
+    return clean_data(data)
 
-    return data
+
+def get_nifty_data(market_data):
+
+    print("Preparing NIFTY 50 data...")
+
+    try:
+
+        if isinstance(market_data.columns, pd.MultiIndex):
+
+            data = market_data.xs(
+                "^NSEI",
+                axis=1,
+                level=1
+            ).copy()
+
+        else:
+            data = market_data.copy()
+
+    except Exception as error:
+
+        raise ValueError(
+            f"Unable to prepare NIFTY data: {error}"
+        )
+
+    return clean_data(data)
 
 
 # ============================================================
@@ -212,27 +233,35 @@ def predict_stock(symbol):
     symbol = symbol.upper()
 
     if symbol not in STOCK_SYMBOLS:
-
         raise ValueError(
             f"Unsupported stock: {symbol}"
         )
 
     # --------------------------------------------------------
-    # 1. Download stock data
+    # 1. Download market data once
+    # --------------------------------------------------------
+
+    market_data = download_market_data()
+
+    # --------------------------------------------------------
+    # 2. Prepare stock data
     # --------------------------------------------------------
 
     stock_data = get_stock_data(
-        symbol
+        symbol,
+        market_data
     )
 
     # --------------------------------------------------------
-    # 2. Download NIFTY data
+    # 3. Prepare NIFTY data
     # --------------------------------------------------------
 
-    nifty_data = get_nifty_data()
+    nifty_data = get_nifty_data(
+        market_data
+    )
 
     # --------------------------------------------------------
-    # 3. Create features
+    # 4. Create features
     # --------------------------------------------------------
 
     df = create_features(
@@ -241,7 +270,7 @@ def predict_stock(symbol):
     )
 
     # --------------------------------------------------------
-    # 4. Check features
+    # 5. Check features
     # --------------------------------------------------------
 
     missing_features = [
@@ -258,41 +287,35 @@ def predict_stock(symbol):
         )
 
     # --------------------------------------------------------
-    # 5. Select the 37 features
+    # 6. Select the 37 features
     # --------------------------------------------------------
 
     feature_data = df[
         FEATURE_COLUMNS
     ].copy()
 
-    # Replace infinity
     feature_data = feature_data.replace(
         [float("inf"), float("-inf")],
         float("nan")
     )
 
-    # Find rows with complete features
     valid_rows = feature_data.dropna()
 
     if valid_rows.empty:
-
         raise ValueError(
             "No valid feature row available."
         )
 
-    # Latest complete row
-    latest_features = valid_rows.iloc[
-        [-1]
-    ]
+    latest_features = valid_rows.iloc[[-1]]
 
     # --------------------------------------------------------
-    # 6. Load model
+    # 7. Load model
     # --------------------------------------------------------
 
     model = load_model()
 
     # --------------------------------------------------------
-    # 7. Make prediction
+    # 8. Make prediction
     # --------------------------------------------------------
 
     prediction = model.predict(
@@ -300,7 +323,7 @@ def predict_stock(symbol):
     )[0]
 
     # --------------------------------------------------------
-    # 8. Get probabilities
+    # 9. Get probabilities
     # --------------------------------------------------------
 
     probabilities = model.predict_proba(
@@ -316,7 +339,7 @@ def predict_stock(symbol):
     }
 
     # --------------------------------------------------------
-    # 9. Convert prediction
+    # 10. Convert prediction
     # --------------------------------------------------------
 
     labels = {
@@ -331,13 +354,14 @@ def predict_stock(symbol):
     )
 
     confidence = (
-        probability_map
-        .get(int(prediction), 0)
-        * 100
+        probability_map.get(
+            int(prediction),
+            0
+        ) * 100
     )
 
     # --------------------------------------------------------
-    # 10. Latest price
+    # 11. Latest price
     # --------------------------------------------------------
 
     latest_row = df.iloc[-1]
@@ -351,10 +375,10 @@ def predict_stock(symbol):
     )
 
     # --------------------------------------------------------
-    # 11. Result
+    # 12. Result
     # --------------------------------------------------------
 
-    result = {
+    return {
 
         "symbol": symbol,
 
@@ -400,11 +424,9 @@ def predict_stock(symbol):
         }
     }
 
-    return result
-
 
 # ============================================================
-# TEST ALL STOCKS
+# TEST
 # ============================================================
 
 if __name__ == "__main__":
@@ -419,58 +441,29 @@ if __name__ == "__main__":
 
         try:
 
-            result = predict_stock(
-                symbol
-            )
+            result = predict_stock(symbol)
 
             print()
             print("------------------------------")
-            print(
-                "Stock:",
-                result["symbol"]
-            )
-
-            print(
-                "Price:",
-                result["price"]
-            )
-
-            print(
-                "Date:",
-                result["date"]
-            )
-
-            print(
-                "Prediction:",
-                result["prediction"]
-            )
-
+            print("Stock:", result["symbol"])
+            print("Price:", result["price"])
+            print("Date:", result["date"])
+            print("Prediction:", result["prediction"])
             print(
                 "Confidence:",
-                str(
-                    result["confidence"]
-                ) + "%"
+                str(result["confidence"]) + "%"
             )
-
             print(
                 "SELL:",
-                str(
-                    result["probabilities"]["SELL"]
-                ) + "%"
+                str(result["probabilities"]["SELL"]) + "%"
             )
-
             print(
                 "HOLD:",
-                str(
-                    result["probabilities"]["HOLD"]
-                ) + "%"
+                str(result["probabilities"]["HOLD"]) + "%"
             )
-
             print(
                 "BUY:",
-                str(
-                    result["probabilities"]["BUY"]
-                ) + "%"
+                str(result["probabilities"]["BUY"]) + "%"
             )
 
         except Exception as error:
