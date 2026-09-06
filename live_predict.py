@@ -107,11 +107,15 @@ def load_model():
         raise FileNotFoundError(
             f"Model not found: {MODEL_PATH}"
         )
+     with open(MODEL_PATH, "rb") as file:
+         model_package = pickle.load(file)
 
-    with open(MODEL_PATH, "rb") as file:
-        _model = pickle.load(file)
+     if isinstance(model_package, dict):
+         _model = model_package["model"]
+     else:
+         _model = model_package
 
-    return _model
+     return _model
 
 
 # ============================================================
