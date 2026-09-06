@@ -10,13 +10,9 @@ from ml.features import create_features
 # ============================================================
 # SETTINGS
 # ============================================================
-BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 
-MODEL_PATH = os.path.join(
-    BASE_DIR,
-    "models",
-    "stock_model.pkl"
-)
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+MODEL_PATH = os.path.join(BASE_DIR, "models", "stock_model.pkl")
 
 STOCK_SYMBOLS = {
     "RELIANCE": "RELIANCE.NS",
@@ -104,15 +100,16 @@ def get_stock_data(symbol):
     print(
         f"Downloading {symbol} data..."
     )
-
     data = yf.download(
-        ticker,
-        period="2y",
-        interval="1d",
-        auto_adjust=False,
-        progress=False
+         ticker,
+         period="2y",
+         interval="1d",
+         auto_adjust=False,
+         progress=False,
+         threads=False,
+         timeout=10
     )
-
+   
     if data.empty:
 
         raise ValueError(
@@ -162,11 +159,13 @@ def get_nifty_data():
     )
 
     data = yf.download(
-        "^NSEI",
-        period="2y",
-        interval="1d",
-        auto_adjust=False,
-        progress=False
+         "^NSEI",
+         period="2y",
+         interval="1d",
+         auto_adjust=False,
+         progress=False,
+         threads=False,
+         timeout=10
     )
 
     if data.empty:
