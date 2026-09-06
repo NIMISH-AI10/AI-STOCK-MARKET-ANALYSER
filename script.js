@@ -176,15 +176,9 @@ async function analyzeStock() {
     }
 
 
-    // =================================================
-    // START CHART IMMEDIATELY
+
     // =================================================
 
-    const chartPromise =
-        updateStockChart(
-            stock,
-            companyName
-        );
 
 
     // =================================================
@@ -207,15 +201,21 @@ async function analyzeStock() {
         // API ERROR
         // =================================================
 
-        if (!response.ok) {
+      
+          if (!response.ok) {
+              throw new Error(
+                  data.error ||
+                  "Stock not available"
+               );
+           }
 
-            throw new Error(
-                data.error ||
-                "Stock not available"
-            );
-
-        }
-
+// Update chart using the price already returned by /analyze
+          updateStockChart(
+              stock,
+              companyName,
+              data.price,
+              data.date
+          );
 
         // =================================================
         // SENTIMENT ICON
@@ -355,16 +355,9 @@ async function analyzeStock() {
             </div>
 
         `;
-
-
-        // =================================================
-        // WAIT FOR CHART
-        // =================================================
-
-        await chartPromise;
-
     }
 
+        // =================================================
 
     // =================================================
     // ERROR
@@ -431,7 +424,9 @@ async function analyzeStock() {
 
 async function updateStockChart(
     stock,
-    companyName
+    companyName,
+    currentPrice,
+    currentDate
 ) {
 
     try {
@@ -494,154 +489,8 @@ async function updateStockChart(
 
 
         // =================================================
-        // FETCH PRICE DATA WITH RETRY
-        // =================================================
-
-        let data = null;
-
-        let success = false;
-
-
-        for (
-            let attempt = 1;
-            attempt <= 3;
-            attempt++
-        ) {
-
-            try {
-
-                console.log(
-                    `📡 Price request ${attempt}/3 for ${stock}`
-                );
-
-
-                const response =
-                    await fetch(
-                        `/price/${encodeURIComponent(stock)}?t=${Date.now()}_${attempt}`,
-                        {
-                            cache: "no-store"
-                        }
-                    );
-
-
-                const responseData =
-                    await response.json();
-
-
-                if (
-                    response.ok &&
-                    responseData.prices &&
-                    responseData.prices.length > 0
-                ) {
-
-                    data =
-                        responseData;
-
-                    success = true;
-
-                    console.log(
-                        `✅ Price data received for ${stock}`
-                    );
-
-                    break;
-
-                }
-
-
-                console.warn(
-                    `⚠ Attempt ${attempt} failed for ${stock}`
-                );
-
-            }
-
-
-            catch (error) {
-
-                console.warn(
-                    `⚠ Attempt ${attempt} error:`,
-                    error
-                );
-
-            }
-
-
-            // =================================================
-            // WAIT BEFORE RETRY
-            // =================================================
-
-            if (
-                !success &&
-                attempt < 3
-            ) {
-
-                await new Promise(
-                    resolve =>
-                        setTimeout(
-                            resolve,
-                            1200
-                        )
-                );
-
-            }
-
-        }
-
-
-        // =================================================
-        // ALL ATTEMPTS FAILED
-        // =================================================
-
-        if (
-            !success ||
-            !data
-        ) {
-
-            console.error(
-                `❌ Unable to load ${stock} after 3 attempts`
-            );
-
-            return;
-
-        }
-
-
-        // =================================================
-        // CHECK PRICE DATA
-        // =================================================
-
-        if (
-            !data.prices ||
-            data.prices.length === 0
-        ) {
-
-            console.error(
-                `❌ No price data for ${stock}`
-            );
-
-            return;
-
-        }
-
-
-        // =================================================
-        // LABELS
-        // =================================================
-
-        const labels =
-            data.prices.map(
-                item => item.date
-            );
-
-
-        // =================================================
-        // PRICES
-        // =================================================
-
-        const prices =
-            data.prices.map(
-                item => Number(item.price)
-            );
-
+       const labels = [currentDate];
+       const prices = [Number(currentPrice)];
 
         console.log(
             `📈 ${stock} prices:`,
