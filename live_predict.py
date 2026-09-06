@@ -10,12 +10,13 @@ from ml.features import create_features
 # ============================================================
 # SETTINGS
 # ============================================================
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 
 MODEL_PATH = os.path.join(
+    BASE_DIR,
     "models",
     "stock_model.pkl"
 )
-
 
 STOCK_SYMBOLS = {
     "RELIANCE": "RELIANCE.NS",
