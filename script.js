@@ -1,14 +1,7 @@
-const stockInput =
-document.getElementById("stockInput");
-
-const analyzeBtn =
-document.getElementById("analyzeBtn");
-
-const result =
-document.getElementById("result");
-
-const stockChartCanvas =
-document.getElementById("stockChart");
+const stockInput = document.getElementById("stockInput");
+const analyzeBtn = document.getElementById("analyzeBtn");
+const result = document.getElementById("result");
+const stockChartCanvas = document.getElementById("stockChart");
 
 // ==============================
 // API URL
@@ -72,7 +65,6 @@ if (decisionSignal) {
     } else {
 
         decisionSignal.classList.add("hold");
-
     }
 }
 
@@ -244,7 +236,6 @@ try {
 
     updateDecisionSignal(data);
 
-
     // ==============================
     // DISPLAY RESULT
     // ==============================
@@ -334,20 +325,17 @@ try {
         `;
     }
 
-
     // ==============================
     // UPDATE AI SIGNAL
     // ==============================
 
     updateDecisionSignal(data);
 
-
     // ==============================
     // UPDATE CHART
     // ==============================
 
     updateStockChart(data);
-
 
 } catch (error) {
 
@@ -581,7 +569,6 @@ function () {
         "API URL:",
         API_URL
     );
-
 }
 ```
 
