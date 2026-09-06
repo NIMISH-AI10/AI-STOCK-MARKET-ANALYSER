@@ -3,6 +3,9 @@ from flask_cors import CORS
 import yfinance as yf
 import os
 
+# Import the trained ML prediction function
+from live_predict import predict_stock
+
 app = Flask(__name__)
 CORS(app)
 
@@ -11,6 +14,34 @@ CORS(app)
 # =====================================================
 
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+
+
+# =====================================================
+# STOCK INFORMATION
+# =====================================================
+
+stock_info = {
+
+    "RELIANCE": {
+        "name": "Reliance Industries"
+    },
+
+    "TCS": {
+        "name": "Tata Consultancy Services"
+    },
+
+    "INFY": {
+        "name": "Infosys"
+    },
+
+    "HDFC": {
+        "name": "HDFC Bank"
+    },
+
+    "ITC": {
+        "name": "ITC Limited"
+    }
+}
 
 
 # =====================================================
@@ -32,49 +63,6 @@ def static_files(filename):
 
 
 # =====================================================
-# STOCK ANALYSIS DATA
-# =====================================================
-
-stock_data = {
-
-    "RELIANCE": {
-        "name": "Reliance Industries",
-        "sentiment": "Positive",
-        "recommendation": "BUY",
-        "confidence": 86
-    },
-
-    "TCS": {
-        "name": "Tata Consultancy Services",
-        "sentiment": "Positive",
-        "recommendation": "BUY",
-        "confidence": 79
-    },
-
-    "INFY": {
-        "name": "Infosys",
-        "sentiment": "Neutral",
-        "recommendation": "HOLD",
-        "confidence": 68
-    },
-
-    "HDFC": {
-        "name": "HDFC Bank",
-        "sentiment": "Positive",
-        "recommendation": "BUY",
-        "confidence": 82
-    },
-
-    "ITC": {
-        "name": "ITC Limited",
-        "sentiment": "Negative",
-        "recommendation": "SELL",
-        "confidence": 71
-    }
-}
-
-
-# =====================================================
 # HEALTH CHECK
 # =====================================================
 
@@ -88,7 +76,7 @@ def health():
 
 
 # =====================================================
-# ANALYZE STOCK
+# AI STOCK ANALYSIS
 # =====================================================
 
 @app.route("/analyze", methods=["GET"])
@@ -99,19 +87,164 @@ def analyze():
         ""
     ).strip().upper()
 
+    # -------------------------------------------------
+    # CHECK STOCK SYMBOL
+    # -------------------------------------------------
+
     if stock == "":
 
         return jsonify({
             "error": "Please provide a stock symbol"
         }), 400
 
-    if stock not in stock_data:
+    if stock not in stock_info:
 
         return jsonify({
             "error": "Stock not available"
         }), 404
 
-    return jsonify(stock_data[stock])
+    try:
+
+        print(
+            f"Running ML prediction for {stock}..."
+        )
+
+        # -------------------------------------------------
+        # RUN TRAINED ML MODEL
+        # -------------------------------------------------
+
+        result = predict_stock(stock)
+
+        # -------------------------------------------------
+        # ADD COMPANY NAME
+        # -------------------------------------------------
+
+        result["name"] = stock_info[stock]["name"]
+
+        # -------------------------------------------------
+        # CONVERT MODEL OUTPUT INTO WEBSITE FORMAT
+        # -------------------------------------------------
+
+        return jsonify({
+
+            "symbol":
+                result["symbol"],
+
+            "name":
+                result["name"],
+
+            "sentiment":
+                get_sentiment(
+                    result["prediction"]
+                ),
+
+            "recommendation":
+                result["prediction"],
+
+            "confidence":
+                round(
+                    result["confidence"],
+                    2
+                ),
+
+            "price":
+                result["price"],
+
+            "date":
+                result["date"],
+
+            "probabilities":
+                result["probabilities"]
+
+        })
+
+    except Exception as e:
+
+        print(
+            "ANALYSIS ERROR:",
+            str(e)
+        )
+
+        return jsonify({
+
+            "error":
+                f"Unable to analyse {stock}",
+
+            "details":
+                str(e),
+
+            "symbol":
+                stock
+
+        }), 500
+
+
+# =====================================================
+# SENTIMENT
+# =====================================================
+
+def get_sentiment(prediction):
+
+    if prediction == "BUY":
+        return "Positive"
+
+    if prediction == "SELL":
+        return "Negative"
+
+    return "Neutral"
+
+
+# =====================================================
+# DIRECT ML PREDICTION API
+# =====================================================
+
+@app.route("/predict/<symbol>", methods=["GET"])
+def predict(symbol):
+
+    symbol = symbol.strip().upper()
+
+    if symbol not in stock_info:
+
+        return jsonify({
+            "error": "Stock not available",
+            "symbol": symbol
+        }), 404
+
+    try:
+
+        print(
+            f"Running direct ML prediction for {symbol}..."
+        )
+
+        result = predict_stock(symbol)
+
+        result["name"] = stock_info[symbol]["name"]
+
+        result["sentiment"] = get_sentiment(
+            result["prediction"]
+        )
+
+        return jsonify(result)
+
+    except Exception as e:
+
+        print(
+            "PREDICTION ERROR:",
+            str(e)
+        )
+
+        return jsonify({
+
+            "error":
+                f"Unable to generate prediction for {symbol}",
+
+            "details":
+                str(e),
+
+            "symbol":
+                symbol
+
+        }), 500
 
 
 # =====================================================
@@ -126,7 +259,7 @@ def get_price(symbol):
         symbol = symbol.strip().upper()
 
         # -------------------------------------------------
-        # WEBSITE SYMBOL -> ACTUAL NSE SYMBOL
+        # WEBSITE SYMBOL -> YAHOO FINANCE SYMBOL
         # -------------------------------------------------
 
         ticker_map = {
@@ -137,15 +270,12 @@ def get_price(symbol):
 
             "INFY": "INFY.NS",
 
-            # IMPORTANT:
-            # HDFC Bank's NSE ticker is HDFCBANK
             "HDFC": "HDFCBANK.NS",
 
             "ITC": "ITC.NS"
 
         }
 
-        # Get correct Yahoo Finance ticker
         yf_symbol = ticker_map.get(
             symbol,
             symbol + ".NS"
@@ -156,7 +286,7 @@ def get_price(symbol):
         )
 
         # -------------------------------------------------
-        # FETCH REAL MARKET DATA
+        # FETCH MARKET DATA
         # -------------------------------------------------
 
         ticker = yf.Ticker(yf_symbol)
