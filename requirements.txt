@@ -2,3 +2,8 @@ Flask
 flask-cors
 yfinance
 gunicorn
+pandas
+numpy
+scikit-learn
+ta
+joblib
