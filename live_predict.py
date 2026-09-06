@@ -3,7 +3,6 @@ import pickle
 import time
 
 import pandas as pd
-import yfinance as yf
 from curl_cffi import requests
 
 from ml.features import create_features
@@ -73,19 +72,21 @@ FEATURE_COLUMNS = [
 
 
 # ============================================================
-# SIMPLE DATA CACHE
+# CACHE
 # ============================================================
 
 _data_cache = None
 _cache_time = 0
 
+
 # ============================================================
-# YAHOO FINANCE SESSION
+# YAHOO SESSION
 # ============================================================
 
 yf_session = requests.Session(
     impersonate="chrome"
 )
+
 
 # ============================================================
 # LOAD TRAINED MODEL
@@ -105,27 +106,111 @@ def load_model():
 
 
 # ============================================================
-# CLEAN DOWNLOADED DATA
+# DOWNLOAD ONE SYMBOL DIRECTLY FROM YAHOO CHART API
 # ============================================================
 
-def clean_data(data):
+def download_symbol(symbol):
 
-    if data is None or data.empty:
-        raise ValueError("No market data received from Yahoo Finance.")
+    print(f"Downloading {symbol}...")
 
-    # yfinance can return MultiIndex columns
-    if isinstance(data.columns, pd.MultiIndex):
-        data.columns = data.columns.get_level_values(0)
+    url = (
+        "https://query1.finance.yahoo.com/"
+        f"v8/finance/chart/{symbol}"
+    )
 
-    data = data.reset_index()
+    params = {
+        "range": "2y",
+        "interval": "1d",
+        "events": "history"
+    }
 
-    if "Date" not in data.columns:
-        raise ValueError("Date column missing from market data.")
+    response = yf_session.get(
+        url,
+        params=params,
+        timeout=30
+    )
 
-    data["Date"] = pd.to_datetime(data["Date"])
+    if response.status_code != 200:
+
+        raise ValueError(
+            f"Yahoo Finance returned HTTP "
+            f"{response.status_code} for {symbol}"
+        )
+
+    data = response.json()
+
+    chart = data.get("chart", {})
+    result = chart.get("result")
+
+    if not result:
+
+        error = chart.get("error")
+
+        if error:
+            raise ValueError(
+                error.get(
+                    "description",
+                    f"No data returned for {symbol}"
+                )
+            )
+
+        raise ValueError(
+            f"No market data returned for {symbol}"
+        )
+
+    result = result[0]
+
+    timestamps = result.get("timestamp")
+    indicators = result.get("indicators", {})
+    quotes = indicators.get("quote")
+
+    if not timestamps or not quotes:
+
+        raise ValueError(
+            f"Invalid market data returned for {symbol}"
+        )
+
+    quote = quotes[0]
+
+    data = pd.DataFrame({
+        "Date": pd.to_datetime(
+            timestamps,
+            unit="s"
+        ),
+        "Open": quote.get("open"),
+        "High": quote.get("high"),
+        "Low": quote.get("low"),
+        "Close": quote.get("close"),
+        "Volume": quote.get("volume")
+    })
+
+    data = data.dropna(
+        subset=[
+            "Open",
+            "High",
+            "Low",
+            "Close"
+        ]
+    )
+
+    if data.empty:
+
+        raise ValueError(
+            f"No valid market data for {symbol}"
+        )
+
+    data["Date"] = pd.to_datetime(
+        data["Date"]
+    )
 
     try:
-        data["Date"] = data["Date"].dt.tz_localize(None)
+
+        data["Date"] = (
+            data["Date"]
+            .dt
+            .tz_localize(None)
+        )
+
     except TypeError:
         pass
 
@@ -133,7 +218,7 @@ def clean_data(data):
 
 
 # ============================================================
-# DOWNLOAD STOCK + NIFTY DATA TOGETHER
+# DOWNLOAD STOCK + NIFTY DATA
 # ============================================================
 
 def download_market_data():
@@ -144,93 +229,76 @@ def download_market_data():
     # Use cache if still fresh
     if (
         _data_cache is not None
-        and (time.time() - _cache_time) < CACHE_SECONDS
+        and (time.time() - _cache_time)
+        < CACHE_SECONDS
     ):
+
         print("Using cached market data...")
+
         return _data_cache
 
-    print("Downloading stock and NIFTY data...")
-
-    tickers = list(STOCK_SYMBOLS.values()) + ["^NSEI"]
-
-    data = yf.download(
-         tickers,
-         period="2y",
-         interval="1d",
-         auto_adjust=False,
-         progress=False,
-         threads=False,
-         timeout=20,
-         session=yf_session
+    print(
+        "Downloading stock and NIFTY data..."
     )
 
-    if data is None or data.empty:
-        raise ValueError(
-            "Yahoo Finance returned no market data."
+    market_data = {}
+
+    # Download stocks
+    for symbol, ticker in STOCK_SYMBOLS.items():
+
+        market_data[ticker] = (
+            download_symbol(ticker)
         )
 
-    _data_cache = data
+    # Download NIFTY
+    market_data["^NSEI"] = (
+        download_symbol("^NSEI")
+    )
+
+    _data_cache = market_data
     _cache_time = time.time()
 
-    return data
+    return market_data
 
 
 # ============================================================
-# GET INDIVIDUAL DATA FROM COMBINED DOWNLOAD
+# GET INDIVIDUAL STOCK DATA
 # ============================================================
 
 def get_stock_data(symbol, market_data):
 
     ticker = STOCK_SYMBOLS[symbol]
 
-    print(f"Preparing {symbol} data...")
+    print(
+        f"Preparing {symbol} data..."
+    )
 
-    try:
-
-        if isinstance(market_data.columns, pd.MultiIndex):
-
-            data = market_data.xs(
-                ticker,
-                axis=1,
-                level=1
-            ).copy()
-
-        else:
-            data = market_data.copy()
-
-    except Exception as error:
+    if ticker not in market_data:
 
         raise ValueError(
-            f"Unable to prepare {symbol} data: {error}"
+            f"Data not available for {symbol}"
         )
 
-    return clean_data(data)
+    return market_data[ticker].copy()
 
+
+# ============================================================
+# GET NIFTY DATA
+# ============================================================
 
 def get_nifty_data(market_data):
 
-    print("Preparing NIFTY 50 data...")
+    print(
+        "Preparing NIFTY 50 data..."
+    )
 
-    try:
-
-        if isinstance(market_data.columns, pd.MultiIndex):
-
-            data = market_data.xs(
-                "^NSEI",
-                axis=1,
-                level=1
-            ).copy()
-
-        else:
-            data = market_data.copy()
-
-    except Exception as error:
+    if "^NSEI" not in market_data:
 
         raise ValueError(
-            f"Unable to prepare NIFTY data: {error}"
+            "NIFTY data not available."
         )
 
-    return clean_data(data)
+    return market_data["^NSEI"].copy()
 
 
 # ============================================================
@@ -242,12 +310,13 @@ def predict_stock(symbol):
     symbol = symbol.upper()
 
     if symbol not in STOCK_SYMBOLS:
+
         raise ValueError(
             f"Unsupported stock: {symbol}"
         )
 
     # --------------------------------------------------------
-    # 1. Download market data once
+    # 1. Download market data
     # --------------------------------------------------------
 
     market_data = download_market_data()
@@ -311,6 +380,7 @@ def predict_stock(symbol):
     valid_rows = feature_data.dropna()
 
     if valid_rows.empty:
+
         raise ValueError(
             "No valid feature row available."
         )
@@ -454,25 +524,45 @@ if __name__ == "__main__":
 
             print()
             print("------------------------------")
-            print("Stock:", result["symbol"])
-            print("Price:", result["price"])
-            print("Date:", result["date"])
-            print("Prediction:", result["prediction"])
+            print(
+                "Stock:",
+                result["symbol"]
+            )
+            print(
+                "Price:",
+                result["price"]
+            )
+            print(
+                "Date:",
+                result["date"]
+            )
+            print(
+                "Prediction:",
+                result["prediction"]
+            )
             print(
                 "Confidence:",
-                str(result["confidence"]) + "%"
+                str(
+                    result["confidence"]
+                ) + "%"
             )
             print(
                 "SELL:",
-                str(result["probabilities"]["SELL"]) + "%"
+                str(
+                    result["probabilities"]["SELL"]
+                ) + "%"
             )
             print(
                 "HOLD:",
-                str(result["probabilities"]["HOLD"]) + "%"
+                str(
+                    result["probabilities"]["HOLD"]
+                ) + "%"
             )
             print(
                 "BUY:",
-                str(result["probabilities"]["BUY"]) + "%"
+                str(
+                    result["probabilities"]["BUY"]
+                ) + "%"
             )
 
         except Exception as error:
