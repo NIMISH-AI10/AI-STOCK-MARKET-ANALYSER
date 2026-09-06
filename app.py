@@ -254,44 +254,16 @@ def predict(symbol):
 def get_price(symbol):
     symbol = symbol.strip().upper()
 
-    ticker_map = {
-        "RELIANCE": "RELIANCE.NS",
-        "TCS": "TCS.NS",
-        "INFY": "INFY.NS",
-        "HDFC": "HDFCBANK.NS",
-        "ITC": "ITC.NS"
-    }
-
-    if symbol not in ticker_map:
+    if symbol not in stock_info:
         return jsonify({
             "error": "Stock not available",
             "symbol": symbol
         }), 404
 
-    try:
-        # Keep price endpoint lightweight.
-        # The main prediction is handled by /analyze.
-        result = predict_stock(symbol)
-
-        return jsonify({
-            "symbol": symbol,
-            "prices": [
-                {
-                    "date": result["date"],
-                    "price": result["price"]
-                }
-            ]
-        })
-
-    except Exception as e:
-        print("PRICE API ERROR:", str(e))
-
-        return jsonify({
-            "error": f"Unable to fetch price data for {symbol}",
-            "details": str(e),
-            "symbol": symbol
-        }), 500
-
+    return jsonify({
+        "symbol": symbol,
+        "prices": []
+    })
 # =====================================================
 # START FLASK SERVER
 # =====================================================
