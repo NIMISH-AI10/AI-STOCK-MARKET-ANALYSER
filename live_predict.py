@@ -1,10 +1,10 @@
 import os
-import pickle
+import joblib
 import time
 
 import pandas as pd
 from curl_cffi import requests
-from sklearn.ensemble import RandomForestClassifier
+
 
 from ml.features import create_features
 
@@ -104,18 +104,26 @@ def load_model():
         return _model
 
     if not os.path.exists(MODEL_PATH):
-        raise FileNotFoundError(f"Model not found: {MODEL_PATH}")
+        raise FileNotFoundError(
+            f"Model not found: {MODEL_PATH}"
+        )
 
-    with open(MODEL_PATH, "rb") as file:
-        model_package = pickle.load(file)
+    model_package = joblib.load(
+        MODEL_PATH
+    )
 
-    if isinstance(model_package, dict) and "model" in model_package:
+    if isinstance(model_package, dict):
+        if "model" not in model_package:
+            raise ValueError(
+                "Model package does not contain 'model'"
+            )
+
         _model = model_package["model"]
+
     else:
         _model = model_package
 
     return _model
-
 
 # ============================================================
 # DOWNLOAD ONE SYMBOL DIRECTLY FROM YAHOO CHART API
