@@ -314,16 +314,16 @@ async function analyzeStock() {
     // =================================================
 
     try {
+        const API_URL =
+            "https://ai-stock-market-analyser-1-gfsd.onrender.com";
 
         const response =
             await fetch(
-                `/analyze?stock=${encodeURIComponent(stock)}`
+                `${API_URL}/analyze?stock=${encodeURIComponent(stock)}`
             );
 
-
-
-        const data =
-            await response.json();
+         const data =
+             await response.json();
 
 
 
