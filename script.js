@@ -1,93 +1,100 @@
-
 const stockInput =
-    document.getElementById("stockInput");
+document.getElementById("stockInput");
 
 const analyzeBtn =
-    document.getElementById("analyzeBtn");
+document.getElementById("analyzeBtn");
 
 const result =
-    document.getElementById("result");
+document.getElementById("result");
 
 const stockChartCanvas =
-    document.getElementById("stockChart");
+document.getElementById("stockChart");
 
-
+// ==============================
+// API URL
+// ==============================
 
 const API_URL =
-    "https://ai-stock-market-analyser-1-gfsd.onrender.com";
+"https://ai-stock-market-analyser-1-gfsd.onrender.com";
 
+// ==============================
+// STOCK NAMES
+// ==============================
 
 const stockNames = {
-    RELIANCE: "Reliance Industries",
-    TCS: "Tata Consultancy Services",
-    INFY: "Infosys",
-    HDFC: "HDFC Bank",
-    ITC: "ITC Limited"
+RELIANCE: "Reliance Industries",
+TCS: "Tata Consultancy Services",
+INFY: "Infosys",
+HDFC: "HDFC Bank",
+ITC: "ITC Limited"
 };
 
-
-
+// ==============================
+// AI DECISION SIGNAL
+// ==============================
 
 function updateDecisionSignal(data) {
 
-    const decisionSignal =
-        document.getElementById("decisionSignal");
+```
+const decisionSignal =
+    document.getElementById("decisionSignal");
 
-    const decisionConfidence =
-        document.getElementById("decisionConfidence");
+const decisionConfidence =
+    document.getElementById("decisionConfidence");
 
-    console.log(
-        "Updating AI Decision Signal:",
-        data
+console.log(
+    "Updating AI Decision Signal:",
+    data
+);
+
+if (decisionSignal) {
+
+    const recommendation =
+        data.recommendation || "N/A";
+
+    decisionSignal.textContent =
+        recommendation;
+
+    decisionSignal.classList.remove(
+        "buy",
+        "sell",
+        "hold"
     );
 
-    if (decisionSignal) {
+    if (recommendation === "BUY") {
 
-        const recommendation =
-            data.recommendation || "N/A";
+        decisionSignal.classList.add("buy");
 
-        decisionSignal.textContent =
-            recommendation;
+    } else if (recommendation === "SELL") {
 
-        decisionSignal.classList.remove(
-            "buy",
-            "sell",
-            "hold"
-        );
+        decisionSignal.classList.add("sell");
 
-        if (recommendation === "BUY") {
+    } else {
 
-            decisionSignal.classList.add("buy");
+        decisionSignal.classList.add("hold");
 
-        } else if (recommendation === "SELL") {
-
-            decisionSignal.classList.add("sell");
-
-        } else {
-
-            decisionSignal.classList.add("hold");
-
-        }
-    }
-
-    if (decisionConfidence) {
-
-        if (
-            data.confidence !== undefined &&
-            data.confidence !== null
-        ) {
-
-            decisionConfidence.textContent =
-                `${Number(data.confidence).toFixed(2)}%`;
-
-        } else {
-
-            decisionConfidence.textContent =
-                "N/A";
-        }
     }
 }
 
+if (decisionConfidence) {
+
+    if (
+        data.confidence !== undefined &&
+        data.confidence !== null
+    ) {
+
+        decisionConfidence.textContent =
+            `${Number(data.confidence).toFixed(2)}%`;
+
+    } else {
+
+        decisionConfidence.textContent =
+            "N/A";
+    }
+}
+```
+
+}
 
 // ==============================
 // WAIT FOR CHART.JS
@@ -95,448 +102,487 @@ function updateDecisionSignal(data) {
 
 function waitForChartJS() {
 
-    return new Promise((resolve) => {
+```
+return new Promise((resolve) => {
 
-        if (typeof Chart !== "undefined") {
+    if (typeof Chart !== "undefined") {
 
-            resolve();
-
-            return;
-        }
-
-        const interval =
-            setInterval(() => {
-
-                if (typeof Chart !== "undefined") {
-
-                    clearInterval(interval);
-
-                    resolve();
-                }
-
-            }, 100);
-    });
-}
-
-
-
-
-function waitForCanvas() {
-
-    return new Promise((resolve) => {
-
-        const check =
-            setInterval(() => {
-
-                const canvas =
-                    document.getElementById("stockChart");
-
-                if (canvas) {
-
-                    clearInterval(check);
-
-                    resolve(canvas);
-                }
-
-            }, 100);
-    });
-}
-
-
-
-async function analyzeStock(stock) {
-
-    stock =
-        stock.trim().toUpperCase();
-
-    if (!stock) {
-
-        alert("Please enter a stock symbol.");
+        resolve();
 
         return;
     }
 
+    const interval =
+        setInterval(() => {
+
+            if (typeof Chart !== "undefined") {
+
+                clearInterval(interval);
+
+                resolve();
+            }
+
+        }, 100);
+});
+```
+
+}
+
+// ==============================
+// WAIT FOR CANVAS
+// ==============================
+
+function waitForCanvas() {
+
+```
+return new Promise((resolve) => {
+
+    const check =
+        setInterval(() => {
+
+            const canvas =
+                document.getElementById("stockChart");
+
+            if (canvas) {
+
+                clearInterval(check);
+
+                resolve(canvas);
+            }
+
+        }, 100);
+});
+```
+
+}
+
+// ==============================
+// ANALYZE STOCK
+// ==============================
+
+async function analyzeStock(stock) {
+
+```
+stock =
+    stock.trim().toUpperCase();
+
+if (!stock) {
+
+    alert("Please enter a stock symbol.");
+
+    return;
+}
+
+console.log(
+    "Analyzing stock:",
+    stock
+);
+
+if (analyzeBtn) {
+
+    analyzeBtn.disabled = true;
+
+    analyzeBtn.textContent =
+        "ANALYZING...";
+}
+
+if (result) {
+
+    result.innerHTML = `
+        <div class="loading">
+            <p>Analyzing ${stock}...</p>
+            <p>Please wait...</p>
+        </div>
+    `;
+}
+
+try {
+
+    const response =
+        await fetch(
+            `${API_URL}/analyze?stock=${encodeURIComponent(stock)}`
+        );
+
     console.log(
-        "Analyzing stock:",
-        stock
+        "API response status:",
+        response.status
     );
 
-    if (analyzeBtn) {
+    if (!response.ok) {
 
-        analyzeBtn.disabled = true;
+        let errorMessage =
+            "Unable to analyze stock.";
 
-        analyzeBtn.textContent =
-            "ANALYZING...";
+        try {
+
+            const errorData =
+                await response.json();
+
+            if (errorData.error) {
+
+                errorMessage =
+                    errorData.error;
+            }
+
+        } catch (e) {
+
+            console.log(
+                "Could not read error response."
+            );
+        }
+
+        throw new Error(errorMessage);
     }
+
+    const data =
+        await response.json();
+
+    console.log(
+        "API data:",
+        data
+    );
+
+    updateDecisionSignal(data);
+
+
+    // ==============================
+    // DISPLAY RESULT
+    // ==============================
 
     if (result) {
 
         result.innerHTML = `
-            <div class="loading">
-                <p>Analyzing ${stock}...</p>
-                <p>Please wait...</p>
+
+            <div class="stock-result">
+
+                <h2>
+                    ${data.name || stock}
+                </h2>
+
+                <p>
+                    Symbol:
+                    <strong>
+                        ${data.symbol || stock}
+                    </strong>
+                </p>
+
+                <p>
+                    Current Price:
+                    <strong>
+                        ₹${data.price ?? "N/A"}
+                    </strong>
+                </p>
+
+                <p>
+                    Recommendation:
+                    <strong>
+                        ${data.recommendation || "N/A"}
+                    </strong>
+                </p>
+
+                <p>
+                    Sentiment:
+                    <strong>
+                        ${data.sentiment || "N/A"}
+                    </strong>
+                </p>
+
+                <p>
+                    Confidence:
+                    <strong>
+                        ${
+                            data.confidence !== undefined
+                                ? Number(data.confidence).toFixed(2)
+                                : "N/A"
+                        }%
+                    </strong>
+                </p>
+
+                <p>
+                    Date:
+                    <strong>
+                        ${data.date || "N/A"}
+                    </strong>
+                </p>
+
+                <div class="probabilities">
+
+                    <p>
+                        SELL:
+                        <strong>
+                            ${data.probabilities?.SELL ?? "N/A"}%
+                        </strong>
+                    </p>
+
+                    <p>
+                        HOLD:
+                        <strong>
+                            ${data.probabilities?.HOLD ?? "N/A"}%
+                        </strong>
+                    </p>
+
+                    <p>
+                        BUY:
+                        <strong>
+                            ${data.probabilities?.BUY ?? "N/A"}%
+                        </strong>
+                    </p>
+
+                </div>
+
             </div>
         `;
     }
 
-    try {
 
-        const response =
-            await fetch(
-                `${API_URL}/analyze?stock=${encodeURIComponent(stock)}`
-            );
+    // ==============================
+    // UPDATE AI SIGNAL
+    // ==============================
 
-        console.log(
-            "API response status:",
-            response.status
-        );
-
-        if (!response.ok) {
-
-            let errorMessage =
-                "Unable to analyze stock.";
-
-            try {
-
-                const errorData =
-                    await response.json();
-
-                if (errorData.error) {
-
-                    errorMessage =
-                        errorData.error;
-                }
-
-            } catch (e) {
-
-                console.log(
-                    "Could not read error response."
-                );
-            }
-
-            throw new Error(errorMessage);
-        }
-
-        const data =
-            await response.json();
-
-        console.log(
-            "API data:",
-            data
-        );
-
-        updateDecisionSignal(data);
+    updateDecisionSignal(data);
 
 
-        if (result) {
+    // ==============================
+    // UPDATE CHART
+    // ==============================
 
-            result.innerHTML = `
-
-                <div class="stock-result">
-
-                    <h2>
-                        ${data.name || stock}
-                    </h2>
-
-                    <p>
-                        Symbol:
-                        <strong>
-                            ${data.symbol || stock}
-                        </strong>
-                    </p>
-
-                    <p>
-                        Current Price:
-                        <strong>
-                            ₹${data.price ?? "N/A"}
-                        </strong>
-                    </p>
-
-                    <p>
-                        Recommendation:
-                        <strong>
-                            ${data.recommendation || "N/A"}
-                        </strong>
-                    </p>
-
-                    <p>
-                        Sentiment:
-                        <strong>
-                            ${data.sentiment || "N/A"}
-                        </strong>
-                    </p>
-
-                    <p>
-                        Confidence:
-                        <strong>
-                            ${
-                                data.confidence !== undefined
-                                    ? Number(data.confidence).toFixed(2)
-                                    : "N/A"
-                            }%
-                        </strong>
-                    </p>
-
-                    <p>
-                        Date:
-                        <strong>
-                            ${data.date || "N/A"}
-                        </strong>
-                    </p>
-
-                    <div class="probabilities">
-
-                        <p>
-                            SELL:
-                            <strong>
-                                ${data.probabilities?.SELL ?? "N/A"}%
-                            </strong>
-                        </p>
-
-                        <p>
-                            HOLD:
-                            <strong>
-                                ${data.probabilities?.HOLD ?? "N/A"}%
-                            </strong>
-                        </p>
-
-                        <p>
-                            BUY:
-                            <strong>
-                                ${data.probabilities?.BUY ?? "N/A"}%
-                            </strong>
-                        </p>
-
-                    </div>
-
-                </div>
-            `;
-        }
+    updateStockChart(data);
 
 
-        // Update decision signal again
-        // after rebuilding result section
+} catch (error) {
 
-        updateDecisionSignal(data);
+    console.error(
+        "Analysis error:",
+        error
+    );
 
+    if (result) {
 
- 
+        result.innerHTML = `
 
-        updateStockChart(data);
+            <div class="error">
 
+                <h2>
+                    ❌ ERROR
+                </h2>
 
-    } catch (error) {
+                <p>
+                    ${error.message || "Failed to fetch"}
+                </p>
 
-        console.error(
-            "Analysis error:",
-            error
-        );
+                <p>
+                    Please check the stock symbol
+                    and try again.
+                </p>
 
-        if (result) {
+            </div>
+        `;
+    }
 
-            result.innerHTML = `
+} finally {
 
-                <div class="error">
+    if (analyzeBtn) {
 
-                    <h2>
-                        ❌ ERROR
-                    </h2>
+        analyzeBtn.disabled = false;
 
-                    <p>
-                        ${error.message || "Failed to fetch"}
-                    </p>
-
-                    <p>
-                        Please check the stock symbol
-                        and try again.
-                    </p>
-
-                </div>
-            `;
-        }
-
-    } finally {
-
-        if (analyzeBtn) {
-
-            analyzeBtn.disabled = false;
-
-            analyzeBtn.textContent =
-                "ANALYZE →";
-        }
+        analyzeBtn.textContent =
+            "ANALYZE →";
     }
 }
+```
 
+}
 
-
+// ==============================
+// UPDATE STOCK CHART
+// ==============================
 
 async function updateStockChart(data) {
 
-    try {
+```
+try {
 
-        await waitForChartJS();
+    await waitForChartJS();
 
-        const canvas =
-            await waitForCanvas();
+    const canvas =
+        await waitForCanvas();
 
-        if (!canvas) {
+    if (!canvas) {
 
-            console.log(
-                "Chart canvas not found."
-            );
+        console.log(
+            "Chart canvas not found."
+        );
 
-            return;
-        }
+        return;
+    }
 
-        const ctx =
-            canvas.getContext("2d");
+    const ctx =
+        canvas.getContext("2d");
 
-        if (window.stockChartInstance) {
+    if (window.stockChartInstance) {
 
-            window.stockChartInstance.destroy();
-        }
+        window.stockChartInstance.destroy();
+    }
 
-        const price =
-            Number(data.price);
+    const price =
+        Number(data.price);
 
-        if (isNaN(price)) {
+    if (isNaN(price)) {
 
-            console.log(
-                "Invalid price for chart."
-            );
+        console.log(
+            "Invalid price for chart."
+        );
 
-            return;
-        }
+        return;
+    }
 
-        window.stockChartInstance =
-            new Chart(ctx, {
+    window.stockChartInstance =
+        new Chart(ctx, {
 
-                type: "line",
+            type: "line",
 
-                data: {
+            data: {
 
-                    labels: [
-                        data.date || "Current"
-                    ],
+                labels: [
+                    data.date || "Current"
+                ],
 
-                    datasets: [
+                datasets: [
 
-                        {
+                    {
 
-                            label:
-                                `${data.symbol} Price`,
+                        label:
+                            `${data.symbol} Price`,
 
-                            data: [
-                                price
-                            ],
+                        data: [
+                            price
+                        ],
 
-                            tension: 0.3,
+                        tension: 0.3,
 
-                            fill: false
-                        }
+                        fill: false
+                    }
 
-                    ]
+                ]
+            },
+
+            options: {
+
+                responsive: true,
+
+                maintainAspectRatio: false,
+
+                plugins: {
+
+                    legend: {
+
+                        display: true
+                    }
                 },
 
-                options: {
+                scales: {
 
-                    responsive: true,
+                    y: {
 
-                    maintainAspectRatio: false,
-
-                    plugins: {
-
-                        legend: {
-
-                            display: true
-                        }
-                    },
-
-                    scales: {
-
-                        y: {
-
-                            beginAtZero: false
-                        }
+                        beginAtZero: false
                     }
                 }
-            });
+            }
+        });
 
-    } catch (error) {
+} catch (error) {
 
-        console.error(
-            "Chart error:",
-            error
-        );
-    }
+    console.error(
+        "Chart error:",
+        error
+    );
+}
+```
+
 }
 
-
+// ==============================
+// SET QUICK STOCK
+// ==============================
 
 function setStock(stock) {
 
-    if (stockInput) {
+```
+if (stockInput) {
 
-        stockInput.value =
-            stock;
-    }
-
-    analyzeStock(stock);
+    stockInput.value =
+        stock;
 }
 
+analyzeStock(stock);
+```
 
+}
 
+// ==============================
+// ENTER KEY
+// ==============================
 
 if (stockInput) {
 
-    stockInput.addEventListener(
-        "keydown",
-        function (event) {
+```
+stockInput.addEventListener(
+    "keydown",
+    function (event) {
 
-            if (event.key === "Enter") {
+        if (event.key === "Enter") {
 
-                event.preventDefault();
-
-                analyzeStock(
-                    stockInput.value
-                );
-            }
-        }
-    );
-}
-
-
-if (analyzeBtn) {
-
-    analyzeBtn.addEventListener(
-        "click",
-        function () {
+            event.preventDefault();
 
             analyzeStock(
                 stockInput.value
             );
         }
-    );
+    }
+);
+```
+
 }
 
+// ==============================
+// ANALYZE BUTTON
+// ==============================
 
+if (analyzeBtn) {
 
-document.addEventListener(
-    "DOMContentLoaded",
+```
+analyzeBtn.addEventListener(
+    "click",
     function () {
 
-        console.log(
-            "AI Stock Market Analyser loaded."
+        analyzeStock(
+            stockInput.value
         );
-
-        console.log(
-            "API URL:",
-            API_URL
-        );
-
     }
-<<<<<<< HEAD
 );
-=======
+```
+
+}
+
+// ==============================
+// PAGE LOAD
+// ==============================
+
+document.addEventListener(
+"DOMContentLoaded",
+function () {
+
+```
+    console.log(
+        "AI Stock Market Analyser loaded."
+    );
+
+    console.log(
+        "API URL:",
+        API_URL
+    );
+
+}
+```
+
 );
->>>>>>> 0bdd984 (Fix API URL)
