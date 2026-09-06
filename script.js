@@ -535,4 +535,8 @@ document.addEventListener(
         );
 
     }
+<<<<<<< HEAD
 );
+=======
+);
+>>>>>>> 0bdd984 (Fix API URL)
