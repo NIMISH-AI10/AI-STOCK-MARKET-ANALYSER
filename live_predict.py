@@ -16,6 +16,7 @@ BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 MODEL_PATH = os.path.join(BASE_DIR, "models", "stock_model.pkl")
 
 CACHE_SECONDS = 600  # 10 minutes
+DATA_RANGE = "1y"
 
 STOCK_SYMBOLS = {
     "RELIANCE": "RELIANCE.NS",
@@ -75,8 +76,8 @@ FEATURE_COLUMNS = [
 # CACHE
 # ============================================================
 
-_data_cache = None
-_cache_time = 0
+_data_cache = {}
+_cache_time = {}
 
 
 # ============================================================
@@ -92,7 +93,15 @@ yf_session = requests.Session(
 # LOAD TRAINED MODEL
 # ============================================================
 
+_model = None
+
+
 def load_model():
+
+    global _model
+
+    if _model is not None:
+        return _model
 
     if not os.path.exists(MODEL_PATH):
         raise FileNotFoundError(
@@ -100,9 +109,9 @@ def load_model():
         )
 
     with open(MODEL_PATH, "rb") as file:
-        model = pickle.load(file)
+        _model = pickle.load(file)
 
-    return model
+    return _model
 
 
 # ============================================================
@@ -110,6 +119,15 @@ def load_model():
 # ============================================================
 
 def download_symbol(symbol):
+
+    # Use cached data if available
+    if (
+        symbol in _data_cache
+        and symbol in _cache_time
+        and (time.time() - _cache_time[symbol]) < CACHE_SECONDS
+    ):
+        print(f"Using cached data for {symbol}...")
+        return _data_cache[symbol]
 
     print(f"Downloading {symbol}...")
 
@@ -119,7 +137,7 @@ def download_symbol(symbol):
     )
 
     params = {
-        "range": "2y",
+        "range": DATA_RANGE,
         "interval": "1d",
         "events": "history"
     }
@@ -131,7 +149,6 @@ def download_symbol(symbol):
     )
 
     if response.status_code != 200:
-
         raise ValueError(
             f"Yahoo Finance returned HTTP "
             f"{response.status_code} for {symbol}"
@@ -165,7 +182,6 @@ def download_symbol(symbol):
     quotes = indicators.get("quote")
 
     if not timestamps or not quotes:
-
         raise ValueError(
             f"Invalid market data returned for {symbol}"
         )
@@ -194,78 +210,31 @@ def download_symbol(symbol):
     )
 
     if data.empty:
-
         raise ValueError(
             f"No valid market data for {symbol}"
         )
 
-    data["Date"] = pd.to_datetime(
-        data["Date"]
-    )
-
     try:
-
         data["Date"] = (
             data["Date"]
             .dt
             .tz_localize(None)
         )
-
     except TypeError:
         pass
+
+    # Cache this individual dataset
+    _data_cache[symbol] = data
+    _cache_time[symbol] = time.time()
 
     return data
 
 
 # ============================================================
-# DOWNLOAD STOCK + NIFTY DATA
+# GET STOCK DATA
 # ============================================================
 
-def download_market_data():
-
-    global _data_cache
-    global _cache_time
-
-    # Use cache if still fresh
-    if (
-        _data_cache is not None
-        and (time.time() - _cache_time)
-        < CACHE_SECONDS
-    ):
-
-        print("Using cached market data...")
-
-        return _data_cache
-
-    print(
-        "Downloading stock and NIFTY data..."
-    )
-
-    market_data = {}
-
-    # Download stocks
-    for symbol, ticker in STOCK_SYMBOLS.items():
-
-        market_data[ticker] = (
-            download_symbol(ticker)
-        )
-
-    # Download NIFTY
-    market_data["^NSEI"] = (
-        download_symbol("^NSEI")
-    )
-
-    _data_cache = market_data
-    _cache_time = time.time()
-
-    return market_data
-
-
-# ============================================================
-# GET INDIVIDUAL STOCK DATA
-# ============================================================
-
-def get_stock_data(symbol, market_data):
+def get_stock_data(symbol):
 
     ticker = STOCK_SYMBOLS[symbol]
 
@@ -273,32 +242,20 @@ def get_stock_data(symbol, market_data):
         f"Preparing {symbol} data..."
     )
 
-    if ticker not in market_data:
-
-        raise ValueError(
-            f"Data not available for {symbol}"
-        )
-
-    return market_data[ticker].copy()
+    return download_symbol(ticker)
 
 
 # ============================================================
 # GET NIFTY DATA
 # ============================================================
 
-def get_nifty_data(market_data):
+def get_nifty_data():
 
     print(
         "Preparing NIFTY 50 data..."
     )
 
-    if "^NSEI" not in market_data:
-
-        raise ValueError(
-            "NIFTY data not available."
-        )
-
-    return market_data["^NSEI"].copy()
+    return download_symbol("^NSEI")
 
 
 # ============================================================
@@ -310,36 +267,24 @@ def predict_stock(symbol):
     symbol = symbol.upper()
 
     if symbol not in STOCK_SYMBOLS:
-
         raise ValueError(
             f"Unsupported stock: {symbol}"
         )
 
     # --------------------------------------------------------
-    # 1. Download market data
+    # 1. Download ONLY requested stock
     # --------------------------------------------------------
 
-    market_data = download_market_data()
+    stock_data = get_stock_data(symbol)
 
     # --------------------------------------------------------
-    # 2. Prepare stock data
+    # 2. Download NIFTY data
     # --------------------------------------------------------
 
-    stock_data = get_stock_data(
-        symbol,
-        market_data
-    )
+    nifty_data = get_nifty_data()
 
     # --------------------------------------------------------
-    # 3. Prepare NIFTY data
-    # --------------------------------------------------------
-
-    nifty_data = get_nifty_data(
-        market_data
-    )
-
-    # --------------------------------------------------------
-    # 4. Create features
+    # 3. Create features
     # --------------------------------------------------------
 
     df = create_features(
@@ -348,7 +293,7 @@ def predict_stock(symbol):
     )
 
     # --------------------------------------------------------
-    # 5. Check features
+    # 4. Check features
     # --------------------------------------------------------
 
     missing_features = [
@@ -358,14 +303,13 @@ def predict_stock(symbol):
     ]
 
     if missing_features:
-
         raise ValueError(
             "Missing features: "
             + str(missing_features)
         )
 
     # --------------------------------------------------------
-    # 6. Select the 37 features
+    # 5. Select the 37 features
     # --------------------------------------------------------
 
     feature_data = df[
@@ -380,7 +324,6 @@ def predict_stock(symbol):
     valid_rows = feature_data.dropna()
 
     if valid_rows.empty:
-
         raise ValueError(
             "No valid feature row available."
         )
@@ -388,13 +331,13 @@ def predict_stock(symbol):
     latest_features = valid_rows.iloc[[-1]]
 
     # --------------------------------------------------------
-    # 7. Load model
+    # 6. Load model
     # --------------------------------------------------------
 
     model = load_model()
 
     # --------------------------------------------------------
-    # 8. Make prediction
+    # 7. Make prediction
     # --------------------------------------------------------
 
     prediction = model.predict(
@@ -402,7 +345,7 @@ def predict_stock(symbol):
     )[0]
 
     # --------------------------------------------------------
-    # 9. Get probabilities
+    # 8. Get probabilities
     # --------------------------------------------------------
 
     probabilities = model.predict_proba(
@@ -418,7 +361,7 @@ def predict_stock(symbol):
     }
 
     # --------------------------------------------------------
-    # 10. Convert prediction
+    # 9. Convert prediction
     # --------------------------------------------------------
 
     labels = {
@@ -440,7 +383,7 @@ def predict_stock(symbol):
     )
 
     # --------------------------------------------------------
-    # 11. Latest price
+    # 10. Latest price
     # --------------------------------------------------------
 
     latest_row = df.iloc[-1]
@@ -454,7 +397,7 @@ def predict_stock(symbol):
     )
 
     # --------------------------------------------------------
-    # 12. Result
+    # 11. Result
     # --------------------------------------------------------
 
     return {
