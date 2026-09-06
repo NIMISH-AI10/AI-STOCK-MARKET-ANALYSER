@@ -1,51 +1,44 @@
-// =====================================================
-// AI STOCK MARKET ANALYSER
-// FRONTEND JAVASCRIPT
-// =====================================================
-
-
-let stockChart = null;
-
-
-
-// =====================================================
+// ==============================
 // DOM ELEMENTS
-// =====================================================
+// ==============================
 
 const stockInput =
     document.getElementById("stockInput");
 
-const result =
-    document.getElementById("result");
-
 const analyzeBtn =
     document.getElementById("analyzeBtn");
 
+const result =
+    document.getElementById("result");
+
+const stockChartCanvas =
+    document.getElementById("stockChart");
 
 
-// =====================================================
+// ==============================
+// API URL
+// ==============================
+
+const API_URL =
+    "https://ai-stock-market-analyser-1-gfsd.onrender.com";
+
+
+// ==============================
 // STOCK NAMES
-// =====================================================
+// ==============================
 
 const stockNames = {
-
     RELIANCE: "Reliance Industries",
-
     TCS: "Tata Consultancy Services",
-
     INFY: "Infosys",
-
     HDFC: "HDFC Bank",
-
     ITC: "ITC Limited"
-
 };
 
 
-
-// =====================================================
-// UPDATE AI DECISION SIGNAL
-// =====================================================
+// ==============================
+// AI DECISION SIGNAL
+// ==============================
 
 function updateDecisionSignal(data) {
 
@@ -55,28 +48,18 @@ function updateDecisionSignal(data) {
     const decisionConfidence =
         document.getElementById("decisionConfidence");
 
-
     console.log(
         "Updating AI Decision Signal:",
         data
     );
-
-
-    // =================================================
-    // UPDATE BUY / HOLD / SELL
-    // =================================================
 
     if (decisionSignal) {
 
         const recommendation =
             data.recommendation || "N/A";
 
-
         decisionSignal.textContent =
             recommendation;
-
-
-        // Remove old classes
 
         decisionSignal.classList.remove(
             "buy",
@@ -84,33 +67,20 @@ function updateDecisionSignal(data) {
             "hold"
         );
 
-
-        // Add correct class
-
         if (recommendation === "BUY") {
 
             decisionSignal.classList.add("buy");
 
-        }
-
-        else if (recommendation === "SELL") {
+        } else if (recommendation === "SELL") {
 
             decisionSignal.classList.add("sell");
 
-        }
-
-        else {
+        } else {
 
             decisionSignal.classList.add("hold");
 
         }
-
     }
-
-
-    // =================================================
-    // UPDATE CONFIDENCE
-    // =================================================
 
     if (decisionConfidence) {
 
@@ -122,24 +92,18 @@ function updateDecisionSignal(data) {
             decisionConfidence.textContent =
                 `${Number(data.confidence).toFixed(2)}%`;
 
-        }
-
-        else {
+        } else {
 
             decisionConfidence.textContent =
                 "N/A";
-
         }
-
     }
-
 }
 
 
-
-// =====================================================
+// ==============================
 // WAIT FOR CHART.JS
-// =====================================================
+// ==============================
 
 function waitForChartJS() {
 
@@ -150,913 +114,467 @@ function waitForChartJS() {
             resolve();
 
             return;
-
         }
 
-
-        const timer =
+        const interval =
             setInterval(() => {
 
                 if (typeof Chart !== "undefined") {
 
-                    clearInterval(timer);
+                    clearInterval(interval);
 
                     resolve();
-
                 }
 
             }, 100);
-
     });
-
 }
 
 
-
-// =====================================================
+// ==============================
 // WAIT FOR CANVAS
-// =====================================================
+// ==============================
 
 function waitForCanvas() {
 
     return new Promise((resolve) => {
 
-        const checkCanvas = () => {
+        const check =
+            setInterval(() => {
 
-            const canvas =
-                document.getElementById("stockChart");
+                const canvas =
+                    document.getElementById("stockChart");
 
+                if (canvas) {
 
-            if (canvas) {
+                    clearInterval(check);
 
-                resolve(canvas);
+                    resolve(canvas);
+                }
 
-            }
-
-            else {
-
-                requestAnimationFrame(
-                    checkCanvas
-                );
-
-            }
-
-        };
-
-
-        checkCanvas();
-
+            }, 100);
     });
-
 }
 
 
-
-// =====================================================
+// ==============================
 // ANALYZE STOCK
-// =====================================================
+// ==============================
 
-async function analyzeStock() {
+async function analyzeStock(stock) {
 
-
-    const stock =
-        stockInput.value
-            .trim()
-            .toUpperCase();
-
-
-
-    // =================================================
-    // EMPTY INPUT
-    // =================================================
+    stock =
+        stock.trim().toUpperCase();
 
     if (!stock) {
 
-        result.innerHTML = `
-
-            <div class="analysis-result">
-
-                <h3>
-                    ⚠ INPUT REQUIRED
-                </h3>
-
-                <h2>
-                    Please enter a stock symbol
-                </h2>
-
-                <p>
-                    Example:
-                    RELIANCE, TCS, INFY, HDFC or ITC
-                </p>
-
-            </div>
-
-        `;
+        alert("Please enter a stock symbol.");
 
         return;
-
     }
 
-
-
-    // =================================================
-    // COMPANY NAME
-    // =================================================
-
-    const companyName =
-        stockNames[stock] || stock;
-
-
-
-    // =================================================
-    // SHOW LOADING
-    // =================================================
-
-    result.innerHTML = `
-
-        <div class="analysis-result">
-
-            <h3>
-                🤖 AI ANALYSIS
-            </h3>
-
-            <h2>
-                Analyzing ${companyName}...
-            </h2>
-
-            <p>
-                Loading market information...
-            </p>
-
-        </div>
-
-    `;
-
-
-
-    // =================================================
-    // DISABLE BUTTON
-    // =================================================
+    console.log(
+        "Analyzing stock:",
+        stock
+    );
 
     if (analyzeBtn) {
 
         analyzeBtn.disabled = true;
 
-        analyzeBtn.innerHTML =
+        analyzeBtn.textContent =
             "ANALYZING...";
-
     }
 
+    if (result) {
 
-
-    // =================================================
-    // ANALYSIS API
-    // =================================================
+        result.innerHTML = `
+            <div class="loading">
+                <p>Analyzing ${stock}...</p>
+                <p>Please wait...</p>
+            </div>
+        `;
+    }
 
     try {
-        const API_URL =
-            "https://ai-stock-market-analyser-1-gfsd.onrender.com";
 
         const response =
             await fetch(
                 `${API_URL}/analyze?stock=${encodeURIComponent(stock)}`
             );
 
-         const data =
-             await response.json();
-
-
-
-        // =================================================
-        // API ERROR
-        // =================================================
+        console.log(
+            "API response status:",
+            response.status
+        );
 
         if (!response.ok) {
 
-            throw new Error(
-                data.error ||
-                "Stock not available"
-            );
+            let errorMessage =
+                "Unable to analyze stock.";
 
+            try {
+
+                const errorData =
+                    await response.json();
+
+                if (errorData.error) {
+
+                    errorMessage =
+                        errorData.error;
+                }
+
+            } catch (e) {
+
+                console.log(
+                    "Could not read error response."
+                );
+            }
+
+            throw new Error(errorMessage);
         }
 
+        const data =
+            await response.json();
 
-
-        // =================================================
-        // UPDATE AI DECISION SIGNAL
-        // =================================================
-
-        updateDecisionSignal(data);
-
-
-
-        // =================================================
-        // UPDATE STOCK CHART
-        // =================================================
-
-        updateStockChart(
-            stock,
-            companyName,
-            data.price,
-            data.date
+        console.log(
+            "API data:",
+            data
         );
 
 
-
-        // =================================================
-        // SENTIMENT ICON
-        // =================================================
-
-        let sentimentIcon =
-            "😐";
-
-
-        if (
-            data.sentiment &&
-            data.sentiment.toLowerCase() ===
-            "positive"
-        ) {
-
-            sentimentIcon =
-                "😊";
-
-        }
-
-        else if (
-            data.sentiment &&
-            data.sentiment.toLowerCase() ===
-            "negative"
-        ) {
-
-            sentimentIcon =
-                "😟";
-
-        }
-
-
-
-        // =================================================
-        // RECOMMENDATION
-        // =================================================
-
-        let recommendationClass =
-            "hold";
-
-
-        let recommendationIcon =
-            "⏸️";
-
-
-        if (
-            data.recommendation ===
-            "BUY"
-        ) {
-
-            recommendationClass =
-                "buy";
-
-            recommendationIcon =
-                "📈";
-
-        }
-
-        else if (
-            data.recommendation ===
-            "SELL"
-        ) {
-
-            recommendationClass =
-                "sell";
-
-            recommendationIcon =
-                "📉";
-
-        }
-
-
-
-        // =================================================
-        // DISPLAY RESULT
-        // =================================================
-
-        result.innerHTML = `
-
-            <div class="analysis-result">
-
-                <h3>
-                    🤖 AI ANALYSIS COMPLETE
-                </h3>
-
-                <h2>
-                    ${data.name || companyName}
-                </h2>
-
-                <p>
-                    Stock Symbol:
-                    <strong>
-                        ${stock}
-                    </strong>
-                </p>
-
-
-                <div class="analysis-details">
-
-
-                    <div>
-
-                        <span>
-                            Market Sentiment
-                        </span>
-
-                        <strong>
-
-                            ${sentimentIcon}
-
-                            ${data.sentiment || "N/A"}
-
-                        </strong>
-
-                    </div>
-
-
-                    <div>
-
-                        <span>
-                            Recommendation
-                        </span>
-
-                        <strong
-                            class="${recommendationClass}"
-                        >
-
-                            ${recommendationIcon}
-
-                            ${data.recommendation || "N/A"}
-
-                        </strong>
-
-                    </div>
-
-
-                    <div>
-
-                        <span>
-                            Confidence Score
-                        </span>
-
-                        <strong>
-
-                            ${
-                                data.confidence !== undefined &&
-                                data.confidence !== null
-                                    ? Number(data.confidence).toFixed(2)
-                                    : "N/A"
-                            }%
-
-                        </strong>
-
-                    </div>
-
-
-                </div>
-
-            </div>
-
-        `;
-
-
-
-        // =================================================
-        // UPDATE DECISION SIGNAL AGAIN
-        // =================================================
-        // This ensures the signal remains updated
-        // after the result section is rebuilt.
+        // ==============================
+        // UPDATE AI DECISION SIGNAL
+        // ==============================
 
         updateDecisionSignal(data);
 
-    }
+
+        // ==============================
+        // UPDATE RESULT SECTION
+        // ==============================
+
+        if (result) {
+
+            result.innerHTML = `
+
+                <div class="stock-result">
+
+                    <h2>
+                        ${data.name || stock}
+                    </h2>
+
+                    <p>
+                        Symbol:
+                        <strong>
+                            ${data.symbol || stock}
+                        </strong>
+                    </p>
+
+                    <p>
+                        Current Price:
+                        <strong>
+                            ₹${data.price ?? "N/A"}
+                        </strong>
+                    </p>
+
+                    <p>
+                        Recommendation:
+                        <strong>
+                            ${data.recommendation || "N/A"}
+                        </strong>
+                    </p>
+
+                    <p>
+                        Sentiment:
+                        <strong>
+                            ${data.sentiment || "N/A"}
+                        </strong>
+                    </p>
+
+                    <p>
+                        Confidence:
+                        <strong>
+                            ${
+                                data.confidence !== undefined
+                                    ? Number(data.confidence).toFixed(2)
+                                    : "N/A"
+                            }%
+                        </strong>
+                    </p>
+
+                    <p>
+                        Date:
+                        <strong>
+                            ${data.date || "N/A"}
+                        </strong>
+                    </p>
+
+                    <div class="probabilities">
+
+                        <p>
+                            SELL:
+                            <strong>
+                                ${data.probabilities?.SELL ?? "N/A"}%
+                            </strong>
+                        </p>
+
+                        <p>
+                            HOLD:
+                            <strong>
+                                ${data.probabilities?.HOLD ?? "N/A"}%
+                            </strong>
+                        </p>
+
+                        <p>
+                            BUY:
+                            <strong>
+                                ${data.probabilities?.BUY ?? "N/A"}%
+                            </strong>
+                        </p>
+
+                    </div>
+
+                </div>
+            `;
+        }
 
 
+        // Update decision signal again
+        // after rebuilding result section
 
-    // =================================================
-    // ERROR
-    // =================================================
+        updateDecisionSignal(data);
 
-    catch (error) {
+
+        // ==============================
+        // UPDATE CHART
+        // ==============================
+
+        updateStockChart(data);
+
+
+    } catch (error) {
 
         console.error(
             "Analysis error:",
             error
         );
 
+        if (result) {
 
-        result.innerHTML = `
+            result.innerHTML = `
 
-            <div class="analysis-result">
+                <div class="error">
 
-                <h3>
-                    ❌ ERROR
-                </h3>
+                    <h2>
+                        ❌ ERROR
+                    </h2>
 
-                <h2>
-                    ${
-                        error.message ||
-                        "Unable to analyze stock"
-                    }
-                </h2>
+                    <p>
+                        ${error.message || "Failed to fetch"}
+                    </p>
 
-                <p>
-                    Please check the stock symbol
-                    and try again.
-                </p>
+                    <p>
+                        Please check the stock symbol
+                        and try again.
+                    </p>
 
-            </div>
+                </div>
+            `;
+        }
 
-        `;
-
-    }
-
-
-
-    // =================================================
-    // ENABLE BUTTON
-    // =================================================
-
-    finally {
+    } finally {
 
         if (analyzeBtn) {
 
             analyzeBtn.disabled = false;
 
-
-            analyzeBtn.innerHTML = `
-                ANALYZE
-                <span>→</span>
-            `;
-
+            analyzeBtn.textContent =
+                "ANALYZE →";
         }
-
     }
-
 }
 
 
+// ==============================
+// STOCK CHART
+// ==============================
 
-// =====================================================
-// UPDATE STOCK CHART
-// =====================================================
-
-async function updateStockChart(
-    stock,
-    companyName,
-    currentPrice,
-    currentDate
-) {
+async function updateStockChart(data) {
 
     try {
 
-
-        // =================================================
-        // WAIT FOR CHART.JS
-        // =================================================
-
         await waitForChartJS();
-
-
-
-        // =================================================
-        // WAIT FOR CANVAS
-        // =================================================
 
         const canvas =
             await waitForCanvas();
 
+        if (!canvas) {
 
-
-        // =================================================
-        // WAIT FOR BROWSER RENDER
-        // =================================================
-
-        await new Promise(resolve => {
-
-            requestAnimationFrame(() => {
-
-                requestAnimationFrame(
-                    resolve
-                );
-
-            });
-
-        });
-
-
-
-        console.log(
-            `📊 Loading ${stock} chart...`
-        );
-
-
-
-        // =================================================
-        // COMPANY NAME
-        // =================================================
-
-        let displayName =
-            stockNames[stock] ||
-            companyName ||
-            stock;
-
-
-
-        // =================================================
-        // HDFC FIX
-        // =================================================
-
-        if (stock === "HDFC") {
-
-            displayName =
-                "HDFC Bank";
-
-        }
-
-
-
-        // =================================================
-        // CHART DATA
-        // =================================================
-
-        const labels =
-            [currentDate];
-
-
-        const prices =
-            [Number(currentPrice)];
-
-
-        console.log(
-            `📈 ${stock} prices:`,
-            prices
-        );
-
-
-
-        // =================================================
-        // DESTROY OLD CHART
-        // =================================================
-
-        if (stockChart) {
-
-            stockChart.destroy();
-
-            stockChart = null;
-
-        }
-
-
-
-        // =================================================
-        // UPDATE CHART HEADER
-        // =================================================
-
-        const selectedStock =
-            document.querySelector(
-                ".chart-header span"
-            );
-
-
-        if (selectedStock) {
-
-            selectedStock.textContent =
-                `${displayName} (${stock})`;
-
-        }
-
-
-
-        const chartTitle =
-            document.querySelector(
-                ".chart-header h3"
-            );
-
-
-        if (chartTitle) {
-
-            chartTitle.textContent =
-                `${displayName} Price Movement`;
-
-        }
-
-
-
-        // =================================================
-        // GET CANVAS CONTEXT
-        // =================================================
-
-        const context =
-            canvas.getContext("2d");
-
-
-        if (!context) {
-
-            console.error(
-                "❌ Unable to get canvas context"
+            console.log(
+                "Chart canvas not found."
             );
 
             return;
-
         }
 
+        const ctx =
+            canvas.getContext("2d");
 
+        if (window.stockChartInstance) {
 
-        // =================================================
-        // CREATE NEW CHART
-        // =================================================
+            window.stockChartInstance.destroy();
+        }
 
-        stockChart =
-            new Chart(
-                context,
-                {
+        const price =
+            Number(data.price);
 
-                    type: "line",
+        if (isNaN(price)) {
 
-
-                    // =====================================
-                    // DATA
-                    // =====================================
-
-                    data: {
-
-                        labels: labels,
-
-                        datasets: [
-
-                            {
-
-                                label:
-                                    `${displayName} (${stock})`,
-
-                                data: prices,
-
-                                borderWidth: 3,
-
-                                tension: 0.35,
-
-                                fill: true,
-
-                                pointRadius: 4,
-
-                                pointHoverRadius: 7
-
-                            }
-
-                        ]
-
-                    },
-
-
-                    // =====================================
-                    // OPTIONS
-                    // =====================================
-
-                    options: {
-
-                        responsive: true,
-
-                        maintainAspectRatio: false,
-
-
-                        animation: {
-
-                            duration: 500
-
-                        },
-
-
-                        interaction: {
-
-                            intersect: false,
-
-                            mode: "index"
-
-                        },
-
-
-                        plugins: {
-
-                            legend: {
-
-                                display: true,
-
-                                labels: {
-
-                                    color:
-                                        "#9fb0c5",
-
-                                    font: {
-
-                                        size: 12
-
-                                    }
-
-                                }
-
-                            },
-
-
-                            tooltip: {
-
-                                enabled: true
-
-                            }
-
-                        },
-
-
-                        scales: {
-
-                            x: {
-
-                                ticks: {
-
-                                    color:
-                                        "#71849a"
-
-                                },
-
-
-                                grid: {
-
-                                    color:
-                                        "rgba(255,255,255,0.05)"
-
-                                }
-
-                            },
-
-
-                            y: {
-
-                                beginAtZero: false,
-
-
-                                ticks: {
-
-                                    color:
-                                        "#71849a"
-
-                                },
-
-
-                                grid: {
-
-                                    color:
-                                        "rgba(255,255,255,0.05)"
-
-                                }
-
-                            }
-
-                        }
-
-                    }
-
-                }
-
+            console.log(
+                "Invalid price for chart."
             );
 
+            return;
+        }
 
+        window.stockChartInstance =
+            new Chart(ctx, {
 
-        // =================================================
-        // FORCE UPDATE
-        // =================================================
+                type: "line",
 
-        stockChart.update();
+                data: {
 
-        stockChart.resize();
+                    labels: [
+                        data.date || "Current"
+                    ],
 
+                    datasets: [
 
+                        {
 
-        console.log(
-            `🎉 ${displayName} chart created successfully`
-        );
+                            label:
+                                `${data.symbol} Price`,
 
-    }
+                            data: [
+                                price
+                            ],
 
+                            tension: 0.3,
 
+                            fill: false
+                        }
 
-    // =================================================
-    // CHART ERROR
-    // =================================================
+                    ]
+                },
 
-    catch (error) {
+                options: {
+
+                    responsive: true,
+
+                    maintainAspectRatio: false,
+
+                    plugins: {
+
+                        legend: {
+
+                            display: true
+                        }
+                    },
+
+                    scales: {
+
+                        y: {
+
+                            beginAtZero: false
+                        }
+                    }
+                }
+            });
+
+    } catch (error) {
 
         console.error(
-            `❌ Chart error (${stock}):`,
+            "Chart error:",
             error
         );
-
     }
-
 }
 
 
+// ==============================
+// SET STOCK
+// ==============================
 
-// =====================================================
-// TRY STOCK BUTTON
-// =====================================================
+function setStock(stock) {
 
-function setStock(symbol) {
+    if (stockInput) {
 
-
-    if (!stockInput) {
-
-        console.error(
-            "❌ Stock input not found"
-        );
-
-        return;
-
+        stockInput.value =
+            stock;
     }
 
-
-
-    // =================================================
-    // SET STOCK VALUE
-    // =================================================
-
-    stockInput.value =
-        symbol.toUpperCase();
-
-
-
-    // =================================================
-    // START ANALYSIS
-    // =================================================
-
-    requestAnimationFrame(() => {
-
-        setTimeout(() => {
-
-            analyzeStock();
-
-        }, 500);
-
-    });
-
+    analyzeStock(stock);
 }
 
 
-
-// =====================================================
+// ==============================
 // ENTER KEY SUPPORT
-// =====================================================
+// ==============================
 
 if (stockInput) {
 
     stockInput.addEventListener(
         "keydown",
-        function(event) {
+        function (event) {
 
             if (event.key === "Enter") {
 
                 event.preventDefault();
 
-                analyzeStock();
-
+                analyzeStock(
+                    stockInput.value
+                );
             }
-
         }
     );
-
 }
 
 
+// ==============================
+// ANALYZE BUTTON
+// ==============================
 
-// =====================================================
+if (analyzeBtn) {
+
+    analyzeBtn.addEventListener(
+        "click",
+        function () {
+
+            analyzeStock(
+                stockInput.value
+            );
+        }
+    );
+}
+
+
+// ==============================
 // PAGE LOAD
-// =====================================================
+// ==============================
 
 document.addEventListener(
     "DOMContentLoaded",
-    function() {
+    function () {
 
         console.log(
-            "✅ AI Stock Market Analyser loaded"
+            "AI Stock Market Analyser loaded."
+        );
+
+        console.log(
+            "API URL:",
+            API_URL
         );
 
     }
 );
-
-
-
-// =====================================================
-// CHART.JS READY CHECK
-// =====================================================
-
-waitForChartJS().then(() => {
-
-    console.log(
-        "📊 Chart.js successfully loaded"
-    );
-
-});
