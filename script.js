@@ -531,86 +531,6 @@ async function updateStockChart(symbol) {
     }
 
 }
-// ============================================================
-// MARKET CARDS
-// ============================================================
-
-async function updateMarketCards() {
-
-    const cards = document.querySelectorAll("[data-stock]");
-
-    if (!cards.length) {
-        return;
-    }
-
-    for (const card of cards) {
-
-        const symbol = card.dataset.stock;
-
-        if (!symbol) {
-            continue;
-        }
-
-        try {
-
-            const response = await fetch(
-                `${API_URL}/price/${encodeURIComponent(symbol)}`
-            );
-
-            if (!response.ok) {
-                throw new Error(`HTTP ${response.status}`);
-            }
-
-            const data = await response.json();
-
-            if (data.error) {
-                throw new Error(data.error);
-            }
-
-            const priceElement =
-                card.querySelector(".market-price");
-
-            const changeElement =
-                card.querySelector(".market-change");
-
-            if (priceElement && data.price != null) {
-
-                priceElement.textContent =
-                    `₹${Number(data.price).toLocaleString("en-IN", {
-                        minimumFractionDigits: 0,
-                        maximumFractionDigits: 2
-                    })}`;
-            }
-
-            if (changeElement && data.changePercent != null) {
-
-                 const change = Number(data.changePercent);
-
-                changeElement.textContent =
-                    `${change >= 0 ? "▲" : "▼"} ${change >= 0 ? "+" : ""}${change.toFixed(2)}%`;
-
-                changeElement.classList.remove(
-                    "positive",
-                    "negative"
-                );
-
-                if (change >= 0) {
-                    changeElement.classList.add("positive");
-                } else {
-                    changeElement.classList.add("negative");
-                }
-            }
-
-        } catch (error) {
-
-            console.error(
-                `Unable to update market card for ${symbol}:`,
-                error
-            );
-        }
-    }
-}
-
 
 // ============================================================
 // MARKET HEATMAP
@@ -656,6 +576,7 @@ async function updateHeatmap() {
                 price: Number(data.price || 0),
                 change: Number(data.changePercent || 0)
             });
+
         } catch (error) {
 
             console.error(
@@ -982,8 +903,6 @@ document.addEventListener("DOMContentLoaded", function() {
 
     console.log("AI Stock Market Analyser loaded.");
 
-    // Load live market cards
-    updateMarketCards();
 
     // Load heatmap
     updateHeatmap();
@@ -1010,8 +929,6 @@ document.addEventListener("DOMContentLoaded", function() {
 
 setInterval(function() {
 
-    updateMarketCards();
-
     updateHeatmap();
 
 }, 60000);
@@ -1023,6 +940,5 @@ setInterval(function() {
 
 window.analyzeStock = analyzeStock;
 window.updateStockChart = updateStockChart;
-window.updateMarketCards = updateMarketCards;
 window.updateHeatmap = updateHeatmap;
 window.setStock = setStock;
