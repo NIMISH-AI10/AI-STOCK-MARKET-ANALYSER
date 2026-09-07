@@ -224,12 +224,11 @@ function updateProbabilityChart(probabilities) {
     });
 }
 
-
 // ============================================================
-// PRICE LINE CHART
+// PRICE MOVEMENT CHART
 // ============================================================
 
-function updateStockChart(symbol) {
+async function updateStockChart(symbol) {
 
     if (!stockChartCanvas) {
         console.warn("Stock chart canvas not found.");
@@ -241,146 +240,297 @@ function updateStockChart(symbol) {
         return;
     }
 
-    fetch(`${API_URL}/price/${encodeURIComponent(symbol)}`)
-        .then(response => {
+    try {
 
-            if (!response.ok) {
-                throw new Error(`Price API returned ${response.status}`);
-            }
+        const response = await fetch(
+            `${API_URL}/price/${encodeURIComponent(symbol)}`
+        );
 
-            return response.json();
-        })
+        if (!response.ok) {
+            throw new Error(
+                `Price API returned ${response.status}`
+            );
+        }
 
-        .then(data => {
+        const data = await response.json();
 
-            if (data.error) {
-                throw new Error(data.error);
-            }
+        if (data.error) {
+            throw new Error(data.error);
+        }
 
-            if (
-                !Array.isArray(data.dates) ||
-                !Array.isArray(data.prices) ||
-                data.dates.length === 0 ||
-                data.prices.length === 0
-            ) {
-                throw new Error("No chart data available.");
-            }
 
-            const dates = data.dates;
-            const prices = data.prices;
+        // =====================================================
+        // CONVERT BACKEND DATA
+        // Backend sends:
+        // prices: [
+        //   { date: "2026-09-01", price: 266.5 }
+        // ]
+        // =====================================================
 
-            if (stockChartInstance) {
-                stockChartInstance.destroy();
-                stockChartInstance = null;
-            }
+        if (
+            !Array.isArray(data.prices) ||
+            data.prices.length === 0
+        ) {
+            throw new Error("No chart data available.");
+        }
 
-            stockChartInstance = new Chart(stockChartCanvas, {
+
+        const dates = data.prices.map(item => item.date);
+
+        const prices = data.prices.map(item =>
+            Number(item.price)
+        );
+
+
+        // =====================================================
+        // DESTROY OLD CHART
+        // =====================================================
+
+        if (stockChartInstance) {
+
+            stockChartInstance.destroy();
+
+            stockChartInstance = null;
+
+        }
+
+
+        // =====================================================
+        // CREATE NEW CHART
+        // =====================================================
+
+        stockChartInstance = new Chart(
+            stockChartCanvas,
+            {
 
                 type: "line",
 
+
                 data: {
+
                     labels: dates,
 
+
                     datasets: [
+
                         {
+
                             label: `${symbol} Price`,
+
 
                             data: prices,
 
-                            borderColor: "#42a5f5",
 
-                            backgroundColor: "rgba(66, 165, 245, 0.30)",
+                            borderColor: "#4da3df",
+
+
+                            backgroundColor:
+                                "rgba(77, 163, 223, 0.35)",
+
 
                             borderWidth: 3,
 
-                            pointRadius: 4,
-
-                            pointHoverRadius: 6,
-
-                            pointBackgroundColor: "#42a5f5",
-
-                            pointBorderColor: "#0b1828",
-
-                            pointBorderWidth: 2,
 
                             fill: true,
 
-                            tension: 0.35
+
+                            tension: 0.4,
+
+
+                            pointRadius: 5,
+
+
+                            pointHoverRadius: 8,
+
+
+                            pointBackgroundColor:
+                                "#1d6fa5",
+
+
+                            pointBorderColor:
+                                "#4da3df",
+
+
+                            pointBorderWidth: 2
+
+
                         }
+
                     ]
+
                 },
 
+
                 options: {
+
                     responsive: true,
+
+
                     maintainAspectRatio: false,
 
+
                     interaction: {
+
                         intersect: false,
+
                         mode: "index"
+
                     },
+
 
                     plugins: {
 
+
                         legend: {
+
                             display: true,
 
+
+                            position: "top",
+
+
                             labels: {
-                                color: "#879bb2",
-                                usePointStyle: false
+
+                                color: "#9aa7b8",
+
+
+                                padding: 20,
+
+
+                                font: {
+
+                                    size: 13
+
+                                }
+
                             }
+
                         },
 
+
                         tooltip: {
+
+                            backgroundColor:
+                                "#0d1b2b",
+
+
+                            titleColor:
+                                "#ffffff",
+
+
+                            bodyColor:
+                                "#b8c7d9",
+
+
+                            borderColor:
+                                "#2c4c68",
+
+
+                            borderWidth: 1,
+
+
+                            padding: 12,
+
+
                             callbacks: {
+
                                 label: function(context) {
-                                    return `₹${Number(context.raw).toFixed(2)}`;
+
+                                    return (
+                                        " ₹" +
+                                        Number(
+                                            context.raw
+                                        ).toFixed(2)
+                                    );
+
                                 }
+
                             }
+
                         }
+
                     },
+
 
                     scales: {
 
+
                         x: {
+
                             ticks: {
-                                color: "#66778c"
+
+                                color: "#8b96a5",
+
+                                maxRotation: 0,
+
+                                autoSkip: false
+
                             },
 
+
                             grid: {
-                                color: "rgba(100, 130, 160, 0.10)"
+
+                                color:
+                                    "rgba(100,130,160,0.06)"
+
                             }
+
                         },
+
 
                         y: {
 
+
                             ticks: {
-                                color: "#66778c",
+
+                                color: "#8b96a5",
+
 
                                 callback: function(value) {
-                                    return "₹" + value;
+
+                                    return value.toFixed(1);
+
                                 }
+
                             },
 
+
                             grid: {
-                                color: "rgba(100, 130, 160, 0.10)"
+
+                                color:
+                                    "rgba(100,130,160,0.12)"
+
                             }
+
+
                         }
+
                     }
+
+
                 }
-            });
 
-            console.log(`Price chart loaded for ${symbol}`);
+            }
+        );
 
-        })
 
-        .catch(error => {
+        console.log(
+            `Price chart loaded for ${symbol}`
+        );
 
-            console.error(`Unable to load chart for ${symbol}:`, error);
 
-        });
+    }
+
+    catch (error) {
+
+        console.error(
+            `Unable to load chart for ${symbol}:`,
+            error
+        );
+
+    }
+
 }
-
-
 // ============================================================
 // MARKET CARDS
 // ============================================================
