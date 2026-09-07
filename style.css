@@ -1,5 +1,5 @@
 /* =====================================================
-   GLOBAL
+   GLOBAL & RESET
 ===================================================== */
 
 * {
@@ -21,13 +21,17 @@ body {
 }
 
 a {
-    text-decoration: none;
     color: inherit;
+    text-decoration: none;
 }
 
 button,
 input {
-    font-family: inherit;
+    font: inherit;
+}
+
+button {
+    border: none;
 }
 
 ul {
@@ -35,11 +39,12 @@ ul {
 }
 
 img {
-    max-width: 100%;
     display: block;
+    max-width: 100%;
 }
 
 .container {
+    width: 100%;
     max-width: 1200px;
     margin: 0 auto;
     padding: 0 24px;
@@ -47,7 +52,7 @@ img {
 
 
 /* =====================================================
-   HEADER / NAV
+   HEADER / NAVIGATION
 ===================================================== */
 
 .header {
@@ -64,11 +69,11 @@ img {
 }
 
 .nav-container {
+    height: 76px;
+
     display: flex;
     align-items: center;
     justify-content: space-between;
-
-    height: 76px;
 }
 
 .logo {
@@ -89,14 +94,16 @@ img {
 }
 
 .logo-main {
-    font-size: 16px;
-    font-weight: bold;
-    letter-spacing: 0.5px;
     color: #eaf2ff;
+
+    font-size: 16px;
+    font-weight: 700;
+    letter-spacing: 0.5px;
 }
 
 .logo-sub {
     color: #6f8ba8;
+
     font-size: 10px;
     letter-spacing: 3px;
 }
@@ -109,14 +116,21 @@ img {
 
 .nav a {
     color: #91a4ba;
+
     font-size: 13px;
     font-weight: 500;
+
     transition: color 0.25s ease;
 }
 
 .nav a:hover {
     color: #ffffff;
 }
+
+
+/* =====================================================
+   LIVE STATUS
+===================================================== */
 
 .live-status {
     display: flex;
@@ -126,13 +140,14 @@ img {
     color: #72e6a2;
 
     font-size: 12px;
-    font-weight: bold;
+    font-weight: 700;
     letter-spacing: 1px;
 }
 
 .live-dot {
     width: 8px;
     height: 8px;
+
     border-radius: 50%;
 
     background: #72e6a2;
@@ -142,13 +157,19 @@ img {
 }
 
 @keyframes pulse-dot {
-    0%, 100% { opacity: 1; }
-    50% { opacity: 0.4; }
+    0%,
+    100% {
+        opacity: 1;
+    }
+
+    50% {
+        opacity: 0.4;
+    }
 }
 
 
 /* =====================================================
-   HERO
+   HERO SECTION
 ===================================================== */
 
 .hero {
@@ -177,8 +198,8 @@ img {
 .hero .section-label {
     display: inline-block;
 
-    padding: 8px 16px;
     margin-bottom: 22px;
+    padding: 8px 16px;
 
     border: 1px solid rgba(85, 150, 255, 0.25);
     border-radius: 30px;
@@ -188,7 +209,7 @@ img {
     color: #7da9e8;
 
     font-size: 11px;
-    font-weight: bold;
+    font-weight: 700;
     letter-spacing: 1.5px;
 }
 
@@ -211,9 +232,15 @@ img {
     font-size: 16px;
 }
 
+
+/* =====================================================
+   BUTTONS
+===================================================== */
+
 .hero-buttons {
     display: flex;
     gap: 14px;
+
     margin-top: 34px;
 }
 
@@ -221,42 +248,54 @@ img {
 .secondary-button {
     display: inline-flex;
     align-items: center;
+    justify-content: center;
     gap: 8px;
 
     padding: 15px 24px;
 
     border-radius: 10px;
 
-    font-weight: bold;
     font-size: 13px;
+    font-weight: 700;
     letter-spacing: 0.3px;
 
-    transition: 0.25s ease;
     cursor: pointer;
+    transition: all 0.25s ease;
 }
 
 .primary-button {
     background: #287ff0;
     color: #ffffff;
+
     border: 1px solid #287ff0;
 }
 
 .primary-button:hover {
-    transform: translateY(-2px);
     background: #3990ff;
-    box-shadow: 0 10px 25px rgba(56, 144, 255, 0.35);
+
+    transform: translateY(-2px);
+
+    box-shadow:
+        0 10px 25px
+        rgba(56, 144, 255, 0.35);
 }
 
 .secondary-button {
-    border: 1px solid #29435f;
-    color: #a9bad0;
     background: transparent;
+    color: #a9bad0;
+
+    border: 1px solid #29435f;
 }
 
 .secondary-button:hover {
-    border-color: #5d91cc;
     color: #ffffff;
+    border-color: #5d91cc;
 }
+
+
+/* =====================================================
+   HERO VISUAL
+===================================================== */
 
 .hero-visual {
     display: flex;
@@ -278,13 +317,22 @@ img {
 .hero-card {
     width: 100%;
     max-width: 320px;
+
     padding: 30px;
 
     border: 1px solid #1c344c;
     border-radius: 20px;
 
-    background: linear-gradient(160deg, #10253c, #0b1929);
-    box-shadow: 0 25px 60px rgba(0, 0, 0, 0.35);
+    background:
+        linear-gradient(
+            160deg,
+            #10253c,
+            #0b1929
+        );
+
+    box-shadow:
+        0 25px 60px
+        rgba(0, 0, 0, 0.35);
 }
 
 .hero-card-top {
@@ -292,40 +340,44 @@ img {
     align-items: center;
     justify-content: space-between;
 
-    font-size: 11px;
     color: #7b91a9;
+
+    font-size: 11px;
     letter-spacing: 1px;
 }
 
 .live-badge {
     padding: 4px 10px;
+
     border-radius: 20px;
 
     background: rgba(114, 230, 162, 0.12);
     color: #72e6a2;
 
     font-size: 10px;
-    font-weight: bold;
+    font-weight: 700;
 }
 
 .hero-card-value {
     margin-top: 28px;
 
+    color: #5fa2ff;
+
     font-size: 52px;
     font-weight: 800;
-    color: #5fa2ff;
 }
 
 .hero-card-text {
     margin-top: 8px;
 
     color: #8fa4bb;
+
     font-size: 13px;
 }
 
 
 /* =====================================================
-   SECTIONS (SHARED)
+   SHARED SECTIONS
 ===================================================== */
 
 section {
@@ -334,8 +386,9 @@ section {
 
 .section-heading {
     display: flex;
-    justify-content: space-between;
     align-items: flex-end;
+    justify-content: space-between;
+
     gap: 20px;
 
     margin-bottom: 40px;
@@ -343,9 +396,12 @@ section {
 
 .section-heading.centered {
     display: block;
-    text-align: center;
+
     max-width: 640px;
+
     margin: 0 auto 50px;
+
+    text-align: center;
 }
 
 .section-label {
@@ -354,32 +410,38 @@ section {
     color: #579cff;
 
     font-size: 11px;
-    font-weight: bold;
+    font-weight: 700;
     letter-spacing: 2px;
 }
 
 .section-heading h2 {
     margin-top: 8px;
+
     font-size: 30px;
     font-weight: 800;
 }
 
 .section-heading > p {
     max-width: 320px;
+
     color: #71869e;
+
     font-size: 13px;
+
     text-align: right;
 }
 
 .section-heading.centered > p {
     max-width: none;
+
     margin: 10px auto 0;
+
     text-align: center;
 }
 
 
 /* =====================================================
-   MARKET SECTION
+   MARKET OVERVIEW
 ===================================================== */
 
 .market-section {
@@ -388,7 +450,10 @@ section {
 
 .market-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+
+    grid-template-columns:
+        repeat(auto-fit, minmax(220px, 1fr));
+
     gap: 18px;
 }
 
@@ -400,13 +465,17 @@ section {
 
     background: #0d1b2b;
 
-    transition: 0.3s ease;
+    transition: all 0.3s ease;
 }
 
 .market-card:hover {
     transform: translateY(-5px);
+
     border-color: #2d69a9;
-    box-shadow: 0 15px 40px rgba(0, 0, 0, 0.25);
+
+    box-shadow:
+        0 15px 40px
+        rgba(0, 0, 0, 0.25);
 }
 
 .market-card-top {
@@ -419,18 +488,21 @@ section {
 
 .market-symbol {
     font-size: 15px;
-    font-weight: bold;
+    font-weight: 700;
 }
 
 .market-name {
     margin-top: 3px;
+
     color: #6d849d;
+
     font-size: 11px;
 }
 
 .market-icon {
     width: 38px;
     height: 38px;
+
     flex-shrink: 0;
 
     display: flex;
@@ -443,19 +515,21 @@ section {
     color: #79b3ff;
 
     font-size: 16px;
-    font-weight: bold;
+    font-weight: 700;
 }
 
 .market-price {
     font-size: 26px;
-    font-weight: bold;
+    font-weight: 700;
 }
 
 .market-change {
     margin-top: 8px;
-    font-size: 12px;
-    font-weight: bold;
+
     color: #6d849d;
+
+    font-size: 12px;
+    font-weight: 700;
 }
 
 .market-change.positive {
@@ -468,7 +542,7 @@ section {
 
 
 /* =====================================================
-   HEATMAP
+   MARKET HEATMAP
 ===================================================== */
 
 .heatmap-section {
@@ -477,18 +551,23 @@ section {
 
 .market-heatmap {
     display: grid;
-    grid-template-columns: repeat(5, 1fr);
+
+    grid-template-columns:
+        repeat(5, 1fr);
+
     gap: 15px;
 }
 
 .heatmap-item {
     min-height: 140px;
+
     padding: 22px;
 
     display: flex;
     flex-direction: column;
-    justify-content: center;
     align-items: center;
+    justify-content: center;
+
     text-align: center;
 
     border: 1px solid #20364d;
@@ -497,51 +576,75 @@ section {
     background: #0c1b2b;
 
     cursor: pointer;
-    transition: 0.3s ease;
+
+    transition: all 0.3s ease;
 }
 
 .heatmap-item:hover {
     transform: translateY(-5px);
-    box-shadow: 0 15px 35px rgba(0, 0, 0, 0.25);
+
+    box-shadow:
+        0 15px 35px
+        rgba(0, 0, 0, 0.25);
 }
 
 .heatmap-item:has(.heatmap-change.positive) {
-    background: linear-gradient(145deg, rgba(40, 180, 100, 0.16), #0c1b2b);
-    border-color: rgba(70, 220, 130, 0.3);
+    background:
+        linear-gradient(
+            145deg,
+            rgba(40, 180, 100, 0.16),
+            #0c1b2b
+        );
+
+    border-color:
+        rgba(70, 220, 130, 0.3);
 }
 
 .heatmap-item:has(.heatmap-change.negative) {
-    background: linear-gradient(145deg, rgba(220, 60, 80, 0.16), #0c1b2b);
-    border-color: rgba(240, 90, 110, 0.3);
+    background:
+        linear-gradient(
+            145deg,
+            rgba(220, 60, 80, 0.16),
+            #0c1b2b
+        );
+
+    border-color:
+        rgba(240, 90, 110, 0.3);
 }
 
 .heatmap-item.heatmap-error {
     background: #0c1b2b;
+
     border-color: #29415b;
+
     opacity: 0.6;
 }
 
 .heatmap-symbol {
     font-size: 17px;
-    font-weight: bold;
+    font-weight: 700;
 }
 
 .heatmap-name {
     margin-top: 6px;
+
     color: #6d849d;
+
     font-size: 10px;
 }
 
 .heatmap-price {
     margin-top: 12px;
+
     font-size: 20px;
-    font-weight: bold;
+    font-weight: 700;
 }
 
 .heatmap-change {
     margin-top: 8px;
+
     font-size: 12px;
-    font-weight: bold;
+    font-weight: 700;
 }
 
 .heatmap-change.positive {
@@ -556,9 +659,10 @@ section {
     grid-column: 1 / -1;
 
     padding: 40px;
-    text-align: center;
 
     color: #71869e;
+
+    text-align: center;
 
     border: 1px dashed #29415b;
     border-radius: 15px;
@@ -566,7 +670,7 @@ section {
 
 
 /* =====================================================
-   ANALYSIS
+   STOCK ANALYSIS
 ===================================================== */
 
 .analysis-section {
@@ -575,29 +679,36 @@ section {
 
 .analysis-box {
     max-width: 950px;
+
     margin: 0 auto;
+
     padding: 30px;
 
     border: 1px solid #1a3048;
     border-radius: 20px;
 
     background: #0b1929;
-    box-shadow: 0 25px 60px rgba(0, 0, 0, 0.2);
+
+    box-shadow:
+        0 25px 60px
+        rgba(0, 0, 0, 0.2);
 }
 
 .analysis-search {
     display: flex;
     align-items: center;
+
     gap: 12px;
 }
 
 .search-input-wrapper {
     flex: 1;
 
+    height: 58px;
+
     display: flex;
     align-items: center;
 
-    height: 58px;
     padding: 0 20px;
 
     border: 1px solid #243d57;
@@ -608,19 +719,24 @@ section {
 
 .search-icon {
     margin-right: 12px;
+
     font-size: 14px;
+
     opacity: 0.8;
 }
 
 .search-input-wrapper input {
     flex: 1;
+
     height: 100%;
 
     border: none;
     outline: none;
+
     background: transparent;
 
-    color: white;
+    color: #ffffff;
+
     font-size: 14px;
 }
 
@@ -629,26 +745,30 @@ section {
 }
 
 #analyzeBtn {
+    height: 58px;
+
     display: inline-flex;
     align-items: center;
+    justify-content: center;
+
     gap: 8px;
 
-    height: 58px;
     padding: 0 26px;
 
-    border: none;
     border-radius: 12px;
 
     background: #287ff0;
-    color: white;
+    color: #ffffff;
 
-    font-weight: bold;
     font-size: 13px;
+    font-weight: 700;
     letter-spacing: 0.3px;
+
     white-space: nowrap;
 
     cursor: pointer;
-    transition: 0.25s ease;
+
+    transition: all 0.25s ease;
 }
 
 #analyzeBtn:hover {
@@ -660,21 +780,29 @@ section {
     cursor: wait;
 }
 
+
+/* =====================================================
+   QUICK STOCK BUTTONS
+===================================================== */
+
 .quick-stocks {
     display: flex;
     align-items: center;
     flex-wrap: wrap;
+
     gap: 10px;
 
     margin-top: 20px;
 }
 
 .quick-label {
-    color: #7489a0;
-    font-size: 11px;
-    font-weight: bold;
-    letter-spacing: 1px;
     margin-right: 4px;
+
+    color: #7489a0;
+
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 1px;
 }
 
 .quick-stocks button {
@@ -687,18 +815,26 @@ section {
     color: #91b1d4;
 
     font-size: 11px;
-    font-weight: bold;
+    font-weight: 700;
 
     cursor: pointer;
-    transition: 0.25s ease;
+
+    transition: all 0.25s ease;
 }
 
 .quick-stocks button:hover {
     transform: translateY(-2px);
+
     border-color: #4f98ed;
+
     background: #16375a;
-    color: white;
+    color: #ffffff;
 }
+
+
+/* =====================================================
+   ANALYSIS RESULTS
+===================================================== */
 
 .analysis-result-container {
     margin-top: 25px;
@@ -706,6 +842,7 @@ section {
 
 .ready-state {
     padding: 55px 30px;
+
     text-align: center;
 
     border: 1px dashed #29415b;
@@ -713,40 +850,52 @@ section {
 }
 
 .ready-icon {
-    font-size: 34px;
     color: #579cff;
+
+    font-size: 34px;
 }
 
 .ready-state h3 {
     margin-top: 16px;
+
     font-size: 20px;
 }
 
 .ready-state p {
     margin-top: 8px;
+
     color: #71869e;
+
     font-size: 13px;
 }
 
 .result-message {
     padding: 35px;
+
+    color: #8ba0b7;
+
+    font-size: 13px;
+
     text-align: center;
 
     border: 1px dashed #29415b;
     border-radius: 15px;
-
-    color: #8ba0b7;
-    font-size: 13px;
 }
 
 .analysis-result {
     padding: 30px;
 
+    text-align: center;
+
     border: 1px solid #203a55;
     border-radius: 18px;
 
-    background: linear-gradient(145deg, #102238, #0b1929);
-    text-align: center;
+    background:
+        linear-gradient(
+            145deg,
+            #102238,
+            #0b1929
+        );
 }
 
 .result-stock {
@@ -756,20 +905,25 @@ section {
 
 .result-symbol {
     margin-top: 4px;
+
     color: #65a7ff;
+
     font-size: 12px;
-    font-weight: bold;
+    font-weight: 700;
     letter-spacing: 1.5px;
 }
 
 .result-recommendation {
     display: inline-block;
+
     margin-top: 18px;
     padding: 10px 28px;
 
     border-radius: 30px;
 
-    background: rgba(87, 156, 255, 0.12);
+    background:
+        rgba(87, 156, 255, 0.12);
+
     color: #5fa2ff;
 
     font-size: 20px;
@@ -781,43 +935,54 @@ section {
 .result-price,
 .result-sentiment {
     margin-top: 12px;
+
     color: #8297ad;
+
     font-size: 13px;
 }
 
 .result-price {
-    font-size: 22px;
-    font-weight: bold;
     color: #eaf2ff;
+
+    font-size: 22px;
+    font-weight: 700;
 }
 
 
 /* =====================================================
-   CHARTS
+   STOCK CHARTS
 ===================================================== */
 
+.chart-section,
 .charts-section {
+    padding: 90px 0;
     background: #07111f;
 }
 
 .section-heading > p.live-data-label {
     display: flex;
     align-items: center;
+
     gap: 8px;
 
     max-width: none;
-    text-align: left;
 
     color: #52dc8d;
+
     font-size: 11px;
-    font-weight: bold;
+    font-weight: 700;
     letter-spacing: 1px;
+
+    text-align: left;
 }
 
 .charts-grid {
     display: grid;
+
     grid-template-columns: 1.5fr 1fr;
+
     gap: 20px;
+
     align-items: stretch;
 }
 
@@ -828,32 +993,46 @@ section {
     border-radius: 18px;
 
     background: #0d1b2b;
-    box-shadow: 0 20px 50px rgba(0, 0, 0, 0.2);
+
+    box-shadow:
+        0 20px 50px
+        rgba(0, 0, 0, 0.2);
 }
 
 .chart-header {
     display: flex;
-    justify-content: space-between;
     align-items: center;
+    justify-content: space-between;
 
     margin-bottom: 24px;
 }
 
+.chart-label,
 .chart-header span {
+    display: block;
+
+    margin-bottom: 6px;
+
     color: #7b91a9;
+
     font-size: 11px;
-    font-weight: bold;
-    letter-spacing: 1px;
+    font-weight: 700;
+    letter-spacing: 1.5px;
 }
 
 .chart-header h3 {
-    margin-top: 4px;
+    margin: 0;
+
+    color: #eaf2ff;
+
     font-size: 20px;
+    font-weight: 700;
 }
 
 .chart-icon {
     width: 44px;
     height: 44px;
+
     flex-shrink: 0;
 
     display: flex;
@@ -863,14 +1042,26 @@ section {
     border-radius: 12px;
 
     background: #132b45;
+
     font-size: 18px;
 }
 
 .chart-container {
     position: relative;
+
     width: 100%;
     height: 360px;
 }
+
+.chart-container canvas {
+    width: 100% !important;
+    height: 100% !important;
+}
+
+
+/* =====================================================
+   AI PROBABILITY CHART
+===================================================== */
 
 .probability-card {
     display: flex;
@@ -879,15 +1070,23 @@ section {
 
 .probability-container {
     position: relative;
+
     width: 100%;
     height: 320px;
+
     max-width: 320px;
-    margin: 0 auto;
+
+    margin: auto;
+}
+
+.probability-container canvas {
+    width: 100% !important;
+    height: 100% !important;
 }
 
 
 /* =====================================================
-   INSIGHTS
+   AI INSIGHTS
 ===================================================== */
 
 .insights-section {
@@ -896,12 +1095,16 @@ section {
 
 .insights-grid {
     display: grid;
-    grid-template-columns: repeat(3, 1fr);
+
+    grid-template-columns:
+        repeat(3, 1fr);
+
     gap: 18px;
 }
 
 .insight-card {
     display: flex;
+
     gap: 18px;
 
     padding: 26px;
@@ -913,65 +1116,80 @@ section {
 }
 
 .insight-card.positive {
-    border-color: rgba(70, 210, 130, 0.3);
+    border-color:
+        rgba(70, 210, 130, 0.3);
 }
 
 .insight-card.neutral {
-    border-color: rgba(230, 190, 70, 0.3);
+    border-color:
+        rgba(230, 190, 70, 0.3);
 }
 
 .insight-card.negative {
-    border-color: rgba(240, 80, 100, 0.3);
+    border-color:
+        rgba(240, 80, 100, 0.3);
 }
 
 .insight-icon {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    flex-shrink: 0;
-
     width: 46px;
     height: 46px;
 
+    flex-shrink: 0;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
     border-radius: 50%;
+
+    background:
+        rgba(255, 255, 255, 0.05);
 
     font-size: 20px;
     font-weight: 800;
-
-    background: rgba(255, 255, 255, 0.05);
 }
 
 .insight-card.positive .insight-icon {
     color: #4fdb8a;
-    background: rgba(79, 219, 138, 0.12);
+
+    background:
+        rgba(79, 219, 138, 0.12);
 }
 
 .insight-card.neutral .insight-icon {
     color: #f2c75c;
-    background: rgba(242, 199, 92, 0.12);
+
+    background:
+        rgba(242, 199, 92, 0.12);
 }
 
 .insight-card.negative .insight-icon {
     color: #ff6f7e;
-    background: rgba(255, 111, 126, 0.12);
+
+    background:
+        rgba(255, 111, 126, 0.12);
 }
 
 .insight-content span {
     color: #7b91a9;
+
     font-size: 10px;
-    font-weight: bold;
+    font-weight: 700;
     letter-spacing: 1.5px;
 }
 
 .insight-value {
     margin-top: 4px;
+
     font-size: 28px;
     font-weight: 800;
 }
 
 .insight-content p {
     margin-top: 6px;
+
     color: #73889f;
+
     font-size: 12px;
 }
 
@@ -989,6 +1207,7 @@ section {
     align-items: center;
     justify-content: space-between;
     flex-wrap: wrap;
+
     gap: 35px;
 }
 
@@ -998,31 +1217,44 @@ section {
 
 .decision-text h2 {
     margin-top: 8px;
+
     font-size: 28px;
     font-weight: 800;
 }
 
 .decision-text p {
     margin-top: 10px;
+
     color: #7b90a8;
+
     font-size: 13px;
 }
 
 .decision-signal {
+    min-width: 280px;
+
+    flex-shrink: 0;
+
     display: flex;
     align-items: center;
-    gap: 20px;
 
-    min-width: 280px;
-    flex-shrink: 0;
+    gap: 20px;
 
     padding: 28px 32px;
 
     border: 1px solid #25445f;
     border-radius: 18px;
 
-    background: linear-gradient(135deg, #10253c, #0b1929);
-    box-shadow: 0 20px 50px rgba(0, 0, 0, 0.2);
+    background:
+        linear-gradient(
+            135deg,
+            #10253c,
+            #0b1929
+        );
+
+    box-shadow:
+        0 20px 50px
+        rgba(0, 0, 0, 0.2);
 }
 
 .signal-icon {
@@ -1031,20 +1263,24 @@ section {
 
 .signal-label {
     color: #70859b;
+
     font-size: 10px;
-    font-weight: bold;
+    font-weight: 700;
     letter-spacing: 1.5px;
 }
 
 .signal-value {
     margin-top: 4px;
+
     font-size: 26px;
     font-weight: 800;
 }
 
 .signal-confidence {
     margin-top: 4px;
+
     color: #778ca2;
+
     font-size: 12px;
 }
 
@@ -1059,7 +1295,10 @@ section {
 
 .workflow-grid {
     display: grid;
-    grid-template-columns: repeat(4, 1fr);
+
+    grid-template-columns:
+        repeat(4, 1fr);
+
     gap: 14px;
 }
 
@@ -1073,45 +1312,56 @@ section {
 
     background: #0b1929;
 
-    transition: 0.3s ease;
+    transition: all 0.3s ease;
 }
 
 .workflow-card:hover {
     transform: translateY(-4px);
+
     border-color: #3b76ad;
 }
 
 .workflow-card:not(:last-child)::after {
     content: "→";
+
     position: absolute;
+
     top: 50%;
     right: -22px;
+
     transform: translateY(-50%);
 
     color: #3d7fc0;
+
     font-size: 20px;
+
     z-index: 1;
 }
 
 .workflow-number {
     color: #4f9cf4;
+
     font-size: 12px;
     font-weight: 800;
 }
 
 .workflow-icon {
     margin-top: 18px;
+
     font-size: 26px;
 }
 
 .workflow-card h3 {
     margin-top: 14px;
+
     font-size: 17px;
 }
 
 .workflow-card p {
     margin-top: 10px;
+
     color: #72879e;
+
     font-size: 13px;
 }
 
@@ -1126,7 +1376,10 @@ section {
 
 .features-grid {
     display: grid;
-    grid-template-columns: repeat(3, 1fr);
+
+    grid-template-columns:
+        repeat(3, 1fr);
+
     gap: 20px;
 }
 
@@ -1137,6 +1390,14 @@ section {
     border-radius: 15px;
 
     background: #0d1b2b;
+
+    transition: all 0.25s ease;
+}
+
+.feature-card:hover {
+    transform: translateY(-3px);
+
+    border-color: #2d5d88;
 }
 
 .feature-icon {
@@ -1145,12 +1406,15 @@ section {
 
 .feature-card h3 {
     margin-top: 12px;
+
     font-size: 17px;
 }
 
 .feature-card p {
     margin-top: 8px;
+
     color: #72879d;
+
     font-size: 13px;
 }
 
@@ -1161,14 +1425,20 @@ section {
 
 .disclaimer-section {
     padding: 30px 0;
+
     background: #07111f;
-    border-top: 1px solid rgba(255, 255, 255, 0.06);
+
+    border-top:
+        1px solid
+        rgba(255, 255, 255, 0.06);
 }
 
 .disclaimer-section p {
-    text-align: center;
     color: #b89053;
+
     font-size: 12px;
+
+    text-align: center;
 }
 
 .disclaimer-section strong {
@@ -1182,53 +1452,63 @@ section {
 
 .footer {
     padding: 55px 0 35px;
+
     background: #050d17;
+
     color: #73889f;
 }
 
 .footer-container,
 .footer .container {
     display: flex;
-    justify-content: space-between;
-    align-items: flex-start;
-    flex-wrap: wrap;
-    gap: 30px;
-}
 
-.footer-brand .logo-main,
-.footer-brand .logo-sub {
-    color: inherit;
+    align-items: flex-start;
+    justify-content: space-between;
+    flex-wrap: wrap;
+
+    gap: 30px;
 }
 
 .footer-brand .logo-main {
     color: #dce9f7;
 }
 
+.footer-brand .logo-sub {
+    color: inherit;
+}
+
 .footer-title {
     display: flex;
     align-items: center;
+
     gap: 8px;
 
     color: #dce9f7;
+
     font-size: 16px;
-    font-weight: bold;
+    font-weight: 700;
 }
 
 .footer-brand p {
-    margin-top: 10px;
-    font-size: 12px;
     max-width: 280px;
+
+    margin-top: 10px;
+
+    font-size: 12px;
 }
 
 .footer-links {
     display: flex;
     flex-wrap: wrap;
+
     gap: 22px;
 }
 
 .footer-links a {
-    font-size: 13px;
     color: #91a4ba;
+
+    font-size: 13px;
+
     transition: color 0.25s ease;
 }
 
@@ -1237,15 +1517,19 @@ section {
 }
 
 .footer-bottom {
+    flex-basis: 100%;
+
     display: flex;
     justify-content: space-between;
     flex-wrap: wrap;
-    flex-basis: 100%;
+
     gap: 8px;
 
     margin-top: 25px;
     padding-top: 25px;
+
     border-top: 1px solid #1b2b3c;
+
     font-size: 11px;
 }
 
@@ -1255,7 +1539,7 @@ section {
 
 
 /* =====================================================
-   TABLET
+   RESPONSIVE — TABLET
 ===================================================== */
 
 @media (max-width: 1100px) {
@@ -1280,15 +1564,11 @@ section {
     .probability-container {
         max-width: 380px;
     }
-
-    .insights-grid {
-        grid-template-columns: repeat(3, 1fr);
-    }
 }
 
 
 /* =====================================================
-   SMALL TABLET
+   RESPONSIVE — SMALL TABLET
 ===================================================== */
 
 @media (max-width: 900px) {
@@ -1297,33 +1577,48 @@ section {
         display: none;
     }
 
+    .section-heading {
+        display: block;
+    }
+
+    .section-heading > p {
+        max-width: none;
+
+        margin-top: 10px;
+
+        text-align: left;
+    }
+
     .workflow-grid {
         grid-template-columns: repeat(2, 1fr);
+
         row-gap: 40px;
+    }
+
+    .workflow-card:not(:last-child)::after {
+        top: auto;
+        right: 50%;
+        bottom: -30px;
+
+        transform:
+            translateX(50%)
+            rotate(90deg);
     }
 
     .workflow-card:nth-child(2)::after {
         display: none;
     }
 
-    .workflow-card:not(:last-child)::after {
-        top: auto;
-        bottom: -30px;
-        right: 50%;
-        transform: translateX(50%) rotate(90deg);
-    }
-
-    .insights-grid {
-        grid-template-columns: 1fr;
-    }
-
+    .insights-grid,
     .features-grid {
         grid-template-columns: 1fr;
     }
 
     .decision-content {
         flex-direction: column;
+
         align-items: stretch;
+
         text-align: center;
     }
 
@@ -1334,26 +1629,18 @@ section {
     .decision-signal {
         justify-content: center;
     }
-
-    .section-heading {
-        display: block;
-    }
-
-    .section-heading > p {
-        max-width: none;
-        text-align: left;
-        margin-top: 10px;
-    }
 }
 
 
 /* =====================================================
-   MOBILE
+   RESPONSIVE — MOBILE
 ===================================================== */
 
 @media (max-width: 700px) {
 
-    section {
+    section,
+    .chart-section,
+    .charts-section {
         padding: 60px 0;
     }
 
@@ -1375,6 +1662,7 @@ section {
 
     .hero-buttons {
         flex-direction: column;
+
         align-items: stretch;
     }
 
@@ -1386,13 +1674,22 @@ section {
         grid-template-columns: repeat(2, 1fr);
     }
 
+    .analysis-box {
+        padding: 20px;
+    }
+
     .analysis-search {
         flex-direction: column;
+
         align-items: stretch;
     }
 
     #analyzeBtn {
-        justify-content: center;
+        width: 100%;
+    }
+
+    .chart-card {
+        padding: 20px;
     }
 
     .chart-container {
@@ -1402,6 +1699,10 @@ section {
     .probability-container {
         height: 280px;
         max-width: 280px;
+    }
+
+    .chart-header h3 {
+        font-size: 18px;
     }
 
     .workflow-grid {
@@ -1423,7 +1724,7 @@ section {
 
 
 /* =====================================================
-   VERY SMALL MOBILE
+   RESPONSIVE — VERY SMALL MOBILE
 ===================================================== */
 
 @media (max-width: 420px) {
@@ -1438,154 +1739,13 @@ section {
 
     .decision-signal {
         flex-direction: column;
+
+        min-width: auto;
+
         text-align: center;
     }
-}
-/* =====================================================
-   PRICE MOVEMENT CHART
-===================================================== */
 
-.chart-section {
-
-    padding: 70px 8%;
-
-    background: #0b1725;
-
-}
-
-
-.chart-card {
-
-    width: 100%;
-
-    padding: 32px;
-
-    border: 1px solid #27445e;
-
-    border-radius: 22px;
-
-    background: #142231;
-
-    box-shadow:
-        0 15px 45px
-        rgba(0, 0, 0, 0.18);
-
-}
-
-
-.chart-header {
-
-    display: flex;
-
-    justify-content: space-between;
-
-    align-items: flex-start;
-
-    margin-bottom: 25px;
-
-}
-
-
-.chart-label {
-
-    display: block;
-
-    color: #91a7bd;
-
-    font-size: 13px;
-
-    font-weight: 500;
-
-    margin-bottom: 12px;
-
-}
-
-
-.chart-header h3 {
-
-    margin: 0;
-
-    color: #f0f4fa;
-
-    font-size: 27px;
-
-    font-weight: 700;
-
-}
-
-
-.chart-icon {
-
-    width: 58px;
-
-    height: 58px;
-
-    display: flex;
-
-    align-items: center;
-
-    justify-content: center;
-
-    border-radius: 18px;
-
-    background: #1b3550;
-
-    font-size: 25px;
-
-}
-
-
-.chart-container {
-
-    position: relative;
-
-    width: 100%;
-
-    height: 430px;
-
-}
-
-
-/* MOBILE */
-
-@media (max-width: 768px) {
-
-    .chart-section {
-
-        padding: 40px 5%;
-
+    .quick-stocks {
+        align-items: flex-start;
     }
-
-
-    .chart-card {
-
-        padding: 20px;
-
-    }
-
-
-    .chart-header h3 {
-
-        font-size: 22px;
-
-    }
-
-
-    .chart-container {
-
-        height: 300px;
-
-    }
-
-
-    .chart-icon {
-
-        width: 48px;
-
-        height: 48px;
-
-        font-size: 20px;
-
-    }
-
 }
