@@ -1,7 +1,3 @@
-/* =====================================================
-   GLOBAL & RESET
-===================================================== */
-
 * {
     margin: 0;
     padding: 0;
@@ -51,9 +47,6 @@ img {
 }
 
 
-/* =====================================================
-   HEADER / NAVIGATION
-===================================================== */
 
 .header {
     position: sticky;
@@ -128,9 +121,7 @@ img {
 }
 
 
-/* =====================================================
-   LIVE STATUS
-===================================================== */
+
 
 .live-status {
     display: flex;
@@ -168,9 +159,7 @@ img {
 }
 
 
-/* =====================================================
-   HERO SECTION
-===================================================== */
+
 
 .hero {
     padding: 110px 0 90px;
@@ -233,9 +222,6 @@ img {
 }
 
 
-/* =====================================================
-   BUTTONS
-===================================================== */
 
 .hero-buttons {
     display: flex;
@@ -293,9 +279,6 @@ img {
 }
 
 
-/* =====================================================
-   HERO VISUAL
-===================================================== */
 
 .hero-visual {
     display: flex;
@@ -376,9 +359,7 @@ img {
 }
 
 
-/* =====================================================
-   SHARED SECTIONS
-===================================================== */
+
 
 section {
     padding: 90px 0;
@@ -440,110 +421,7 @@ section {
 }
 
 
-/* =====================================================
-   MARKET OVERVIEW
-===================================================== */
 
-.market-section {
-    background: #091524;
-}
-
-.market-grid {
-    display: grid;
-
-    grid-template-columns:
-        repeat(auto-fit, minmax(220px, 1fr));
-
-    gap: 18px;
-}
-
-.market-card {
-    padding: 24px;
-
-    border: 1px solid #172b42;
-    border-radius: 16px;
-
-    background: #0d1b2b;
-
-    transition: all 0.3s ease;
-}
-
-.market-card:hover {
-    transform: translateY(-5px);
-
-    border-color: #2d69a9;
-
-    box-shadow:
-        0 15px 40px
-        rgba(0, 0, 0, 0.25);
-}
-
-.market-card-top {
-    display: flex;
-    align-items: flex-start;
-    justify-content: space-between;
-
-    margin-bottom: 22px;
-}
-
-.market-symbol {
-    font-size: 15px;
-    font-weight: 700;
-}
-
-.market-name {
-    margin-top: 3px;
-
-    color: #6d849d;
-
-    font-size: 11px;
-}
-
-.market-icon {
-    width: 38px;
-    height: 38px;
-
-    flex-shrink: 0;
-
-    display: flex;
-    align-items: center;
-    justify-content: center;
-
-    border-radius: 10px;
-
-    background: #163452;
-    color: #79b3ff;
-
-    font-size: 16px;
-    font-weight: 700;
-}
-
-.market-price {
-    font-size: 26px;
-    font-weight: 700;
-}
-
-.market-change {
-    margin-top: 8px;
-
-    color: #6d849d;
-
-    font-size: 12px;
-    font-weight: 700;
-}
-
-.market-change.positive {
-    color: #4fdb8a !important;
-}
-
-.market-change.negative {
-    color: #ff6f7e !important;
-}
-
-
-/* =====================================================
-   MARKET HEATMAP
-===================================================== */
 
 .heatmap-section {
     background: #07111f;
@@ -669,9 +547,7 @@ section {
 }
 
 
-/* =====================================================
-   STOCK ANALYSIS
-===================================================== */
+
 
 .analysis-section {
     background: #091524;
@@ -781,9 +657,6 @@ section {
 }
 
 
-/* =====================================================
-   QUICK STOCK BUTTONS
-===================================================== */
 
 .quick-stocks {
     display: flex;
@@ -832,9 +705,7 @@ section {
 }
 
 
-/* =====================================================
-   ANALYSIS RESULTS
-===================================================== */
+
 
 .analysis-result-container {
     margin-top: 25px;
@@ -949,9 +820,6 @@ section {
 }
 
 
-/* =====================================================
-   STOCK CHARTS
-===================================================== */
 
 .chart-section,
 .charts-section {
@@ -1059,9 +927,7 @@ section {
 }
 
 
-/* =====================================================
-   AI PROBABILITY CHART
-===================================================== */
+
 
 .probability-card {
     display: flex;
@@ -1085,9 +951,7 @@ section {
 }
 
 
-/* =====================================================
-   AI INSIGHTS
-===================================================== */
+
 
 .insights-section {
     background: #091524;
@@ -1194,9 +1058,6 @@ section {
 }
 
 
-/* =====================================================
-   DECISION SIGNAL
-===================================================== */
 
 .decision-section {
     background: #07111f;
@@ -1285,9 +1146,6 @@ section {
 }
 
 
-/* =====================================================
-   HOW IT WORKS
-===================================================== */
 
 .how-section {
     background: #091524;
@@ -1366,9 +1224,7 @@ section {
 }
 
 
-/* =====================================================
-   EXTRA FEATURES
-===================================================== */
+
 
 .features-section {
     background: #07111f;
@@ -1419,9 +1275,7 @@ section {
 }
 
 
-/* =====================================================
-   DISCLAIMER
-===================================================== */
+
 
 .disclaimer-section {
     padding: 30px 0;
@@ -1446,9 +1300,6 @@ section {
 }
 
 
-/* =====================================================
-   FOOTER
-===================================================== */
 
 .footer {
     padding: 55px 0 35px;
@@ -1538,9 +1389,6 @@ section {
 }
 
 
-/* =====================================================
-   RESPONSIVE — TABLET
-===================================================== */
 
 @media (max-width: 1100px) {
 
@@ -1566,10 +1414,6 @@ section {
     }
 }
 
-
-/* =====================================================
-   RESPONSIVE — SMALL TABLET
-===================================================== */
 
 @media (max-width: 900px) {
 
@@ -1632,9 +1476,6 @@ section {
 }
 
 
-/* =====================================================
-   RESPONSIVE — MOBILE
-===================================================== */
 
 @media (max-width: 700px) {
 
@@ -1666,9 +1507,6 @@ section {
         align-items: stretch;
     }
 
-    .market-grid {
-        grid-template-columns: 1fr;
-    }
 
     .market-heatmap {
         grid-template-columns: repeat(2, 1fr);
@@ -1721,11 +1559,6 @@ section {
         flex-direction: column;
     }
 }
-
-
-/* =====================================================
-   RESPONSIVE — VERY SMALL MOBILE
-===================================================== */
 
 @media (max-width: 420px) {
 
