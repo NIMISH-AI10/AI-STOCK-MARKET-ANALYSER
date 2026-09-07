@@ -582,9 +582,9 @@ async function updateMarketCards() {
                     })}`;
             }
 
-            if (changeElement && data.change_percent != null) {
+            if (changeElement && data.changePercent != null) {
 
-                const change = Number(data.change_percent);
+                 const change = Number(data.changePercent);
 
                 changeElement.textContent =
                     `${change >= 0 ? "▲" : "▼"} ${change >= 0 ? "+" : ""}${change.toFixed(2)}%`;
@@ -654,9 +654,8 @@ async function updateHeatmap() {
                 symbol: symbol,
                 name: data.name || symbol,
                 price: Number(data.price || 0),
-                change: Number(data.change_percent || 0)
+                change: Number(data.changePercent || 0)
             });
-
         } catch (error) {
 
             console.error(
