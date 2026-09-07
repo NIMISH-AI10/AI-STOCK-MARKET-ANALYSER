@@ -8,18 +8,8 @@ const stockChartCanvas =
 const probabilityChartCanvas =
     document.getElementById("probabilityChart");
 
-
-// =====================================================
-// API
-// =====================================================
-
 const API_URL =
     "https://ai-stock-market-analyser-1-gfsd.onrender.com";
-
-
-// =====================================================
-// STOCKS
-// =====================================================
 
 const supportedStocks = [
     "RELIANCE",
@@ -28,6 +18,9 @@ const supportedStocks = [
     "HDFC",
     "ITC"
 ];
+
+let stockChartInstance = null;
+let probabilityChartInstance = null;
 
 
 // =====================================================
@@ -59,18 +52,12 @@ function updateDecisionSignal(data) {
     );
 
     if (recommendation === "BUY") {
-
         decisionSignal.classList.add("buy");
-
     } else if (recommendation === "SELL") {
-
         decisionSignal.classList.add("sell");
-
     } else {
-
         decisionSignal.classList.add("hold");
     }
-
 
     if (decisionConfidence) {
 
@@ -78,12 +65,9 @@ function updateDecisionSignal(data) {
             Number(data.confidence);
 
         if (!isNaN(confidence)) {
-
             decisionConfidence.textContent =
                 `${confidence.toFixed(2)}%`;
-
         } else {
-
             decisionConfidence.textContent =
                 "N/A";
         }
@@ -92,7 +76,7 @@ function updateDecisionSignal(data) {
 
 
 // =====================================================
-// UPDATE AI INSIGHTS
+// AI INSIGHTS
 // =====================================================
 
 function updateInsights(data) {
@@ -106,10 +90,8 @@ function updateInsights(data) {
     const negative =
         document.getElementById("negativeInsight");
 
-
     const probabilities =
         data.probabilities || {};
-
 
     const buy =
         Number(probabilities.BUY || 0);
@@ -119,7 +101,6 @@ function updateInsights(data) {
 
     const sell =
         Number(probabilities.SELL || 0);
-
 
     if (positive) {
         positive.textContent =
@@ -139,18 +120,27 @@ function updateInsights(data) {
 
 
 // =====================================================
-// PROBABILITY CHART
+// PROBABILITY DOUGHNUT CHART
 // =====================================================
 
 function updateProbabilityChart(data) {
 
     if (!probabilityChartCanvas) {
+        console.error(
+            "Probability chart canvas not found."
+        );
+        return;
+    }
+
+    if (typeof Chart === "undefined") {
+        console.error(
+            "Chart.js is not loaded."
+        );
         return;
     }
 
     const probabilities =
         data.probabilities || {};
-
 
     const buy =
         Number(probabilities.BUY || 0);
@@ -161,18 +151,14 @@ function updateProbabilityChart(data) {
     const sell =
         Number(probabilities.SELL || 0);
 
+    if (probabilityChartInstance) {
+        probabilityChartInstance.destroy();
+    }
 
     const ctx =
         probabilityChartCanvas.getContext("2d");
 
-
-    if (window.probabilityChartInstance) {
-
-        window.probabilityChartInstance.destroy();
-    }
-
-
-    window.probabilityChartInstance =
+    probabilityChartInstance =
         new Chart(ctx, {
 
             type: "doughnut",
@@ -185,20 +171,14 @@ function updateProbabilityChart(data) {
                     "SELL"
                 ],
 
-                datasets: [
-
-                    {
-                        data: [
-                            buy,
-                            hold,
-                            sell
-                        ],
-
-                        borderWidth: 2
-                    }
-
-                ]
-
+                datasets: [{
+                    data: [
+                        buy,
+                        hold,
+                        sell
+                    ],
+                    borderWidth: 2
+                }]
             },
 
             options: {
@@ -212,13 +192,12 @@ function updateProbabilityChart(data) {
                 plugins: {
 
                     legend: {
+                        display: true,
                         position: "bottom"
                     }
 
                 }
-
             }
-
         });
 }
 
@@ -229,6 +208,17 @@ function updateProbabilityChart(data) {
 
 async function updateStockChart(symbol) {
 
+    if (!stockChartCanvas) {
+        return;
+    }
+
+    if (typeof Chart === "undefined") {
+        console.error(
+            "Chart.js is not loaded."
+        );
+        return;
+    }
+
     try {
 
         const response =
@@ -236,64 +226,50 @@ async function updateStockChart(symbol) {
                 `${API_URL}/price/${encodeURIComponent(symbol)}`
             );
 
-
         if (!response.ok) {
-
             throw new Error(
                 "Unable to load market data."
             );
         }
 
-
         const data =
             await response.json();
 
+        const dates =
+            data.dates || [];
 
-        if (!stockChartCanvas) {
-            return;
+        const prices =
+            data.prices || [];
+
+        if (stockChartInstance) {
+            stockChartInstance.destroy();
         }
-
 
         const ctx =
             stockChartCanvas.getContext("2d");
 
-
-        if (window.stockChartInstance) {
-
-            window.stockChartInstance.destroy();
-        }
-
-
-        window.stockChartInstance =
+        stockChartInstance =
             new Chart(ctx, {
 
                 type: "line",
 
                 data: {
 
-                    labels:
-                        data.dates || [],
+                    labels: dates,
 
-                    datasets: [
+                    datasets: [{
 
-                        {
+                        label:
+                            `${data.symbol} Price`,
 
-                            label:
-                                `${data.symbol} Price`,
+                        data: prices,
 
-                            data:
-                                data.prices || [],
+                        tension: 0.35,
 
-                            tension: 0.35,
+                        fill: true,
 
-                            fill: true,
-
-                            pointRadius: 2
-
-                        }
-
-                    ]
-
+                        pointRadius: 2
+                    }]
                 },
 
                 options: {
@@ -303,11 +279,8 @@ async function updateStockChart(symbol) {
                     maintainAspectRatio: false,
 
                     interaction: {
-
                         intersect: false,
-
                         mode: "index"
-
                     },
 
                     plugins: {
@@ -315,21 +288,15 @@ async function updateStockChart(symbol) {
                         legend: {
                             display: true
                         }
-
                     },
 
                     scales: {
 
                         y: {
-
                             beginAtZero: false
-
                         }
-
                     }
-
                 }
-
             });
 
     } catch (error) {
@@ -353,7 +320,6 @@ async function updateMarketCards() {
             ".dashboard-card[data-stock]"
         );
 
-
     for (const card of cards) {
 
         const symbol =
@@ -363,7 +329,6 @@ async function updateMarketCards() {
             continue;
         }
 
-
         try {
 
             const response =
@@ -371,33 +336,27 @@ async function updateMarketCards() {
                     `${API_URL}/price/${symbol}`
                 );
 
-
             if (!response.ok) {
                 continue;
             }
 
-
             const data =
                 await response.json();
-
 
             const priceElement =
                 card.querySelector(
                     ".dashboard-price"
                 );
 
-
             const changeElement =
                 card.querySelector(
                     ".market-change"
                 );
 
-
             const arrowElement =
                 card.querySelector(
                     ".dashboard-arrow"
                 );
-
 
             if (priceElement) {
 
@@ -411,20 +370,17 @@ async function updateMarketCards() {
                     )}`;
             }
 
-
             if (changeElement) {
 
                 const change =
                     Number(
-                        data.change_percent
+                        data.change_percent || 0
                     );
-
 
                 changeElement.classList.remove(
                     "positive",
                     "negative"
                 );
-
 
                 if (change > 0) {
 
@@ -451,7 +407,6 @@ async function updateMarketCards() {
                 }
             }
 
-
             if (arrowElement) {
 
                 arrowElement.classList.remove(
@@ -459,8 +414,7 @@ async function updateMarketCards() {
                     "negative"
                 );
 
-
-                if (data.change_percent > 0) {
+                if (change > 0) {
 
                     arrowElement.textContent =
                         "↗";
@@ -469,9 +423,7 @@ async function updateMarketCards() {
                         "positive"
                     );
 
-                } else if (
-                    data.change_percent < 0
-                ) {
+                } else if (change < 0) {
 
                     arrowElement.textContent =
                         "↘";
@@ -487,7 +439,6 @@ async function updateMarketCards() {
                 }
             }
 
-
         } catch (error) {
 
             console.error(
@@ -500,7 +451,7 @@ async function updateMarketCards() {
 
 
 // =====================================================
-// HEATMAP
+// MARKET HEATMAP
 // =====================================================
 
 async function updateHeatmap() {
@@ -510,20 +461,16 @@ async function updateHeatmap() {
             "marketHeatmap"
         );
 
-
     if (!heatmap) {
         return;
     }
-
 
     heatmap.innerHTML =
         `<div class="heatmap-loading">
             Loading live market data...
         </div>`;
 
-
     const results = [];
-
 
     for (const symbol of supportedStocks) {
 
@@ -534,18 +481,14 @@ async function updateHeatmap() {
                     `${API_URL}/price/${symbol}`
                 );
 
-
             if (!response.ok) {
                 continue;
             }
 
-
             const data =
                 await response.json();
 
-
             results.push(data);
-
 
         } catch (error) {
 
@@ -555,7 +498,6 @@ async function updateHeatmap() {
             );
         }
     }
-
 
     if (results.length === 0) {
 
@@ -567,23 +509,20 @@ async function updateHeatmap() {
         return;
     }
 
-
     heatmap.innerHTML = "";
-
 
     results.forEach(data => {
 
         const change =
-            Number(data.change_percent || 0);
-
+            Number(
+                data.change_percent || 0
+            );
 
         const tile =
             document.createElement("div");
 
-
         tile.className =
             "heatmap-tile";
-
 
         if (change > 0) {
 
@@ -603,7 +542,6 @@ async function updateHeatmap() {
                 "heat-neutral"
             );
         }
-
 
         tile.innerHTML = `
 
@@ -632,9 +570,7 @@ async function updateHeatmap() {
 
         `;
 
-
         heatmap.appendChild(tile);
-
     });
 }
 
@@ -653,10 +589,8 @@ async function analyzeStock(stock) {
                 : "";
     }
 
-
     stock =
         stock.trim().toUpperCase();
-
 
     if (!stock) {
 
@@ -667,7 +601,6 @@ async function analyzeStock(stock) {
         return;
     }
 
-
     if (analyzeBtn) {
 
         analyzeBtn.disabled =
@@ -677,11 +610,9 @@ async function analyzeStock(stock) {
             "ANALYZING...";
     }
 
-
     if (result) {
 
         result.innerHTML = `
-
             <div class="loading">
 
                 <p>
@@ -693,10 +624,8 @@ async function analyzeStock(stock) {
                 </p>
 
             </div>
-
         `;
     }
-
 
     try {
 
@@ -704,7 +633,6 @@ async function analyzeStock(stock) {
             await fetch(
                 `${API_URL}/analyze?stock=${encodeURIComponent(stock)}`
             );
-
 
         if (!response.ok) {
 
@@ -728,10 +656,8 @@ async function analyzeStock(stock) {
             throw new Error(message);
         }
 
-
         const data =
             await response.json();
-
 
         updateDecisionSignal(data);
 
@@ -739,11 +665,9 @@ async function analyzeStock(stock) {
 
         updateProbabilityChart(data);
 
-
         if (result) {
 
             result.innerHTML = `
-
                 <div class="analysis-result">
 
                     <h3>
@@ -764,7 +688,6 @@ async function analyzeStock(stock) {
                     <div class="analysis-details">
 
                         <div>
-
                             <span>
                                 CURRENT PRICE
                             </span>
@@ -772,12 +695,9 @@ async function analyzeStock(stock) {
                             <strong>
                                 ₹${data.price ?? "N/A"}
                             </strong>
-
                         </div>
 
-
                         <div>
-
                             <span>
                                 RECOMMENDATION
                             </span>
@@ -789,16 +709,11 @@ async function analyzeStock(stock) {
                                         ? "sell"
                                         : "hold"
                             }">
-
                                 ${data.recommendation || "N/A"}
-
                             </strong>
-
                         </div>
 
-
                         <div>
-
                             <span>
                                 CONFIDENCE
                             </span>
@@ -810,12 +725,9 @@ async function analyzeStock(stock) {
                                         : "N/A"
                                 }%
                             </strong>
-
                         </div>
 
-
                         <div>
-
                             <span>
                                 SENTIMENT
                             </span>
@@ -823,12 +735,9 @@ async function analyzeStock(stock) {
                             <strong>
                                 ${data.sentiment || "N/A"}
                             </strong>
-
                         </div>
 
-
                         <div>
-
                             <span>
                                 BUY
                             </span>
@@ -836,12 +745,9 @@ async function analyzeStock(stock) {
                             <strong class="buy">
                                 ${data.probabilities?.BUY ?? "N/A"}%
                             </strong>
-
                         </div>
 
-
                         <div>
-
                             <span>
                                 HOLD
                             </span>
@@ -849,21 +755,17 @@ async function analyzeStock(stock) {
                             <strong class="hold">
                                 ${data.probabilities?.HOLD ?? "N/A"}%
                             </strong>
-
                         </div>
 
                     </div>
 
                 </div>
-
             `;
         }
-
 
         await updateStockChart(
             data.symbol
         );
-
 
     } catch (error) {
 
@@ -872,11 +774,9 @@ async function analyzeStock(stock) {
             error
         );
 
-
         if (result) {
 
             result.innerHTML = `
-
                 <div class="error">
 
                     <h2>
@@ -888,7 +788,6 @@ async function analyzeStock(stock) {
                     </p>
 
                 </div>
-
             `;
         }
 
@@ -913,11 +812,8 @@ async function analyzeStock(stock) {
 function setStock(stock) {
 
     if (stockInput) {
-
-        stockInput.value =
-            stock;
+        stockInput.value = stock;
     }
-
 
     analyzeStock(stock);
 }
@@ -941,7 +837,6 @@ if (stockInput) {
                     stockInput.value
                 );
             }
-
         }
     );
 }
@@ -960,14 +855,13 @@ if (analyzeBtn) {
             analyzeStock(
                 stockInput.value
             );
-
         }
     );
 }
 
 
 // =====================================================
-// INITIAL LOAD
+// PAGE LOAD
 // =====================================================
 
 document.addEventListener(
@@ -978,13 +872,9 @@ document.addEventListener(
             "AI Stock Market Analyser loaded."
         );
 
-
         updateMarketCards();
 
         updateHeatmap();
-
-
-        // Refresh market data every 60 seconds
 
         setInterval(
             function() {
@@ -996,6 +886,5 @@ document.addEventListener(
             },
             60000
         );
-
     }
 );
