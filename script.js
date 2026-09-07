@@ -3,16 +3,16 @@ const analyzeBtn = document.getElementById("analyzeBtn");
 const result = document.getElementById("result");
 const stockChartCanvas = document.getElementById("stockChart");
 
-// ==============================
-// API URL
-// ==============================
-
 const API_URL =
     "https://ai-stock-market-analyser-1-gfsd.onrender.com";
 
-// ==============================
-// STOCK NAMES
-// ==============================
+let stockChartInstance = null;
+let probabilityChartInstance = null;
+
+
+// =====================================================
+// STOCK INFORMATION
+// =====================================================
 
 const stockNames = {
     RELIANCE: "Reliance Industries",
@@ -22,123 +22,92 @@ const stockNames = {
     ITC: "ITC Limited"
 };
 
-// ==============================
+
+// =====================================================
 // AI DECISION SIGNAL
-// ==============================
+// =====================================================
 
 function updateDecisionSignal(data) {
+
     const decisionSignal =
         document.getElementById("decisionSignal");
 
     const decisionConfidence =
         document.getElementById("decisionConfidence");
 
-    console.log(
-        "Updating AI Decision Signal:",
-        data
+    if (!decisionSignal) return;
+
+    const recommendation =
+        data.recommendation || "N/A";
+
+    decisionSignal.textContent =
+        recommendation;
+
+    decisionSignal.classList.remove(
+        "buy",
+        "sell",
+        "hold"
     );
 
-    if (decisionSignal) {
-        const recommendation =
-            data.recommendation || "N/A";
+    if (recommendation === "BUY") {
 
-        decisionSignal.textContent =
-            recommendation;
+        decisionSignal.classList.add("buy");
 
-        decisionSignal.classList.remove(
-            "buy",
-            "sell",
-            "hold"
-        );
+    } else if (recommendation === "SELL") {
 
-        if (recommendation === "BUY") {
-            decisionSignal.classList.add("buy");
-        } else if (recommendation === "SELL") {
-            decisionSignal.classList.add("sell");
-        } else {
-            decisionSignal.classList.add("hold");
-        }
+        decisionSignal.classList.add("sell");
+
+    } else {
+
+        decisionSignal.classList.add("hold");
     }
 
     if (decisionConfidence) {
-        if (
-            data.confidence !== undefined &&
-            data.confidence !== null
-        ) {
-            decisionConfidence.textContent =
-                `${Number(data.confidence).toFixed(2)}%`;
-        } else {
-            decisionConfidence.textContent =
-                "N/A";
-        }
+
+        decisionConfidence.textContent =
+            data.confidence !== undefined
+                ? `${Number(data.confidence).toFixed(2)}%`
+                : "N/A";
     }
 }
 
-// ==============================
-// WAIT FOR CHART.JS
-// ==============================
 
-function waitForChartJS() {
-    return new Promise((resolve) => {
-        if (typeof Chart !== "undefined") {
-            resolve();
-            return;
-        }
-
-        const interval =
-            setInterval(() => {
-                if (typeof Chart !== "undefined") {
-                    clearInterval(interval);
-                    resolve();
-                }
-            }, 100);
-    });
-}
-
-// ==============================
-// WAIT FOR CANVAS
-// ==============================
-
-function waitForCanvas() {
-    return new Promise((resolve) => {
-        const check =
-            setInterval(() => {
-                const canvas =
-                    document.getElementById("stockChart");
-
-                if (canvas) {
-                    clearInterval(check);
-                    resolve(canvas);
-                }
-            }, 100);
-    });
-}
-
-// ==============================
+// =====================================================
 // ANALYZE STOCK
-// ==============================
+// =====================================================
 
 async function analyzeStock(stock) {
+
+    if (!stock) {
+
+        stock =
+            stockInput
+                ? stockInput.value
+                : "";
+    }
+
     stock =
         stock.trim().toUpperCase();
 
     if (!stock) {
-        alert("Please enter a stock symbol.");
+
+        alert(
+            "Please enter a stock symbol."
+        );
+
         return;
     }
 
-    console.log(
-        "Analyzing stock:",
-        stock
-    );
-
     if (analyzeBtn) {
+
         analyzeBtn.disabled = true;
+
         analyzeBtn.textContent =
             "ANALYZING...";
     }
 
     if (result) {
+
         result.innerHTML = `
             <div class="loading">
                 <p>Analyzing ${stock}...</p>
@@ -148,264 +117,343 @@ async function analyzeStock(stock) {
     }
 
     try {
+
         const response =
             await fetch(
                 `${API_URL}/analyze?stock=${encodeURIComponent(stock)}`
             );
 
-        console.log(
-            "API response status:",
-            response.status
-        );
-
         if (!response.ok) {
-            let errorMessage =
-                "Unable to analyze stock.";
 
-            try {
-                const errorData =
-                    await response.json();
+            const errorData =
+                await response.json()
+                    .catch(() => ({}));
 
-                if (errorData.error) {
-                    errorMessage =
-                        errorData.error;
-                }
-            } catch (e) {
-                console.log(
-                    "Could not read error response."
-                );
-            }
-
-            throw new Error(errorMessage);
+            throw new Error(
+                errorData.error ||
+                "Unable to analyze stock."
+            );
         }
 
         const data =
             await response.json();
 
-        console.log(
-            "API data:",
-            data
-        );
-
-        // ==============================
-        // UPDATE AI DECISION SIGNAL
-        // ==============================
-
         updateDecisionSignal(data);
 
-        // ==============================
-        // DISPLAY RESULT
-        // ==============================
+        displayAnalysisResult(data);
 
-        if (result) {
-            result.innerHTML = `
-                <div class="stock-result">
+        updateProbabilityChart(data);
 
-                    <h2>
-                        ${data.name || stock}
-                    </h2>
+        await updateStockChart(data);
 
-                    <p>
-                        Symbol:
-                        <strong>
-                            ${data.symbol || stock}
-                        </strong>
-                    </p>
-
-                    <p>
-                        Current Price:
-                        <strong>
-                            ₹${data.price ?? "N/A"}
-                        </strong>
-                    </p>
-
-                    <p>
-                        Recommendation:
-                        <strong>
-                            ${data.recommendation || "N/A"}
-                        </strong>
-                    </p>
-
-                    <p>
-                        Sentiment:
-                        <strong>
-                            ${data.sentiment || "N/A"}
-                        </strong>
-                    </p>
-
-                    <p>
-                        Confidence:
-                        <strong>
-                            ${
-                                data.confidence !== undefined
-                                    ? Number(data.confidence).toFixed(2)
-                                    : "N/A"
-                            }%
-                        </strong>
-                    </p>
-
-                    <p>
-                        Date:
-                        <strong>
-                            ${data.date || "N/A"}
-                        </strong>
-                    </p>
-
-                    <div class="probabilities">
-
-                        <p>
-                            SELL:
-                            <strong>
-                                ${data.probabilities?.SELL ?? "N/A"}%
-                            </strong>
-                        </p>
-
-                        <p>
-                            HOLD:
-                            <strong>
-                                ${data.probabilities?.HOLD ?? "N/A"}%
-                            </strong>
-                        </p>
-
-                        <p>
-                            BUY:
-                            <strong>
-                                ${data.probabilities?.BUY ?? "N/A"}%
-                            </strong>
-                        </p>
-
-                    </div>
-
-                </div>
-            `;
-        }
-
-        // ==============================
-        // UPDATE AI SIGNAL AGAIN
-        // ==============================
-
-        updateDecisionSignal(data);
-
-        // ==============================
-        // UPDATE CHART
-        // ==============================
-
-        updateStockChart(data);
+        updateInsightCards(data);
 
     } catch (error) {
+
         console.error(
             "Analysis error:",
             error
         );
 
         if (result) {
+
             result.innerHTML = `
                 <div class="error">
-
-                    <h2>
-                        ❌ ERROR
-                    </h2>
-
-                    <p>
-                        ${error.message || "Failed to fetch"}
-                    </p>
-
-                    <p>
-                        Please check the stock symbol
-                        and try again.
-                    </p>
-
+                    <h2>❌ ERROR</h2>
+                    <p>${error.message}</p>
+                    <p>Please check the stock symbol and try again.</p>
                 </div>
             `;
         }
 
     } finally {
+
         if (analyzeBtn) {
+
             analyzeBtn.disabled = false;
+
             analyzeBtn.textContent =
                 "ANALYZE →";
         }
     }
 }
 
-// ==============================
-// UPDATE STOCK CHART
-// ==============================
 
-async function updateStockChart(data) {
-    try {
-        await waitForChartJS();
+// =====================================================
+// DISPLAY ANALYSIS
+// =====================================================
 
-        const canvas =
-            await waitForCanvas();
+function displayAnalysisResult(data) {
 
-        if (!canvas) {
-            console.log(
-                "Chart canvas not found."
-            );
-            return;
-        }
+    if (!result) return;
 
-        const ctx =
-            canvas.getContext("2d");
+    const probabilities =
+        data.probabilities || {};
 
-        if (window.stockChartInstance) {
-            window.stockChartInstance.destroy();
-        }
+    result.innerHTML = `
 
-        const price =
-            Number(data.price);
+        <div class="analysis-result">
 
-        if (isNaN(price)) {
-            console.log(
-                "Invalid price for chart."
-            );
-            return;
-        }
+            <h3>AI STOCK ANALYSIS</h3>
 
-        window.stockChartInstance =
-            new Chart(ctx, {
-                type: "line",
+            <h2>
+                ${data.name || data.symbol}
+            </h2>
 
-                data: {
-                    labels: [
-                        data.date || "Current"
+            <p>
+                Symbol:
+                <strong>${data.symbol}</strong>
+            </p>
+
+            <div class="analysis-details">
+
+                <div>
+                    <span>PRICE</span>
+                    <strong>
+                        ₹${data.price ?? "N/A"}
+                    </strong>
+                </div>
+
+                <div>
+                    <span>RECOMMENDATION</span>
+                    <strong class="${getSignalClass(data.recommendation)}">
+                        ${data.recommendation || "N/A"}
+                    </strong>
+                </div>
+
+                <div>
+                    <span>CONFIDENCE</span>
+                    <strong>
+                        ${data.confidence ?? "N/A"}%
+                    </strong>
+                </div>
+
+                <div>
+                    <span>SENTIMENT</span>
+                    <strong>
+                        ${data.sentiment || "N/A"}
+                    </strong>
+                </div>
+
+                <div>
+                    <span>BUY</span>
+                    <strong class="buy">
+                        ${probabilities.BUY ?? 0}%
+                    </strong>
+                </div>
+
+                <div>
+                    <span>HOLD</span>
+                    <strong class="hold">
+                        ${probabilities.HOLD ?? 0}%
+                    </strong>
+                </div>
+
+            </div>
+
+        </div>
+    `;
+}
+
+
+function getSignalClass(signal) {
+
+    if (signal === "BUY")
+        return "buy";
+
+    if (signal === "SELL")
+        return "sell";
+
+    return "hold";
+}
+
+
+// =====================================================
+// PROBABILITY DONUT CHART
+// =====================================================
+
+async function updateProbabilityChart(data) {
+
+    const canvas =
+        document.getElementById(
+            "probabilityChart"
+        );
+
+    if (!canvas) return;
+
+    if (typeof Chart === "undefined")
+        return;
+
+    const probabilities =
+        data.probabilities || {};
+
+    if (probabilityChartInstance) {
+
+        probabilityChartInstance.destroy();
+    }
+
+    probabilityChartInstance =
+        new Chart(canvas, {
+
+            type: "doughnut",
+
+            data: {
+
+                labels: [
+                    "BUY",
+                    "HOLD",
+                    "SELL"
+                ],
+
+                datasets: [{
+
+                    data: [
+
+                        Number(
+                            probabilities.BUY || 0
+                        ),
+
+                        Number(
+                            probabilities.HOLD || 0
+                        ),
+
+                        Number(
+                            probabilities.SELL || 0
+                        )
+
                     ],
 
-                    datasets: [
-                        {
+                    borderWidth: 0
+                }]
+            },
+
+            options: {
+
+                responsive: true,
+
+                maintainAspectRatio: false,
+
+                cutout: "68%",
+
+                plugins: {
+
+                    legend: {
+                        position: "bottom"
+                    }
+                }
+            }
+        });
+}
+
+
+// =====================================================
+// LIVE STOCK CHART
+// =====================================================
+
+async function updateStockChart(data) {
+
+    const canvas =
+        document.getElementById(
+            "stockChart"
+        );
+
+    if (!canvas)
+        return;
+
+    if (typeof Chart === "undefined")
+        return;
+
+    try {
+
+        const response =
+            await fetch(
+                `${API_URL}/price/${data.symbol}`
+            );
+
+        if (!response.ok)
+            return;
+
+        const marketData =
+            await response.json();
+
+        const prices =
+            marketData.prices || [];
+
+        if (!prices.length)
+            return;
+
+        if (stockChartInstance) {
+
+            stockChartInstance.destroy();
+        }
+
+        stockChartInstance =
+            new Chart(
+                canvas,
+                {
+
+                    type: "line",
+
+                    data: {
+
+                        labels:
+                            prices.map(
+                                item => item.date
+                            ),
+
+                        datasets: [{
+
                             label:
-                                `${data.symbol || "Stock"} Price`,
+                                `${data.symbol} Price`,
 
-                            data: [
-                                price
-                            ],
+                            data:
+                                prices.map(
+                                    item => item.price
+                                ),
 
-                            tension: 0.3,
-                            fill: false
-                        }
-                    ]
-                },
+                            tension: 0.35,
 
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
+                            fill: true,
 
-                    plugins: {
-                        legend: {
-                            display: true
-                        }
+                            pointRadius: 4,
+
+                            pointHoverRadius: 6
+                        }]
                     },
 
-                    scales: {
-                        y: {
-                            beginAtZero: false
+                    options: {
+
+                        responsive: true,
+
+                        maintainAspectRatio: false,
+
+                        interaction: {
+
+                            intersect: false,
+
+                            mode: "index"
+                        },
+
+                        plugins: {
+
+                            legend: {
+                                display: true
+                            }
+                        },
+
+                        scales: {
+
+                            y: {
+
+                                beginAtZero: false
+                            }
                         }
                     }
                 }
-            });
+            );
 
     } catch (error) {
+
         console.error(
             "Chart error:",
             error
@@ -413,12 +461,243 @@ async function updateStockChart(data) {
     }
 }
 
-// ==============================
-// SET QUICK STOCK
-// ==============================
+
+// =====================================================
+// LIVE MARKET OVERVIEW
+// =====================================================
+
+async function loadMarketData() {
+
+    try {
+
+        const response =
+            await fetch(
+                `${API_URL}/market-data`
+            );
+
+        if (!response.ok)
+            throw new Error(
+                "Market data unavailable"
+            );
+
+        const data =
+            await response.json();
+
+        updateMarketCards(
+            data.market
+        );
+
+        updateHeatmap(
+            data.market
+        );
+
+    } catch (error) {
+
+        console.error(
+            "Market data error:",
+            error
+        );
+    }
+}
+
+
+// =====================================================
+// MARKET CARDS
+// =====================================================
+
+function updateMarketCards(stocks) {
+
+    stocks.forEach(stock => {
+
+        const card =
+            document.querySelector(
+                `[data-stock="${stock.symbol}"]`
+            );
+
+        if (!card)
+            return;
+
+        const price =
+            card.querySelector(
+                ".dashboard-price"
+            );
+
+        const change =
+            card.querySelector(
+                ".market-change"
+            );
+
+        if (price) {
+
+            price.textContent =
+                `₹${Number(stock.price).toLocaleString(
+                    "en-IN",
+                    {
+                        minimumFractionDigits: 2,
+                        maximumFractionDigits: 2
+                    }
+                )}`;
+        }
+
+        if (change) {
+
+            const percentage =
+                Number(
+                    stock.changePercent
+                );
+
+            change.textContent =
+                `${percentage >= 0 ? "▲" : "▼"} ${
+                    percentage >= 0 ? "+" : ""
+                }${percentage.toFixed(2)}%`;
+
+            change.classList.remove(
+                "positive",
+                "negative"
+            );
+
+            change.classList.add(
+                percentage >= 0
+                    ? "positive"
+                    : "negative"
+            );
+        }
+
+        card.classList.remove(
+            "market-up",
+            "market-down"
+        );
+
+        card.classList.add(
+            stock.changePercent >= 0
+                ? "market-up"
+                : "market-down"
+        );
+    });
+}
+
+
+// =====================================================
+// MARKET HEATMAP
+// =====================================================
+
+function updateHeatmap(stocks) {
+
+    const heatmap =
+        document.getElementById(
+            "marketHeatmap"
+        );
+
+    if (!heatmap)
+        return;
+
+    heatmap.innerHTML = "";
+
+    stocks.forEach(stock => {
+
+        const percentage =
+            Number(
+                stock.changePercent
+            );
+
+        const tile =
+            document.createElement(
+                "div"
+            );
+
+        tile.className =
+            "heatmap-tile";
+
+        tile.classList.add(
+            percentage >= 0
+                ? "heat-positive"
+                : "heat-negative"
+        );
+
+        tile.innerHTML = `
+
+            <div class="heatmap-symbol">
+                ${stock.symbol}
+            </div>
+
+            <div class="heatmap-price">
+                ₹${Number(stock.price).toLocaleString(
+                    "en-IN",
+                    {
+                        maximumFractionDigits: 2
+                    }
+                )}
+            </div>
+
+            <div class="heatmap-change">
+                ${percentage >= 0 ? "+" : ""}
+                ${percentage.toFixed(2)}%
+            </div>
+
+        `;
+
+        heatmap.appendChild(
+            tile
+        );
+    });
+}
+
+
+// =====================================================
+// DYNAMIC INSIGHTS
+// =====================================================
+
+function updateInsightCards(data) {
+
+    const probabilities =
+        data.probabilities || {};
+
+    const buy =
+        Number(probabilities.BUY || 0);
+
+    const hold =
+        Number(probabilities.HOLD || 0);
+
+    const sell =
+        Number(probabilities.SELL || 0);
+
+    const positive =
+        document.getElementById(
+            "positiveInsight"
+        );
+
+    const neutral =
+        document.getElementById(
+            "neutralInsight"
+        );
+
+    const negative =
+        document.getElementById(
+            "negativeInsight"
+        );
+
+    if (positive)
+        positive.textContent =
+            `${buy.toFixed(2)}%`;
+
+    if (neutral)
+        neutral.textContent =
+            `${hold.toFixed(2)}%`;
+
+    if (negative)
+        negative.textContent =
+            `${sell.toFixed(2)}%`;
+}
+
+
+// =====================================================
+// QUICK STOCK BUTTON
+// =====================================================
 
 function setStock(stock) {
+
     if (stockInput) {
+
         stockInput.value =
             stock;
     }
@@ -426,15 +705,19 @@ function setStock(stock) {
     analyzeStock(stock);
 }
 
-// ==============================
+
+// =====================================================
 // ENTER KEY
-// ==============================
+// =====================================================
 
 if (stockInput) {
+
     stockInput.addEventListener(
         "keydown",
-        function (event) {
+        function(event) {
+
             if (event.key === "Enter") {
+
                 event.preventDefault();
 
                 analyzeStock(
@@ -445,14 +728,17 @@ if (stockInput) {
     );
 }
 
-// ==============================
+
+// =====================================================
 // ANALYZE BUTTON
-// ==============================
+// =====================================================
 
 if (analyzeBtn) {
+
     analyzeBtn.addEventListener(
         "click",
-        function () {
+        function() {
+
             analyzeStock(
                 stockInput.value
             );
@@ -460,20 +746,25 @@ if (analyzeBtn) {
     );
 }
 
-// ==============================
+
+// =====================================================
 // PAGE LOAD
-// ==============================
+// =====================================================
 
 document.addEventListener(
     "DOMContentLoaded",
-    function () {
+    function() {
+
         console.log(
             "AI Stock Market Analyser loaded."
         );
 
-        console.log(
-            "API URL:",
-            API_URL
+        loadMarketData();
+
+        // Refresh market data every 5 minutes
+        setInterval(
+            loadMarketData,
+            5 * 60 * 1000
         );
     }
 );
