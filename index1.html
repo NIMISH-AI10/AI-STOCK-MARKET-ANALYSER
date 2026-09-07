@@ -655,79 +655,43 @@
 <!-- =========================================================
      STOCK PRICE PERFORMANCE
 ========================================================= -->
+<section class="chart-section">
 
-<section class="charts-section">
+    <div class="chart-card">
 
-    <div class="container">
-
-
-        <div class="section-heading">
+        <div class="chart-header">
 
             <div>
 
-                <span class="section-label">
-                    STOCK PRICE PERFORMANCE
+                <span class="chart-label">
+                    Selected Stock
                 </span>
 
-                <h2>
+                <h3>
                     Price Movement
-                </h2>
+                </h3>
 
             </div>
 
 
-            <p class="live-data-label">
-                <span class="live-dot"></span>
-                LIVE DATA
-            </p>
+            <div class="chart-icon">
+
+                📊
+
+            </div>
 
         </div>
 
 
+        <div class="chart-container">
 
-        <div class="charts-grid">
+            <canvas id="stockChart"></canvas>
 
+        </div>
 
-            <!-- =================================================
-                 PRICE CHART
-            ================================================== -->
+    </div>
 
-            <div class="chart-card">
-
-
-                <div class="chart-header">
-
-                    <div>
-
-                        <span>
-                            Selected Stock
-                        </span>
-
-                        <h3>
-                            Price Movement
-                        </h3>
-
-                    </div>
-
-
-                    <div class="chart-icon">
-                        📊
-                    </div>
-
-                </div>
-
-
-                <div class="chart-container">
-
-                    <canvas
-                        id="stockChart"
-                    ></canvas>
-
-                </div>
-
-            </div>
-
-
+</section>
 
             <!-- =================================================
                  AI PROBABILITY
