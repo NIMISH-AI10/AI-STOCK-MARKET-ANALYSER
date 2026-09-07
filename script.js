@@ -3,7 +3,7 @@
 // Live Market Data + Price Chart + AI Probability Chart
 // ============================================================
 
-const API_URL = "https://ai-stock-market-analyser-2.onrender.com";
+const API_URL = window.location.origin;
 
 const supportedStocks = [
     "RELIANCE",
