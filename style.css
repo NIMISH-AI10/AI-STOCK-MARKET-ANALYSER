@@ -1,4 +1,3 @@
-```css
 /* =====================================================
    GLOBAL
 ===================================================== */
@@ -18,6 +17,7 @@ body {
     background: #07111f;
     color: #eaf2ff;
     line-height: 1.6;
+    overflow-x: hidden;
 }
 
 a {
@@ -30,75 +30,80 @@ input {
     font-family: inherit;
 }
 
+ul {
+    list-style: none;
+}
+
+img {
+    max-width: 100%;
+    display: block;
+}
+
+.container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 24px;
+}
+
 
 /* =====================================================
-   NAVBAR
+   HEADER / NAV
 ===================================================== */
 
-.navbar {
+.header {
     position: sticky;
     top: 0;
     z-index: 1000;
 
     width: 100%;
 
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-
-    padding: 18px 6%;
-
     background: rgba(7, 17, 31, 0.92);
-
     backdrop-filter: blur(16px);
 
     border-bottom: 1px solid rgba(255, 255, 255, 0.07);
 }
 
-.brand {
+.nav-container {
     display: flex;
     align-items: center;
-    gap: 12px;
+    justify-content: space-between;
+
+    height: 76px;
 }
 
-.brand-icon {
-    width: 44px;
-    height: 44px;
-
+.logo {
     display: flex;
-    align-items: center;
-    justify-content: center;
-
-    border-radius: 12px;
-
-    background: #10263e;
-
-    font-size: 22px;
+    flex-direction: column;
+    line-height: 1.3;
 }
 
-.brand h2 {
-    font-size: 17px;
+.logo-main {
+    font-size: 16px;
+    font-weight: bold;
+    letter-spacing: 0.5px;
+    color: #eaf2ff;
 }
 
-.brand span {
+.logo-sub {
     color: #6f8ba8;
     font-size: 10px;
     letter-spacing: 3px;
 }
 
-.nav-links {
+.nav {
     display: flex;
-    gap: 28px;
-    list-style: none;
+    align-items: center;
+    gap: 30px;
 }
 
-.nav-links a {
+.nav a {
     color: #91a4ba;
     font-size: 13px;
-    transition: 0.3s;
+    font-weight: 500;
+    transition: color 0.25s ease;
 }
 
-.nav-links a:hover {
+.nav a:hover {
     color: #ffffff;
 }
 
@@ -111,17 +116,23 @@ input {
 
     font-size: 12px;
     font-weight: bold;
+    letter-spacing: 1px;
 }
 
-.live-status span {
+.live-dot {
     width: 8px;
     height: 8px;
-
     border-radius: 50%;
 
     background: #72e6a2;
-
     box-shadow: 0 0 12px #72e6a2;
+
+    animation: pulse-dot 1.6s ease-in-out infinite;
+}
+
+@keyframes pulse-dot {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.4; }
 }
 
 
@@ -130,33 +141,35 @@ input {
 ===================================================== */
 
 .hero {
-    min-height: 650px;
-
-    display: flex;
-    align-items: center;
-
-    padding: 80px 8%;
+    padding: 110px 0 90px;
 
     background:
         radial-gradient(
-            circle at 80% 30%,
+            circle at 80% 20%,
             rgba(38, 120, 255, 0.16),
-            transparent 35%
+            transparent 45%
         ),
         #07111f;
 }
 
-.hero-content {
-    max-width: 850px;
+.hero-container {
+    display: grid;
+    grid-template-columns: 1.5fr 1fr;
+    align-items: center;
+    gap: 50px;
 }
 
-.hero-badge {
+.hero-content {
+    max-width: 720px;
+}
+
+.hero .section-label {
     display: inline-block;
 
-    padding: 8px 14px;
+    padding: 8px 16px;
+    margin-bottom: 22px;
 
     border: 1px solid rgba(85, 150, 255, 0.25);
-
     border-radius: 30px;
 
     background: rgba(40, 100, 180, 0.08);
@@ -164,15 +177,14 @@ input {
     color: #7da9e8;
 
     font-size: 11px;
+    font-weight: bold;
     letter-spacing: 1.5px;
 }
 
 .hero h1 {
-    margin-top: 25px;
-
-    font-size: clamp(42px, 6vw, 76px);
-
-    line-height: 1.05;
+    font-size: clamp(38px, 5vw, 60px);
+    line-height: 1.15;
+    font-weight: 800;
 }
 
 .hero h1 span {
@@ -181,238 +193,246 @@ input {
 }
 
 .hero p {
-    max-width: 680px;
-
-    margin-top: 25px;
+    max-width: 620px;
+    margin-top: 22px;
 
     color: #8fa4bb;
-
-    font-size: 17px;
+    font-size: 16px;
 }
 
 .hero-buttons {
     display: flex;
     gap: 14px;
-
-    margin-top: 35px;
+    margin-top: 34px;
 }
 
-.primary-btn,
-.secondary-btn {
-    padding: 14px 23px;
+.primary-button,
+.secondary-button {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+
+    padding: 15px 24px;
 
     border-radius: 10px;
 
     font-weight: bold;
     font-size: 13px;
+    letter-spacing: 0.3px;
 
-    transition: 0.3s;
+    transition: 0.25s ease;
+    cursor: pointer;
 }
 
-.primary-btn {
+.primary-button {
     background: #287ff0;
+    color: #ffffff;
+    border: 1px solid #287ff0;
 }
 
-.primary-btn:hover {
+.primary-button:hover {
     transform: translateY(-2px);
     background: #3990ff;
+    box-shadow: 0 10px 25px rgba(56, 144, 255, 0.35);
 }
 
-.secondary-btn {
+.secondary-button {
     border: 1px solid #29435f;
     color: #a9bad0;
+    background: transparent;
 }
 
-.secondary-btn:hover {
+.secondary-button:hover {
     border-color: #5d91cc;
+    color: #ffffff;
 }
 
-.hero-stats {
+.hero-visual {
     display: flex;
-    gap: 55px;
-
-    margin-top: 55px;
+    justify-content: center;
 }
 
-.hero-stats div {
+.hero-card {
+    width: 100%;
+    max-width: 320px;
+    padding: 30px;
+
+    border: 1px solid #1c344c;
+    border-radius: 20px;
+
+    background: linear-gradient(160deg, #10253c, #0b1929);
+    box-shadow: 0 25px 60px rgba(0, 0, 0, 0.35);
+}
+
+.hero-card-top {
     display: flex;
-    flex-direction: column;
-}
-
-.hero-stats strong {
-    font-size: 25px;
-}
-
-.hero-stats span {
-    color: #71859d;
-    font-size: 11px;
-}
-
-
-/* =====================================================
-   SECTIONS
-===================================================== */
-
-section {
-    padding: 90px 7%;
-}
-
-.section-heading {
-    display: flex;
+    align-items: center;
     justify-content: space-between;
-    align-items: end;
 
-    margin-bottom: 35px;
+    font-size: 11px;
+    color: #7b91a9;
+    letter-spacing: 1px;
 }
 
-.section-heading.centered {
-    display: block;
-    text-align: center;
-}
+.live-badge {
+    padding: 4px 10px;
+    border-radius: 20px;
 
-.section-label {
-    color: #579cff;
+    background: rgba(114, 230, 162, 0.12);
+    color: #72e6a2;
 
     font-size: 10px;
     font-weight: bold;
-
-    letter-spacing: 2px;
 }
 
-.section-heading h2 {
-    margin-top: 6px;
+.hero-card-value {
+    margin-top: 28px;
 
-    font-size: 32px;
+    font-size: 52px;
+    font-weight: 800;
+    color: #5fa2ff;
 }
 
-.section-heading p {
-    color: #71869e;
+.hero-card-text {
+    margin-top: 8px;
+
+    color: #8fa4bb;
     font-size: 13px;
 }
 
 
 /* =====================================================
-   MARKET DASHBOARD
+   SECTIONS (SHARED)
 ===================================================== */
 
-.dashboard-section {
+section {
+    padding: 90px 0;
+}
+
+.section-heading {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-end;
+    gap: 20px;
+
+    margin-bottom: 40px;
+}
+
+.section-heading.centered {
+    display: block;
+    text-align: center;
+    max-width: 640px;
+    margin: 0 auto 50px;
+}
+
+.section-label {
+    display: inline-block;
+
+    color: #579cff;
+
+    font-size: 11px;
+    font-weight: bold;
+    letter-spacing: 2px;
+}
+
+.section-heading h2 {
+    margin-top: 8px;
+    font-size: 30px;
+    font-weight: 800;
+}
+
+.section-heading > p {
+    max-width: 320px;
+    color: #71869e;
+    font-size: 13px;
+    text-align: right;
+}
+
+.section-heading.centered > p {
+    max-width: none;
+    margin: 10px auto 0;
+    text-align: center;
+}
+
+
+/* =====================================================
+   MARKET SECTION
+===================================================== */
+
+.market-section {
     background: #091524;
 }
 
-.dashboard-grid {
+.market-grid {
     display: grid;
-
-    grid-template-columns: repeat(4, 1fr);
-
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
     gap: 18px;
 }
 
-.dashboard-card {
-    padding: 22px;
+.market-card {
+    padding: 24px;
+
+    border: 1px solid #172b42;
+    border-radius: 16px;
 
     background: #0d1b2b;
 
-    border: 1px solid #172b42;
-
-    border-radius: 16px;
-
-    transition: 0.3s;
+    transition: 0.3s ease;
 }
 
-.dashboard-card:hover {
+.market-card:hover {
     transform: translateY(-5px);
-
     border-color: #2d69a9;
-
-    box-shadow:
-        0 15px 40px rgba(0, 0, 0, 0.25);
+    box-shadow: 0 15px 40px rgba(0, 0, 0, 0.25);
 }
 
-.dashboard-card.featured {
-    border-color: #245b92;
-
-    background:
-        linear-gradient(
-            145deg,
-            #10253c,
-            #0d1b2b
-        );
-}
-
-.dashboard-card-top {
+.market-card-top {
     display: flex;
-    align-items: center;
-    gap: 12px;
+    align-items: flex-start;
+    justify-content: space-between;
+
+    margin-bottom: 22px;
 }
 
-.dashboard-logo {
-    width: 42px;
-    height: 42px;
+.market-symbol {
+    font-size: 15px;
+    font-weight: bold;
+}
+
+.market-name {
+    margin-top: 3px;
+    color: #6d849d;
+    font-size: 11px;
+}
+
+.market-icon {
+    width: 38px;
+    height: 38px;
+    flex-shrink: 0;
 
     display: flex;
     align-items: center;
     justify-content: center;
 
-    border-radius: 11px;
+    border-radius: 10px;
 
     background: #163452;
-
     color: #79b3ff;
 
-    font-size: 18px;
+    font-size: 16px;
     font-weight: bold;
 }
 
-.dashboard-card h3 {
-    font-size: 14px;
-}
-
-.dashboard-card-top span {
-    color: #6d849d;
-    font-size: 10px;
-}
-
-.dashboard-arrow {
-    margin-left: auto;
-
-    font-size: 22px;
-}
-
-.dashboard-arrow.positive {
-    color: #4fdb8a !important;
-}
-
-.dashboard-arrow.negative {
-    color: #ff6f7e !important;
-}
-
-.dashboard-price {
-    margin-top: 25px;
-
-    font-size: 28px;
+.market-price {
+    font-size: 26px;
     font-weight: bold;
-
-    transition: 0.3s;
 }
-
-.dashboard-bottom {
-    display: flex;
-    justify-content: space-between;
-
-    margin-top: 12px;
-
-    color: #647b94;
-
-    font-size: 11px;
-}
-
-
-/* =====================================================
-   MARKET CHANGE
-===================================================== */
 
 .market-change {
+    margin-top: 8px;
+    font-size: 12px;
     font-weight: bold;
+    color: #6d849d;
 }
 
 .market-change.positive {
@@ -424,19 +444,8 @@ section {
 }
 
 
-/* GENERAL STATUS COLORS */
-
-.positive {
-    color: #4fdb8a !important;
-}
-
-.negative {
-    color: #ff6f7e !important;
-}
-
-
 /* =====================================================
-   LIVE MARKET HEATMAP
+   HEATMAP
 ===================================================== */
 
 .heatmap-section {
@@ -445,101 +454,90 @@ section {
 
 .market-heatmap {
     display: grid;
-
     grid-template-columns: repeat(5, 1fr);
-
     gap: 15px;
 }
 
-.heatmap-tile {
-    min-height: 150px;
-
+.heatmap-item {
+    min-height: 140px;
     padding: 22px;
 
     display: flex;
     flex-direction: column;
     justify-content: center;
     align-items: center;
-
     text-align: center;
 
+    border: 1px solid #20364d;
     border-radius: 16px;
 
-    border: 1px solid #20364d;
+    background: #0c1b2b;
 
-    transition: 0.3s;
+    cursor: pointer;
+    transition: 0.3s ease;
 }
 
-.heatmap-tile:hover {
+.heatmap-item:hover {
     transform: translateY(-5px);
-
-    box-shadow:
-        0 15px 35px rgba(0, 0, 0, 0.25);
+    box-shadow: 0 15px 35px rgba(0, 0, 0, 0.25);
 }
 
-.heat-positive {
-    background:
-        linear-gradient(
-            145deg,
-            rgba(40, 180, 100, 0.22),
-            #0c1b2b
-        );
-
-    border-color: rgba(70, 220, 130, 0.35);
+.heatmap-item:has(.heatmap-change.positive) {
+    background: linear-gradient(145deg, rgba(40, 180, 100, 0.16), #0c1b2b);
+    border-color: rgba(70, 220, 130, 0.3);
 }
 
-.heat-negative {
-    background:
-        linear-gradient(
-            145deg,
-            rgba(220, 60, 80, 0.22),
-            #0c1b2b
-        );
-
-    border-color: rgba(240, 90, 110, 0.35);
+.heatmap-item:has(.heatmap-change.negative) {
+    background: linear-gradient(145deg, rgba(220, 60, 80, 0.16), #0c1b2b);
+    border-color: rgba(240, 90, 110, 0.3);
 }
 
-.heat-neutral {
-    background:
-        linear-gradient(
-            145deg,
-            rgba(220, 180, 70, 0.18),
-            #0c1b2b
-        );
-
-    border-color: rgba(230, 190, 70, 0.3);
+.heatmap-item.heatmap-error {
+    background: #0c1b2b;
+    border-color: #29415b;
+    opacity: 0.6;
 }
 
 .heatmap-symbol {
-    font-size: 18px;
+    font-size: 17px;
     font-weight: bold;
 }
 
-.heatmap-price {
-    margin-top: 10px;
+.heatmap-name {
+    margin-top: 6px;
+    color: #6d849d;
+    font-size: 10px;
+}
 
-    font-size: 21px;
+.heatmap-price {
+    margin-top: 12px;
+    font-size: 20px;
     font-weight: bold;
 }
 
 .heatmap-change {
     margin-top: 8px;
-
-    font-size: 13px;
+    font-size: 12px;
     font-weight: bold;
+}
+
+.heatmap-change.positive {
+    color: #4fdb8a;
+}
+
+.heatmap-change.negative {
+    color: #ff6f7e;
 }
 
 .heatmap-loading {
     grid-column: 1 / -1;
 
-    padding: 35px;
-
+    padding: 40px;
     text-align: center;
 
     color: #71869e;
 
     border: 1px dashed #29415b;
-
     border-radius: 15px;
 }
 
@@ -549,337 +547,234 @@ section {
 ===================================================== */
 
 .analysis-section {
-    background: #07111f;
+    background: #091524;
 }
 
-.analysis-panel {
+.analysis-search {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+
     max-width: 950px;
-
-    margin: auto;
-
-    padding: 30px;
-
-    border: 1px solid #1a3048;
-
-    border-radius: 20px;
-
-    background: #0b1929;
-
-    box-shadow:
-        0 25px 60px rgba(0, 0, 0, 0.2);
+    margin: 0 auto;
 }
 
-.search-area {
+.search-input-wrapper {
+    flex: 1;
+
     display: flex;
     align-items: center;
 
-    height: 60px;
-
-    padding: 5px 7px 5px 18px;
+    height: 58px;
+    padding: 0 20px;
 
     border: 1px solid #243d57;
-
     border-radius: 12px;
 
     background: #081522;
 }
 
-.search-icon {
+.search-input-wrapper::before {
+    content: "🔍";
     margin-right: 12px;
+    font-size: 14px;
+    opacity: 0.8;
 }
 
-.search-area input {
+.search-input-wrapper input {
     flex: 1;
+    height: 100%;
 
     border: none;
     outline: none;
-
     background: transparent;
 
     color: white;
-
     font-size: 14px;
 }
 
-.search-area input::placeholder {
+.search-input-wrapper input::placeholder {
     color: #637a93;
 }
 
-.search-area button {
-    height: 48px;
+#analyzeBtn {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
 
-    padding: 0 20px;
+    height: 58px;
+    padding: 0 26px;
 
     border: none;
-
-    border-radius: 9px;
+    border-radius: 12px;
 
     background: #287ff0;
-
     color: white;
 
     font-weight: bold;
+    font-size: 13px;
+    letter-spacing: 0.3px;
+    white-space: nowrap;
 
     cursor: pointer;
-
-    transition: 0.3s;
+    transition: 0.25s ease;
 }
 
-.search-area button:hover {
+#analyzeBtn:hover {
     background: #3990ff;
 }
 
-.search-area button:disabled {
+#analyzeBtn:disabled {
     opacity: 0.6;
     cursor: wait;
 }
 
-
-/* =====================================================
-   SUPPORTED STOCK BUTTONS
-===================================================== */
-
-.supported-stocks {
+.quick-stocks {
     display: flex;
-
     align-items: center;
-
     flex-wrap: wrap;
+    gap: 10px;
 
-    gap: 9px;
-
-    margin-top: 20px;
+    max-width: 950px;
+    margin: 20px auto 0;
 }
 
-.supported-stocks > span {
+.quick-label {
     color: #7489a0;
-
-    font-size: 12px;
-
+    font-size: 11px;
+    font-weight: bold;
+    letter-spacing: 1px;
     margin-right: 4px;
 }
 
-.supported-stocks button {
-    padding: 8px 14px;
+.quick-stocks button {
+    padding: 8px 16px;
 
     border: 1px solid #29435d;
-
     border-radius: 30px;
 
     background: #102238;
-
     color: #91b1d4;
 
-    font-size: 10px;
-
+    font-size: 11px;
     font-weight: bold;
 
     cursor: pointer;
-
-    transition: 0.25s;
+    transition: 0.25s ease;
 }
 
-.supported-stocks button:hover {
+.quick-stocks button:hover {
     transform: translateY(-2px);
-
     border-color: #4f98ed;
-
     background: #16375a;
-
     color: white;
 }
 
-
-/* =====================================================
-   ANALYSIS RESULT
-===================================================== */
-
-#result {
-    margin-top: 25px;
+.analysis-result-container {
+    max-width: 950px;
+    margin: 30px auto 0;
 }
 
-.analysis-result {
-    padding: 28px;
-
-    border: 1px solid #203a55;
-
-    border-radius: 16px;
-
-    background:
-        linear-gradient(
-            145deg,
-            #102238,
-            #0b1929
-        );
-}
-
-.analysis-result h3 {
-    color: #65a7ff;
-
-    font-size: 11px;
-
-    letter-spacing: 1.5px;
-}
-
-.analysis-result h2 {
-    margin-top: 10px;
-
-    font-size: 27px;
-}
-
-.analysis-result p {
-    margin-top: 7px;
-
-    color: #8297ad;
-
-    font-size: 13px;
-}
-
-.analysis-details {
-    display: grid;
-
-    grid-template-columns: repeat(3, 1fr);
-
-    gap: 15px;
-
-    margin-top: 25px;
-}
-
-.analysis-details > div {
-    padding: 17px;
-
-    border: 1px solid #20364d;
-
-    border-radius: 12px;
-
-    background: rgba(4, 12, 22, 0.35);
-}
-
-.analysis-details span {
-    display: block;
-
-    color: #71869d;
-
-    font-size: 10px;
-
-    margin-bottom: 8px;
-}
-
-.analysis-details strong {
-    font-size: 16px;
-}
-
-.buy {
-    color: #52dd8d !important;
-}
-
-.sell {
-    color: #ff6979 !important;
-}
-
-.hold {
-    color: #f2c75c !important;
-}
-
-.empty-result {
-    padding: 45px;
-
+.ready-state {
+    padding: 55px 30px;
     text-align: center;
 
     border: 1px dashed #29415b;
-
-    border-radius: 15px;
+    border-radius: 18px;
 }
 
-.empty-icon {
-    font-size: 38px;
+.ready-icon {
+    font-size: 34px;
+    color: #579cff;
 }
 
-.empty-result h3 {
-    margin-top: 12px;
-}
-
-.empty-result p {
-    color: #71869e;
-
-    font-size: 13px;
-}
-
-.loading {
-    padding: 35px;
-
-    text-align: center;
-
-    border: 1px dashed #29415b;
-
-    border-radius: 15px;
-
-    color: #8ba0b7;
-}
-
-.loading p + p {
-    margin-top: 5px;
-
-    color: #637991;
-
-    font-size: 12px;
-}
-
-.error {
-    padding: 30px;
-
-    text-align: center;
-
-    border: 1px solid rgba(255, 90, 100, 0.25);
-
-    border-radius: 15px;
-
-    background: rgba(120, 30, 40, 0.12);
-}
-
-.error h2 {
-    color: #ff6979;
-
+.ready-state h3 {
+    margin-top: 16px;
     font-size: 20px;
 }
 
-.error p {
+.ready-state p {
     margin-top: 8px;
-
-    color: #aab8c7;
-
+    color: #71869e;
     font-size: 13px;
 }
 
+.result-message {
+    padding: 35px;
+    text-align: center;
 
-/* =====================================================
-   CHART SECTION
-===================================================== */
+    border: 1px dashed #29415b;
+    border-radius: 15px;
 
-.chart-section {
-    background: #091524;
+    color: #8ba0b7;
+    font-size: 13px;
 }
 
-.chart-live {
-    color: #52dc8d;
+.analysis-result {
+    padding: 30px;
 
-    font-size: 11px;
+    border: 1px solid #203a55;
+    border-radius: 18px;
 
+    background: linear-gradient(145deg, #102238, #0b1929);
+    text-align: center;
+}
+
+.result-stock {
+    font-size: 22px;
+    font-weight: 800;
+}
+
+.result-symbol {
+    margin-top: 4px;
+    color: #65a7ff;
+    font-size: 12px;
     font-weight: bold;
+    letter-spacing: 1.5px;
+}
+
+.result-recommendation {
+    display: inline-block;
+    margin-top: 18px;
+    padding: 10px 28px;
+
+    border-radius: 30px;
+
+    background: rgba(87, 156, 255, 0.12);
+    color: #5fa2ff;
+
+    font-size: 20px;
+    font-weight: 800;
+    letter-spacing: 1px;
+}
+
+.result-confidence,
+.result-price,
+.result-sentiment {
+    margin-top: 12px;
+    color: #8297ad;
+    font-size: 13px;
+}
+
+.result-price {
+    font-size: 22px;
+    font-weight: bold;
+    color: #eaf2ff;
 }
 
 
 /* =====================================================
-   CHART GRID
+   CHARTS
 ===================================================== */
+
+.charts-section {
+    background: #07111f;
+}
 
 .charts-grid {
     display: grid;
-
     grid-template-columns: 1.5fr 1fr;
-
     gap: 20px;
-
     align-items: stretch;
 }
 
@@ -887,89 +782,59 @@ section {
     padding: 28px;
 
     border: 1px solid #1c344c;
-
     border-radius: 18px;
 
     background: #0d1b2b;
-
-    box-shadow:
-        0 20px 50px rgba(0, 0, 0, 0.2);
-}
-
-.charts-grid .chart-card {
-    margin-top: 0;
+    box-shadow: 0 20px 50px rgba(0, 0, 0, 0.2);
 }
 
 .chart-header {
     display: flex;
-
     justify-content: space-between;
-
     align-items: center;
 
-    margin-bottom: 20px;
+    margin-bottom: 24px;
 }
 
 .chart-header span {
     color: #7b91a9;
-
     font-size: 11px;
+    font-weight: bold;
+    letter-spacing: 1px;
 }
 
 .chart-header h3 {
     margin-top: 4px;
-
-    font-size: 21px;
+    font-size: 20px;
 }
 
 .chart-icon {
-    width: 45px;
-    height: 45px;
+    width: 44px;
+    height: 44px;
+    flex-shrink: 0;
 
     display: flex;
-
     align-items: center;
     justify-content: center;
 
     border-radius: 12px;
 
     background: #132b45;
-
-    font-size: 20px;
+    font-size: 18px;
 }
-
-
-/* =====================================================
-   STOCK PRICE CHART
-===================================================== */
 
 .chart-container {
     position: relative;
-
     width: 100%;
-
-    height: 380px;
-}
-
-
-/* =====================================================
-   PROBABILITY CHART
-===================================================== */
-
-.probability-card {
-    margin-top: 0;
+    height: 360px;
 }
 
 .probability-container {
     position: relative;
-
     width: 100%;
-
-    max-width: 430px;
-
-    height: 350px;
-
-    margin: auto;
+    height: 320px;
+    max-width: 320px;
+    margin: 0 auto;
 }
 
 
@@ -978,278 +843,225 @@ section {
 ===================================================== */
 
 .insights-section {
-    background: #07111f;
+    background: #091524;
 }
 
-.insight-grid {
+.insights-grid {
     display: grid;
-
     grid-template-columns: repeat(3, 1fr);
-
     gap: 18px;
 }
 
 .insight-card {
     display: flex;
-
     gap: 18px;
 
-    padding: 25px;
-
-    border-radius: 16px;
+    padding: 26px;
 
     border: 1px solid #20374f;
+    border-radius: 16px;
 
     background: #0c1b2b;
 }
 
+.insight-card.positive {
+    border-color: rgba(70, 210, 130, 0.3);
+}
+
+.insight-card.neutral {
+    border-color: rgba(230, 190, 70, 0.3);
+}
+
+.insight-card.negative {
+    border-color: rgba(240, 80, 100, 0.3);
+}
+
 .insight-icon {
-    font-size: 32px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+
+    width: 46px;
+    height: 46px;
+
+    border-radius: 50%;
+
+    font-size: 20px;
+    font-weight: 800;
+
+    background: rgba(255, 255, 255, 0.05);
 }
 
-.insight-label {
+.insight-card.positive .insight-icon {
+    color: #4fdb8a;
+    background: rgba(79, 219, 138, 0.12);
+}
+
+.insight-card.neutral .insight-icon {
+    color: #f2c75c;
+    background: rgba(242, 199, 92, 0.12);
+}
+
+.insight-card.negative .insight-icon {
+    color: #ff6f7e;
+    background: rgba(255, 111, 126, 0.12);
+}
+
+.insight-content span {
+    color: #7b91a9;
     font-size: 10px;
-
     font-weight: bold;
+    letter-spacing: 1.5px;
 }
 
-.insight-score {
+.insight-value {
     margin-top: 4px;
-
     font-size: 28px;
-
-    font-weight: bold;
+    font-weight: 800;
 }
 
-.insight-card p {
-    margin-top: 5px;
-
+.insight-content p {
+    margin-top: 6px;
     color: #73889f;
-
     font-size: 12px;
 }
 
-.positive-card {
-    border-color: rgba(70, 210, 130, 0.25);
-}
-
-.neutral-card {
-    border-color: rgba(230, 190, 70, 0.25);
-}
-
-.negative-card {
-    border-color: rgba(240, 80, 100, 0.25);
-}
-
 
 /* =====================================================
-   RECOMMENDATION
+   DECISION SIGNAL
 ===================================================== */
 
-.recommendation-section {
-    background: #091524;
-}
-
-.recommendation-card {
-    display: flex;
-
-    justify-content: space-between;
-
-    align-items: center;
-
-    gap: 30px;
-
-    padding: 35px;
-
-    border: 1px solid #24415d;
-
-    border-radius: 20px;
-
-    background:
-        linear-gradient(
-            135deg,
-            #10253c,
-            #0b1929
-        );
-}
-
-.recommendation-left {
-    max-width: 600px;
-}
-
-.recommendation-left h2 {
-    margin-top: 6px;
-
-    font-size: 30px;
-}
-
-.recommendation-left p {
-    margin-top: 8px;
-
-    color: #7b90a8;
-
-    font-size: 13px;
-}
-
-.recommendation-signal {
-    display: flex;
-
-    align-items: center;
-
-    gap: 15px;
-
-    min-width: 230px;
-
-    padding: 20px;
-
-    border: 1px solid #25445f;
-
-    border-radius: 15px;
-
-    background: #091724;
-}
-
-.signal-icon {
-    font-size: 30px;
-}
-
-.signal-content span {
-    color: #70859b;
-
-    font-size: 9px;
-
-    letter-spacing: 1px;
-}
-
-.signal-content strong {
-    display: block;
-
-    margin-top: 3px;
-
-    font-size: 25px;
-}
-
-.signal-content p {
-    color: #778ca2;
-
-    font-size: 11px;
-}
-
-
-/* =====================================================
-   PROCESS
-===================================================== */
-
-.process-section {
+.decision-section {
     background: #07111f;
 }
 
-.process-grid {
-    display: grid;
-
-    grid-template-columns:
-        1fr auto 1fr auto 1fr auto 1fr;
-
+.decision-signal {
+    display: flex;
     align-items: center;
+    gap: 22px;
+    justify-content: center;
 
-    gap: 12px;
+    max-width: 480px;
+    margin: 0 auto;
+    padding: 30px 35px;
+
+    border: 1px solid #25445f;
+    border-radius: 18px;
+
+    background: linear-gradient(135deg, #10253c, #0b1929);
+    box-shadow: 0 20px 50px rgba(0, 0, 0, 0.2);
 }
 
-.process-card {
+.signal-icon {
+    font-size: 34px;
+}
+
+.signal-label {
+    color: #70859b;
+    font-size: 10px;
+    font-weight: bold;
+    letter-spacing: 1.5px;
+}
+
+.signal-value {
+    margin-top: 4px;
+    font-size: 26px;
+    font-weight: 800;
+}
+
+.signal-confidence {
+    margin-top: 4px;
+    color: #778ca2;
+    font-size: 12px;
+}
+
+
+/* =====================================================
+   HOW IT WORKS
+===================================================== */
+
+.how-section {
+    background: #091524;
+}
+
+.workflow-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 14px;
+}
+
+.workflow-card {
     position: relative;
 
-    min-height: 220px;
-
-    padding: 25px;
+    padding: 26px;
 
     border: 1px solid #1b334b;
-
     border-radius: 16px;
 
     background: #0b1929;
 
-    transition: 0.3s;
+    transition: 0.3s ease;
 }
 
-.process-card:hover {
+.workflow-card:hover {
     transform: translateY(-4px);
-
     border-color: #3b76ad;
 }
 
-.process-number {
-    color: #4f9cf4;
+.workflow-card:not(:last-child)::after {
+    content: "→";
+    position: absolute;
+    top: 50%;
+    right: -22px;
+    transform: translateY(-50%);
 
-    font-size: 11px;
-
-    font-weight: bold;
-}
-
-.process-icon {
-    margin-top: 20px;
-
-    font-size: 28px;
-}
-
-.process-card h3 {
-    margin-top: 10px;
-}
-
-.process-card p {
-    margin-top: 8px;
-
-    color: #72879e;
-
-    font-size: 12px;
-}
-
-.process-connector {
     color: #3d7fc0;
+    font-size: 20px;
+    z-index: 1;
+}
 
-    font-size: 22px;
+.workflow-number {
+    color: #4f9cf4;
+    font-size: 12px;
+    font-weight: 800;
+}
+
+.workflow-icon {
+    margin-top: 18px;
+    font-size: 26px;
+}
+
+.workflow-card h3 {
+    margin-top: 14px;
+    font-size: 17px;
+}
+
+.workflow-card p {
+    margin-top: 10px;
+    color: #72879e;
+    font-size: 13px;
 }
 
 
 /* =====================================================
-   INFO
+   DISCLAIMER
 ===================================================== */
 
-.info-section {
-    background: #091524;
+.disclaimer-section {
+    padding: 30px 0;
+    background: #07111f;
+    border-top: 1px solid rgba(255, 255, 255, 0.06);
 }
 
-.info-grid {
-    display: grid;
-
-    grid-template-columns: repeat(3, 1fr);
-
-    gap: 20px;
-}
-
-.info-box {
-    padding: 28px;
-
-    border: 1px solid #1b334b;
-
-    border-radius: 15px;
-
-    background: #0d1b2b;
-}
-
-.info-icon {
-    font-size: 27px;
-}
-
-.info-box h3 {
-    margin-top: 12px;
-}
-
-.info-box p {
-    margin-top: 7px;
-
-    color: #72879d;
-
+.disclaimer-section p {
+    text-align: center;
+    color: #b89053;
     font-size: 12px;
+}
+
+.disclaimer-section strong {
+    color: #d4a768;
 }
 
 
@@ -1257,50 +1069,62 @@ section {
    FOOTER
 ===================================================== */
 
-footer {
-    padding: 45px 7%;
-
-    text-align: center;
-
+.footer {
+    padding: 55px 0 35px;
     background: #050d17;
-
     color: #73889f;
 }
 
-.footer-brand {
+.footer-container {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    flex-wrap: wrap;
+    gap: 30px;
+
+    padding-bottom: 30px;
+    border-bottom: 1px solid #1b2b3c;
+}
+
+.footer-brand .logo-main,
+.footer-brand .logo-sub {
+    color: inherit;
+}
+
+.footer-brand .logo-main {
     color: #dce9f7;
-
-    font-weight: bold;
-
-    font-size: 16px;
 }
 
-footer p {
-    margin-top: 8px;
-
+.footer-brand p {
+    margin-top: 10px;
     font-size: 12px;
+    max-width: 280px;
 }
 
-.footer-line {
-    width: 100%;
-
-    height: 1px;
-
-    margin: 25px 0;
-
-    background: #1b2b3c;
+.footer-links {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 22px;
 }
 
-footer small {
-    font-size: 10px;
+.footer-links a {
+    font-size: 13px;
+    color: #91a4ba;
+    transition: color 0.25s ease;
 }
 
-.disclaimer {
-    margin-top: 12px;
+.footer-links a:hover {
+    color: #ffffff;
+}
 
-    color: #b89053;
+.footer-bottom {
+    display: flex;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 8px;
 
-    font-size: 10px;
+    margin-top: 25px;
+    font-size: 11px;
 }
 
 
@@ -1310,12 +1134,17 @@ footer small {
 
 @media (max-width: 1100px) {
 
-    .dashboard-grid {
-        grid-template-columns: repeat(2, 1fr);
+    .hero-container {
+        grid-template-columns: 1fr;
+    }
+
+    .hero-visual {
+        order: -1;
+        max-width: 320px;
     }
 
     .market-heatmap {
-        grid-template-columns: repeat(2, 1fr);
+        grid-template-columns: repeat(3, 1fr);
     }
 
     .charts-grid {
@@ -1323,7 +1152,11 @@ footer small {
     }
 
     .probability-container {
-        max-width: 450px;
+        max-width: 380px;
+    }
+
+    .insights-grid {
+        grid-template-columns: repeat(3, 1fr);
     }
 }
 
@@ -1332,18 +1165,40 @@ footer small {
    SMALL TABLET
 ===================================================== */
 
-@media (max-width: 1000px) {
+@media (max-width: 900px) {
 
-    .nav-links {
+    .nav {
         display: none;
     }
 
-    .process-grid {
+    .workflow-grid {
         grid-template-columns: repeat(2, 1fr);
+        row-gap: 40px;
     }
 
-    .process-connector {
+    .workflow-card:nth-child(2)::after {
         display: none;
+    }
+
+    .workflow-card:not(:last-child)::after {
+        top: auto;
+        bottom: -30px;
+        right: 50%;
+        transform: translateX(50%) rotate(90deg);
+    }
+
+    .insights-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .section-heading {
+        display: block;
+    }
+
+    .section-heading > p {
+        max-width: none;
+        text-align: left;
+        margin-top: 10px;
     }
 }
 
@@ -1355,117 +1210,70 @@ footer small {
 @media (max-width: 700px) {
 
     section {
-        padding: 65px 5%;
+        padding: 60px 0;
     }
 
-    .navbar {
-        padding: 15px 5%;
+    .container {
+        padding: 0 18px;
     }
 
-    .live-status {
-        font-size: 10px;
+    .nav-container {
+        height: 68px;
     }
 
     .hero {
-        min-height: 580px;
-
-        padding: 70px 5%;
+        padding: 90px 0 60px;
     }
 
     .hero h1 {
-        font-size: 42px;
-    }
-
-    .hero p {
-        font-size: 15px;
+        font-size: 36px;
     }
 
     .hero-buttons {
         flex-direction: column;
-
-        align-items: flex-start;
+        align-items: stretch;
     }
 
-    .hero-stats {
-        gap: 25px;
-
-        flex-wrap: wrap;
-    }
-
-    .dashboard-grid {
+    .market-grid {
         grid-template-columns: 1fr;
     }
 
     .market-heatmap {
-        grid-template-columns: 1fr;
+        grid-template-columns: repeat(2, 1fr);
     }
 
-    .analysis-panel {
-        padding: 18px;
+    .analysis-search {
+        flex-direction: column;
+        align-items: stretch;
     }
 
-    .search-area {
-        height: auto;
-
-        padding: 12px;
-
-        flex-wrap: wrap;
-    }
-
-    .search-area input {
-        min-width: 150px;
-
-        height: 40px;
-    }
-
-    .search-area button {
-        width: 100%;
-    }
-
-    .analysis-details {
-        grid-template-columns: 1fr;
-    }
-
-    .chart-card {
-        padding: 20px;
+    #analyzeBtn {
+        justify-content: center;
     }
 
     .chart-container {
-        height: 300px;
+        height: 280px;
     }
 
     .probability-container {
-        height: 300px;
+        height: 280px;
+        max-width: 280px;
     }
 
-    .insight-grid {
+    .workflow-grid {
         grid-template-columns: 1fr;
     }
 
-    .recommendation-card {
+    .workflow-card:not(:last-child)::after {
+        display: none;
+    }
+
+    .footer-container {
         flex-direction: column;
-
-        align-items: flex-start;
     }
 
-    .recommendation-signal {
-        width: 100%;
-    }
-
-    .process-grid {
-        grid-template-columns: 1fr;
-    }
-
-    .info-grid {
-        grid-template-columns: 1fr;
-    }
-
-    .section-heading {
-        display: block;
-    }
-
-    .section-heading p {
-        margin-top: 8px;
+    .footer-bottom {
+        flex-direction: column;
     }
 }
 
@@ -1477,31 +1285,15 @@ footer small {
 @media (max-width: 420px) {
 
     .hero h1 {
-        font-size: 36px;
+        font-size: 30px;
     }
 
-    .hero-stats {
-        gap: 18px;
+    .market-heatmap {
+        grid-template-columns: 1fr;
     }
 
-    .dashboard-price {
-        font-size: 24px;
-    }
-
-    .analysis-result {
-        padding: 20px;
-    }
-
-    .analysis-result h2 {
-        font-size: 23px;
-    }
-
-    .chart-header h3 {
-        font-size: 18px;
-    }
-
-    .insight-card {
-        padding: 20px;
+    .decision-signal {
+        flex-direction: column;
+        text-align: center;
     }
 }
-```
