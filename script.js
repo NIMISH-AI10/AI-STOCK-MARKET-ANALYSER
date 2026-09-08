@@ -928,7 +928,93 @@ document.addEventListener("DOMContentLoaded", function() {
 // ============================================================
 
 setInterval(function() {
+/* =========================================================
+   3D ANALYSIS PANEL MOUSE EFFECT
+   ========================================================= */
 
+(function initAnalysis3D() {
+
+    const panel =
+        document.querySelector(".analysis-box");
+
+    const result =
+        document.querySelector("#result");
+
+    if (!panel) return;
+
+    const reduceMotion =
+        window.matchMedia &&
+        window.matchMedia(
+            "(prefers-reduced-motion: reduce)"
+        ).matches;
+
+    if (reduceMotion) return;
+
+
+    function add3DEffect(element, strength) {
+
+        if (!element) return;
+
+        element.addEventListener(
+            "mousemove",
+            function(event) {
+
+                const rect =
+                    element.getBoundingClientRect();
+
+                const x =
+                    event.clientX - rect.left;
+
+                const y =
+                    event.clientY - rect.top;
+
+                const centerX =
+                    rect.width / 2;
+
+                const centerY =
+                    rect.height / 2;
+
+                const rotateY =
+                    ((x - centerX) / centerX)
+                    * strength;
+
+                const rotateX =
+                    ((centerY - y) / centerY)
+                    * strength;
+
+
+                element.style.transform =
+                    `
+                    perspective(1400px)
+                    rotateX(${rotateX}deg)
+                    rotateY(${rotateY}deg)
+                    translateZ(8px)
+                    `;
+            }
+        );
+
+
+        element.addEventListener(
+            "mouseleave",
+            function() {
+
+                element.style.transform =
+                    `
+                    perspective(1400px)
+                    rotateX(0deg)
+                    rotateY(0deg)
+                    translateZ(0)
+                    `;
+            }
+        );
+    }
+
+
+    add3DEffect(panel, 2.5);
+
+    add3DEffect(result, 2);
+
+})();
     updateHeatmap();
 
 }, 60000);
