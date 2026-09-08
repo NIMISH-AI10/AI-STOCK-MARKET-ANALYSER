@@ -321,14 +321,14 @@ async function updateStockChart(symbol) {
                             data: prices,
 
 
-                            borderColor: "#4da3df",
+                            borderColor: "#22b7ff",
 
 
                             backgroundColor:
-                                "rgba(77, 163, 223, 0.35)",
+                                "rgba(20, 150, 255, 0.22)",
 
 
-                            borderWidth: 3,
+                            borderWidth: 4,
 
 
                             fill: true,
@@ -344,11 +344,11 @@ async function updateStockChart(symbol) {
 
 
                             pointBackgroundColor:
-                                "#1d6fa5",
+                                "#071a2e",
 
 
                             pointBorderColor:
-                                "#4da3df",
+                                "#39c6ff",
 
 
                             pointBorderWidth: 2
