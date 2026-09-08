@@ -1769,3 +1769,238 @@ section {
         transition-duration: 0.01ms !important;
     }
 }
+/* ============================================================
+   3D CHART DASHBOARD
+   ============================================================ */
+
+.charts-grid {
+    perspective: 1400px;
+    transform-style: preserve-3d;
+}
+
+.chart-card {
+    position: relative;
+    transform-style: preserve-3d;
+    perspective: 1200px;
+
+    background:
+        linear-gradient(
+            145deg,
+            rgba(12, 25, 42, 0.96),
+            rgba(4, 12, 23, 0.98)
+        );
+
+    border: 1px solid rgba(42, 145, 255, 0.28);
+
+    box-shadow:
+        0 25px 70px rgba(0, 0, 0, 0.55),
+        inset 0 0 35px rgba(40, 140, 255, 0.035);
+
+    transition:
+        transform 0.35s ease,
+        box-shadow 0.35s ease;
+}
+
+/* Neon border */
+.chart-card::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+    pointer-events: none;
+
+    border: 1px solid rgba(60, 160, 255, 0.12);
+
+    box-shadow:
+        inset 0 0 25px rgba(0, 130, 255, 0.08),
+        0 0 25px rgba(0, 100, 255, 0.06);
+}
+
+/* 3D corner glow */
+.chart-card::after {
+    content: "";
+    position: absolute;
+
+    width: 220px;
+    height: 220px;
+
+    right: -100px;
+    top: -110px;
+
+    border-radius: 50%;
+
+    background:
+        radial-gradient(
+            circle,
+            rgba(0, 140, 255, 0.15),
+            transparent 70%
+        );
+
+    pointer-events: none;
+}
+
+/* Header floats above chart */
+.chart-header {
+    transform: translateZ(45px);
+}
+
+/* Icon becomes holographic */
+.chart-icon {
+    transform: translateZ(55px);
+
+    background:
+        linear-gradient(
+            145deg,
+            rgba(20, 80, 140, 0.35),
+            rgba(5, 20, 40, 0.8)
+        );
+
+    border: 1px solid rgba(65, 165, 255, 0.35);
+
+    box-shadow:
+        0 8px 25px rgba(0, 100, 255, 0.15),
+        inset 0 0 15px rgba(0, 150, 255, 0.08);
+}
+
+/* Chart itself floats */
+.chart-container {
+    transform:
+        translateZ(30px)
+        rotateX(2deg);
+
+    transform-style: preserve-3d;
+
+    filter:
+        drop-shadow(0 15px 20px rgba(0, 80, 150, 0.18));
+}
+
+/* Chart canvas glow */
+.chart-container canvas {
+    transform: translateZ(15px);
+
+    filter:
+        drop-shadow(0 0 8px rgba(40, 150, 255, 0.15));
+}
+
+
+/* ============================================================
+   3D PROBABILITY DONUT
+   ============================================================ */
+
+.probability-card {
+    transform-style: preserve-3d;
+}
+
+.probability-container {
+    transform-style: preserve-3d;
+
+    transform:
+        translateZ(40px)
+        rotateX(5deg);
+
+    filter:
+        drop-shadow(0 20px 30px rgba(0, 0, 0, 0.45));
+}
+
+.probability-container canvas {
+    transform:
+        translateZ(20px)
+        scale(1.02);
+
+    filter:
+        drop-shadow(0 0 15px rgba(0, 180, 255, 0.12));
+}
+
+
+/* Holographic floor under probability chart */
+.probability-container::after {
+    content: "";
+
+    position: absolute;
+
+    left: 50%;
+    bottom: 5px;
+
+    width: 230px;
+    height: 35px;
+
+    transform:
+        translateX(-50%)
+        rotateX(65deg);
+
+    border-radius: 50%;
+
+    background:
+        radial-gradient(
+            ellipse,
+            rgba(0, 150, 255, 0.28),
+            transparent 70%
+        );
+
+    box-shadow:
+        0 0 30px rgba(0, 130, 255, 0.18);
+
+    pointer-events: none;
+}
+
+
+/* ============================================================
+   3D HOVER
+   ============================================================ */
+
+.chart-card:hover {
+    box-shadow:
+        0 35px 90px rgba(0, 0, 0, 0.65),
+        0 0 35px rgba(0, 110, 255, 0.10),
+        inset 0 0 40px rgba(30, 130, 255, 0.05);
+}
+
+
+/* ============================================================
+   FUTURISTIC GRID BEHIND CHART
+   ============================================================ */
+
+.chart-container::before {
+    content: "";
+
+    position: absolute;
+    inset: 8% 3% 8% 3%;
+
+    background:
+        linear-gradient(
+            rgba(40, 150, 255, 0.035) 1px,
+            transparent 1px
+        ),
+        linear-gradient(
+            90deg,
+            rgba(40, 150, 255, 0.035) 1px,
+            transparent 1px
+        );
+
+    background-size: 45px 45px;
+
+    transform:
+        perspective(600px)
+        rotateX(8deg);
+
+    pointer-events: none;
+    border-radius: 12px;
+}
+
+
+/* ============================================================
+   RESPONSIVE
+   ============================================================ */
+
+@media (max-width: 800px) {
+
+    .chart-card {
+        transform: none !important;
+    }
+
+    .chart-container,
+    .probability-container {
+        transform: none;
+    }
+
+}
