@@ -55,7 +55,7 @@ stock_info = {
 
 @app.route("/")
 def website():
-    return send_from_directory(BASE_DIR, "index1.html")
+    return send_from_directory(BASE_DIR, "index.html")
 
 
 # =====================================================
