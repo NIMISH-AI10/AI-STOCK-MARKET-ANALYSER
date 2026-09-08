@@ -1604,6 +1604,381 @@ section {
     .footer-bottom {
         flex-direction: column;
     }
+   /* =========================================================
+   3D ANALYZE ANY STOCK ENGINE
+   ========================================================= */
+
+.analysis-section {
+    perspective: 1600px;
+}
+
+/* Main glass 3D panel */
+.analysis-box {
+    position: relative;
+    transform-style: preserve-3d;
+    perspective: 1400px;
+
+    background:
+        linear-gradient(
+            145deg,
+            rgba(12, 30, 50, 0.98),
+            rgba(4, 12, 24, 0.99)
+        );
+
+    border: 1px solid rgba(35, 145, 255, 0.30);
+
+    box-shadow:
+        0 35px 90px rgba(0, 0, 0, 0.65),
+        0 0 45px rgba(0, 110, 255, 0.10),
+        inset 0 0 50px rgba(30, 140, 255, 0.04);
+
+    overflow: hidden;
+
+    transition:
+        transform 0.25s ease,
+        box-shadow 0.25s ease;
+}
+
+
+/* Holographic border */
+.analysis-box::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+
+    border-radius: inherit;
+    pointer-events: none;
+
+    border: 1px solid rgba(70, 175, 255, 0.15);
+
+    box-shadow:
+        inset 0 0 35px rgba(0, 130, 255, 0.08),
+        0 0 25px rgba(0, 120, 255, 0.08);
+}
+
+
+/* Blue holographic glow */
+.analysis-box::after {
+    content: "";
+
+    position: absolute;
+
+    width: 400px;
+    height: 400px;
+
+    right: -180px;
+    top: -220px;
+
+    border-radius: 50%;
+
+    background:
+        radial-gradient(
+            circle,
+            rgba(0, 130, 255, 0.18),
+            transparent 70%
+        );
+
+    pointer-events: none;
+}
+
+
+/* =========================================================
+   SEARCH
+   ========================================================= */
+
+.analysis-search {
+    position: relative;
+    z-index: 5;
+
+    transform: translateZ(50px);
+
+    display: flex;
+    gap: 14px;
+}
+
+
+/* Input */
+.search-input-wrapper {
+    position: relative;
+
+    transform: translateZ(35px);
+
+    flex: 1;
+}
+
+.search-input-wrapper input {
+    width: 100%;
+
+    background:
+        linear-gradient(
+            145deg,
+            rgba(3, 12, 24, 0.98),
+            rgba(7, 22, 38, 0.96)
+        );
+
+    border: 1px solid rgba(45, 150, 255, 0.28);
+
+    box-shadow:
+        inset 0 0 25px rgba(0, 120, 255, 0.04),
+        0 8px 25px rgba(0, 0, 0, 0.30);
+
+    transition: 0.25s ease;
+}
+
+
+.search-input-wrapper input:focus {
+    border-color: #28a9ff;
+
+    box-shadow:
+        0 0 0 3px rgba(30, 140, 255, 0.08),
+        0 0 30px rgba(0, 130, 255, 0.18),
+        inset 0 0 20px rgba(0, 120, 255, 0.06);
+}
+
+
+/* =========================================================
+   ANALYZE BUTTON
+   ========================================================= */
+
+#analyzeBtn {
+    position: relative;
+    z-index: 5;
+
+    transform: translateZ(65px);
+
+    background:
+        linear-gradient(
+            145deg,
+            #4b9cff,
+            #176fe5
+        );
+
+    border: 1px solid rgba(100, 205, 255, 0.55);
+
+    box-shadow:
+        0 15px 35px rgba(20, 100, 230, 0.38),
+        0 0 20px rgba(30, 130, 255, 0.12),
+        inset 0 1px 0 rgba(255,255,255,0.25);
+
+    transition:
+        transform 0.25s ease,
+        box-shadow 0.25s ease;
+}
+
+
+#analyzeBtn:hover {
+    transform:
+        translateZ(80px)
+        translateY(-4px);
+
+    box-shadow:
+        0 20px 45px rgba(20, 110, 255, 0.50),
+        0 0 30px rgba(40, 160, 255, 0.25);
+}
+
+
+/* =========================================================
+   QUICK STOCK BUTTONS
+   ========================================================= */
+
+.quick-stocks {
+    position: relative;
+    z-index: 4;
+
+    transform: translateZ(35px);
+}
+
+
+.quick-stocks button {
+    transform: translateZ(30px);
+
+    background:
+        linear-gradient(
+            145deg,
+            rgba(18, 42, 65, 0.95),
+            rgba(7, 19, 33, 0.98)
+        );
+
+    border: 1px solid rgba(65, 150, 225, 0.20);
+
+    box-shadow:
+        0 6px 16px rgba(0,0,0,0.25);
+
+    transition: all 0.25s ease;
+}
+
+
+.quick-stocks button:hover {
+    transform:
+        translateZ(45px)
+        translateY(-3px);
+
+    border-color: rgba(50, 165, 255, 0.65);
+
+    box-shadow:
+        0 10px 25px rgba(0, 110, 255, 0.22),
+        0 0 15px rgba(0, 130, 255, 0.10);
+}
+
+
+/* =========================================================
+   RESULT 3D HOLOGRAM
+   ========================================================= */
+
+.analysis-result-container {
+    position: relative;
+
+    transform-style: preserve-3d;
+    perspective: 1000px;
+
+    background:
+        linear-gradient(
+            145deg,
+            rgba(9, 27, 47, 0.97),
+            rgba(3, 13, 26, 0.99)
+        );
+
+    border: 1px solid rgba(40, 150, 255, 0.30);
+
+    box-shadow:
+        0 25px 60px rgba(0,0,0,0.55),
+        inset 0 0 45px rgba(0,120,255,0.045);
+
+    overflow: hidden;
+}
+
+
+/* Futuristic grid */
+.analysis-result-container::before {
+    content: "";
+
+    position: absolute;
+    inset: 0;
+
+    background:
+        linear-gradient(
+            rgba(40, 150, 255, 0.035) 1px,
+            transparent 1px
+        ),
+        linear-gradient(
+            90deg,
+            rgba(40, 150, 255, 0.035) 1px,
+            transparent 1px
+        );
+
+    background-size: 42px 42px;
+
+    pointer-events: none;
+}
+
+
+/* Bottom holographic platform */
+.analysis-result-container::after {
+    content: "";
+
+    position: absolute;
+
+    left: 50%;
+    bottom: -80px;
+
+    width: 600px;
+    height: 150px;
+
+    transform:
+        translateX(-50%)
+        rotateX(65deg);
+
+    border-radius: 50%;
+
+    background:
+        radial-gradient(
+            ellipse,
+            rgba(0, 140, 255, 0.30),
+            transparent 70%
+        );
+
+    box-shadow:
+        0 0 40px rgba(0, 130, 255, 0.15);
+
+    pointer-events: none;
+}
+
+
+/* =========================================================
+   RESULT CONTENT
+   ========================================================= */
+
+.analysis-result-container > * {
+    position: relative;
+    z-index: 3;
+
+    transform: translateZ(45px);
+}
+
+
+.ready-state {
+    transform: translateZ(55px);
+}
+
+
+.ready-icon {
+    transform: translateZ(75px);
+
+    filter:
+        drop-shadow(
+            0 0 18px
+            rgba(0, 150, 255, 0.35)
+        );
+}
+
+
+/* =========================================================
+   3D FLOATING ANIMATION
+   ========================================================= */
+
+.analysis-box {
+    animation:
+        analysisFloat 5s ease-in-out infinite;
+}
+
+
+@keyframes analysisFloat {
+
+    0%,
+    100% {
+        transform: translateY(0);
+    }
+
+    50% {
+        transform: translateY(-5px);
+    }
+}
+
+
+/* =========================================================
+   MOBILE
+   ========================================================= */
+
+@media (max-width: 768px) {
+
+    .analysis-box {
+        animation: none;
+        transform: none !important;
+    }
+
+    .analysis-search {
+        transform: none;
+    }
+
+    #analyzeBtn {
+        transform: none;
+    }
+
+    .analysis-result-container > * {
+        transform: none;
+    }
+
+}
 }
 
 @media (max-width: 430px) {
