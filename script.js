@@ -76,11 +76,19 @@ function updateDecisionSignal(recommendation, confidence) {
 
     signal.innerHTML = `
         <div class="signal-icon">${icon}</div>
+
         <div>
-            <div class="signal-label">CURRENT SIGNAL</div>
-            <div class="signal-value">${text}</div>
+            <div class="signal-label">
+                CURRENT SIGNAL
+            </div>
+
+            <div class="signal-value">
+                ${text}
+            </div>
+
             <div class="signal-confidence">
-                Confidence Score: ${confidence != null ? confidence + "%" : "--%"}
+                Confidence Score:
+                ${confidence != null ? confidence + "%" : "--%"}
             </div>
         </div>
     `;
@@ -103,33 +111,57 @@ function updateInsights(recommendation, probabilities) {
     const hold = Number(probabilities.HOLD || 0);
     const sell = Number(probabilities.SELL || 0);
 
+
     if (positiveInsight) {
-        const value = positiveInsight.querySelector(".insight-value");
+
+        const value =
+            positiveInsight.querySelector(".insight-value");
 
         if (value) {
-            value.textContent = `${buy.toFixed(0)}%`;
+
+            value.textContent =
+                `${buy.toFixed(0)}%`;
+
         } else {
-            positiveInsight.textContent = `${buy.toFixed(0)}%`;
+
+            positiveInsight.textContent =
+                `${buy.toFixed(0)}%`;
         }
     }
+
 
     if (neutralInsight) {
-        const value = neutralInsight.querySelector(".insight-value");
+
+        const value =
+            neutralInsight.querySelector(".insight-value");
 
         if (value) {
-            value.textContent = `${hold.toFixed(0)}%`;
+
+            value.textContent =
+                `${hold.toFixed(0)}%`;
+
         } else {
-            neutralInsight.textContent = `${hold.toFixed(0)}%`;
+
+            neutralInsight.textContent =
+                `${hold.toFixed(0)}%`;
         }
     }
 
+
     if (negativeInsight) {
-        const value = negativeInsight.querySelector(".insight-value");
+
+        const value =
+            negativeInsight.querySelector(".insight-value");
 
         if (value) {
-            value.textContent = `${sell.toFixed(0)}%`;
+
+            value.textContent =
+                `${sell.toFixed(0)}%`;
+
         } else {
-            negativeInsight.textContent = `${sell.toFixed(0)}%`;
+
+            negativeInsight.textContent =
+                `${sell.toFixed(0)}%`;
         }
     }
 }
@@ -142,87 +174,135 @@ function updateInsights(recommendation, probabilities) {
 function updateProbabilityChart(probabilities) {
 
     if (!probabilityChartCanvas) {
-        console.warn("Probability chart canvas not found.");
+
+        console.warn(
+            "Probability chart canvas not found."
+        );
+
         return;
     }
+
 
     if (typeof Chart === "undefined") {
-        console.error("Chart.js is not loaded.");
+
+        console.error(
+            "Chart.js is not loaded."
+        );
+
         return;
     }
 
-    const buy = Number(probabilities?.BUY || 0);
-    const hold = Number(probabilities?.HOLD || 0);
-    const sell = Number(probabilities?.SELL || 0);
+
+    const buy =
+        Number(probabilities?.BUY || 0);
+
+    const hold =
+        Number(probabilities?.HOLD || 0);
+
+    const sell =
+        Number(probabilities?.SELL || 0);
+
 
     if (probabilityChartInstance) {
+
         probabilityChartInstance.destroy();
+
         probabilityChartInstance = null;
     }
 
-    probabilityChartInstance = new Chart(probabilityChartCanvas, {
-        type: "doughnut",
 
-        data: {
-            labels: [
-                "BUY",
-                "HOLD",
-                "SELL"
-            ],
+    probabilityChartInstance =
+        new Chart(
+            probabilityChartCanvas,
+            {
+                type: "doughnut",
 
-            datasets: [
-                {
-                    data: [
-                        buy,
-                        hold,
-                        sell
+                data: {
+
+                    labels: [
+                        "BUY",
+                        "HOLD",
+                        "SELL"
                     ],
 
-                    backgroundColor: [
-                        "#22c55e",
-                        "#f59e0b",
-                        "#ef4444"
-                    ],
+                    datasets: [
 
-                    borderColor: "#0b1828",
-                    borderWidth: 4,
+                        {
 
-                    hoverOffset: 8
-                }
-            ]
-        },
+                            data: [
+                                buy,
+                                hold,
+                                sell
+                            ],
 
-        options: {
-            responsive: true,
-            maintainAspectRatio: false,
+                            backgroundColor: [
+                                "#22c55e",
+                                "#f59e0b",
+                                "#ef4444"
+                            ],
 
-            cutout: "62%",
+                            borderColor:
+                                "#0b1828",
 
-            plugins: {
-                legend: {
-                    position: "bottom",
+                            borderWidth: 4,
 
-                    labels: {
-                        color: "#9fb2c9",
-                        padding: 18,
-                        usePointStyle: true,
-                        font: {
-                            size: 13
+                            hoverOffset: 8
                         }
-                    }
+
+                    ]
                 },
 
-                tooltip: {
-                    callbacks: {
-                        label: function(context) {
-                            return `${context.label}: ${Number(context.raw).toFixed(2)}%`;
+
+                options: {
+
+                    responsive: true,
+
+                    maintainAspectRatio: false,
+
+                    cutout: "62%",
+
+
+                    plugins: {
+
+                        legend: {
+
+                            position: "bottom",
+
+                            labels: {
+
+                                color:
+                                    "#9fb2c9",
+
+                                padding: 18,
+
+                                usePointStyle:
+                                    true,
+
+                                font: {
+
+                                    size: 13
+                                }
+                            }
+                        },
+
+
+                        tooltip: {
+
+                            callbacks: {
+
+                                label:
+                                    function(context) {
+
+                                        return `${context.label}: ${Number(context.raw).toFixed(2)}%`;
+                                    }
+                            }
                         }
                     }
                 }
             }
-        }
-    });
+        );
 }
+
 
 // ============================================================
 // PRICE MOVEMENT CHART
@@ -231,37 +311,57 @@ function updateProbabilityChart(probabilities) {
 async function updateStockChart(symbol) {
 
     if (!stockChartCanvas) {
-        console.warn("Stock chart canvas not found.");
+
+        console.warn(
+            "Stock chart canvas not found."
+        );
+
         return;
     }
 
+
     if (typeof Chart === "undefined") {
-        console.error("Chart.js is not loaded.");
+
+        console.error(
+            "Chart.js is not loaded."
+        );
+
         return;
     }
+
 
     try {
 
-        const response = await fetch(
-            `${API_URL}/price/${encodeURIComponent(symbol)}`
-        );
+        const response =
+            await fetch(
+                `${API_URL}/price/${encodeURIComponent(symbol)}`
+            );
+
 
         if (!response.ok) {
+
             throw new Error(
                 `Price API returned ${response.status}`
             );
         }
 
-        const data = await response.json();
+
+        const data =
+            await response.json();
+
 
         if (data.error) {
-            throw new Error(data.error);
+
+            throw new Error(
+                data.error
+            );
         }
 
 
         // =====================================================
         // CONVERT BACKEND DATA
         // Backend sends:
+        //
         // prices: [
         //   { date: "2026-09-01", price: 266.5 }
         // ]
@@ -271,15 +371,24 @@ async function updateStockChart(symbol) {
             !Array.isArray(data.prices) ||
             data.prices.length === 0
         ) {
-            throw new Error("No chart data available.");
+
+            throw new Error(
+                "No chart data available."
+            );
         }
 
 
-        const dates = data.prices.map(item => item.date);
+        const dates =
+            data.prices.map(
+                item => item.date
+            );
 
-        const prices = data.prices.map(item =>
-            Number(item.price)
-        );
+
+        const prices =
+            data.prices.map(
+                item =>
+                    Number(item.price)
+            );
 
 
         // =====================================================
@@ -291,7 +400,6 @@ async function updateStockChart(symbol) {
             stockChartInstance.destroy();
 
             stockChartInstance = null;
-
         }
 
 
@@ -299,227 +407,209 @@ async function updateStockChart(symbol) {
         // CREATE NEW CHART
         // =====================================================
 
-        stockChartInstance = new Chart(
-            stockChartCanvas,
-            {
+        stockChartInstance =
+            new Chart(
+                stockChartCanvas,
+                {
 
-                type: "line",
-
-
-                data: {
-
-                    labels: dates,
+                    type: "line",
 
 
-                    datasets: [
+                    data: {
 
-                        {
-
-                            label: `${symbol} Price`,
-
-
-                            data: prices,
+                        labels:
+                            dates,
 
 
-                            borderColor: "#4da3df",
+                        datasets: [
 
+                            {
 
-                            backgroundColor:
-                                "rgba(77, 163, 223, 0.35)",
+                                label:
+                                    `${symbol} Price`,
 
+                                data:
+                                    prices,
 
-                            borderWidth: 3,
+                                borderColor:
+                                    "#4da3df",
 
+                                backgroundColor:
+                                    "rgba(77, 163, 223, 0.35)",
 
-                            fill: true,
+                                borderWidth:
+                                    3,
 
+                                fill:
+                                    true,
 
-                            tension: 0.4,
+                                tension:
+                                    0.4,
 
+                                pointRadius:
+                                    5,
 
-                            pointRadius: 5,
+                                pointHoverRadius:
+                                    8,
 
+                                pointBackgroundColor:
+                                    "#1d6fa5",
 
-                            pointHoverRadius: 8,
+                                pointBorderColor:
+                                    "#4da3df",
 
+                                pointBorderWidth:
+                                    2
+                            }
 
-                            pointBackgroundColor:
-                                "#1d6fa5",
-
-
-                            pointBorderColor:
-                                "#4da3df",
-
-
-                            pointBorderWidth: 2
-
-
-                        }
-
-                    ]
-
-                },
-
-
-                options: {
-
-                    responsive: true,
-
-
-                    maintainAspectRatio: false,
-
-
-                    interaction: {
-
-                        intersect: false,
-
-                        mode: "index"
-
+                        ]
                     },
 
 
-                    plugins: {
+                    options: {
+
+                        responsive:
+                            true,
+
+                        maintainAspectRatio:
+                            false,
 
 
-                        legend: {
+                        interaction: {
 
-                            display: true,
+                            intersect:
+                                false,
 
-
-                            position: "top",
-
-
-                            labels: {
-
-                                color: "#9aa7b8",
-
-
-                                padding: 20,
-
-
-                                font: {
-
-                                    size: 13
-
-                                }
-
-                            }
-
+                            mode:
+                                "index"
                         },
 
 
-                        tooltip: {
+                        plugins: {
 
-                            backgroundColor:
-                                "#0d1b2b",
+                            legend: {
 
+                                display:
+                                    true,
 
-                            titleColor:
-                                "#ffffff",
-
-
-                            bodyColor:
-                                "#b8c7d9",
+                                position:
+                                    "top",
 
 
-                            borderColor:
-                                "#2c4c68",
+                                labels: {
 
+                                    color:
+                                        "#9aa7b8",
 
-                            borderWidth: 1,
+                                    padding:
+                                        20,
 
+                                    font: {
 
-                            padding: 12,
-
-
-                            callbacks: {
-
-                                label: function(context) {
-
-                                    return (
-                                        " ₹" +
-                                        Number(
-                                            context.raw
-                                        ).toFixed(2)
-                                    );
-
+                                        size:
+                                            13
+                                    }
                                 }
-
-                            }
-
-                        }
-
-                    },
-
-
-                    scales: {
-
-
-                        x: {
-
-                            ticks: {
-
-                                color: "#8b96a5",
-
-                                maxRotation: 0,
-
-                                autoSkip: false
-
                             },
 
 
-                            grid: {
+                            tooltip: {
 
-                                color:
-                                    "rgba(100,130,160,0.06)"
+                                backgroundColor:
+                                    "#0d1b2b",
 
+                                titleColor:
+                                    "#ffffff",
+
+                                bodyColor:
+                                    "#b8c7d9",
+
+                                borderColor:
+                                    "#2c4c68",
+
+                                borderWidth:
+                                    1,
+
+                                padding:
+                                    12,
+
+
+                                callbacks: {
+
+                                    label:
+                                        function(context) {
+
+                                            return (
+                                                " ₹" +
+                                                Number(
+                                                    context.raw
+                                                ).toFixed(2)
+                                            );
+                                        }
+                                }
                             }
-
                         },
 
 
-                        y: {
+                        scales: {
+
+                            x: {
+
+                                ticks: {
+
+                                    color:
+                                        "#8b96a5",
+
+                                    maxRotation:
+                                        0,
+
+                                    autoSkip:
+                                        false
+                                },
 
 
-                            ticks: {
+                                grid: {
 
-                                color: "#8b96a5",
-
-
-                                callback: function(value) {
-
-                                    return value.toFixed(1);
-
+                                    color:
+                                        "rgba(100,130,160,0.06)"
                                 }
-
                             },
 
 
-                            grid: {
+                            y: {
 
-                                color:
-                                    "rgba(100,130,160,0.12)"
+                                ticks: {
 
+                                    color:
+                                        "#8b96a5",
+
+
+                                    callback:
+                                        function(value) {
+
+                                            return value.toFixed(1);
+                                        }
+                                },
+
+
+                                grid: {
+
+                                    color:
+                                        "rgba(100,130,160,0.12)"
+                                }
                             }
-
-
                         }
-
                     }
-
-
                 }
-
-            }
-        );
+            );
 
 
         console.log(
             `Price chart loaded for ${symbol}`
         );
 
-
     }
+
 
     catch (error) {
 
@@ -527,10 +617,9 @@ async function updateStockChart(symbol) {
             `Unable to load chart for ${symbol}:`,
             error
         );
-
     }
-
 }
+
 
 // ============================================================
 // MARKET HEATMAP
@@ -538,11 +627,15 @@ async function updateStockChart(symbol) {
 
 async function updateHeatmap() {
 
-    const heatmap = getElement("marketHeatmap");
+    const heatmap =
+        getElement("marketHeatmap");
+
 
     if (!heatmap) {
+
         return;
     }
+
 
     heatmap.innerHTML = `
         <div class="heatmap-loading">
@@ -550,65 +643,116 @@ async function updateHeatmap() {
         </div>
     `;
 
+
     const results = [];
+
 
     for (const symbol of supportedStocks) {
 
         try {
 
-            const response = await fetch(
-                `${API_URL}/price/${encodeURIComponent(symbol)}`
-            );
+            const response =
+                await fetch(
+                    `${API_URL}/price/${encodeURIComponent(symbol)}`
+                );
+
 
             if (!response.ok) {
-                throw new Error(`HTTP ${response.status}`);
+
+                throw new Error(
+                    `HTTP ${response.status}`
+                );
             }
 
-            const data = await response.json();
+
+            const data =
+                await response.json();
+
 
             if (data.error) {
-                throw new Error(data.error);
+
+                throw new Error(
+                    data.error
+                );
             }
 
+
             results.push({
-                symbol: symbol,
-                name: data.name || symbol,
-                price: Number(data.price || 0),
-                change: Number(data.changePercent || 0)
+
+                symbol:
+                    symbol,
+
+                name:
+                    data.name || symbol,
+
+                price:
+                    Number(data.price || 0),
+
+                change:
+                    Number(
+                        data.changePercent || 0
+                    )
             });
 
-        } catch (error) {
+        }
+
+
+        catch (error) {
 
             console.error(
                 `Heatmap error for ${symbol}:`,
                 error
             );
 
+
             results.push({
-                symbol: symbol,
-                name: symbol,
-                price: 0,
-                change: 0,
-                error: true
+
+                symbol:
+                    symbol,
+
+                name:
+                    symbol,
+
+                price:
+                    0,
+
+                change:
+                    0,
+
+                error:
+                    true
             });
         }
     }
 
+
     heatmap.innerHTML = "";
+
 
     results.forEach(stock => {
 
-        const item = document.createElement("div");
+        const item =
+            document.createElement("div");
 
-        item.className = "heatmap-item";
+
+        item.className =
+            "heatmap-item";
+
 
         if (stock.error) {
-            item.classList.add("heatmap-error");
+
+            item.classList.add(
+                "heatmap-error"
+            );
         }
 
-        const positive = stock.change >= 0;
+
+        const positive =
+            stock.change >= 0;
+
 
         item.innerHTML = `
+
             <div class="heatmap-symbol">
                 ${stock.symbol}
             </div>
@@ -618,33 +762,70 @@ async function updateHeatmap() {
             </div>
 
             <div class="heatmap-price">
-                ${stock.price
-                    ? "₹" + stock.price.toLocaleString("en-IN", {
-                        maximumFractionDigits: 2
-                    })
-                    : "--"}
+
+                ${
+                    stock.price
+                        ? "₹" +
+                          stock.price.toLocaleString(
+                              "en-IN",
+                              {
+                                  maximumFractionDigits: 2
+                              }
+                          )
+                        : "--"
+                }
+
             </div>
 
-            <div class="heatmap-change ${positive ? "positive" : "negative"}">
-                ${stock.price
-                    ? `${positive ? "▲ +" : "▼ "}${stock.change.toFixed(2)}%`
-                    : "--"}
+            <div
+                class="heatmap-change ${
+                    positive
+                        ? "positive"
+                        : "negative"
+                }"
+            >
+
+                ${
+                    stock.price
+                        ? `${
+                              positive
+                                  ? "▲ +"
+                                  : "▼ "
+                          }${stock.change.toFixed(2)}%`
+                        : "--"
+                }
+
             </div>
         `;
 
-        item.addEventListener("click", () => {
 
-            setStock(stock.symbol);
+        item.addEventListener(
+            "click",
+            () => {
 
-            const analysisSection =
-                document.getElementById("analysis");
+                setStock(
+                    stock.symbol
+                );
 
-            if (analysisSection) {
-                analysisSection.scrollIntoView({
-                    behavior: "smooth"
-                });
+
+                const analysisSection =
+                    document.getElementById(
+                        "analysis"
+                    );
+
+
+                if (analysisSection) {
+
+                    analysisSection.scrollIntoView(
+                        {
+                            behavior:
+                                "smooth"
+                        }
+                    );
+                }
             }
-        });
+        );
+
 
         heatmap.appendChild(item);
     });
@@ -657,14 +838,19 @@ async function updateHeatmap() {
 
 async function analyzeStock(stock) {
 
-    stock = stock.trim().toUpperCase();
+    stock =
+        stock.trim().toUpperCase();
+
 
     if (!stock) {
 
-        showMessage("Please enter a stock symbol.");
+        showMessage(
+            "Please enter a stock symbol."
+        );
 
         return;
     }
+
 
     if (!supportedStocks.includes(stock)) {
 
@@ -675,48 +861,79 @@ async function analyzeStock(stock) {
         return;
     }
 
+
     if (analyzeBtn) {
 
-        analyzeBtn.disabled = true;
+        analyzeBtn.disabled =
+            true;
 
-        const originalText = analyzeBtn.innerHTML;
+
+        const originalText =
+            analyzeBtn.innerHTML;
+
 
         analyzeBtn.innerHTML = `
             ANALYZING...
         `;
 
+
         try {
 
-            const response = await fetch(
-                `${API_URL}/analyze?stock=${encodeURIComponent(stock)}`
-            );
+            const response =
+                await fetch(
+                    `${API_URL}/analyze?stock=${encodeURIComponent(stock)}`
+                );
+
 
             if (!response.ok) {
 
-                let errorMessage = `Server error (${response.status})`;
+                let errorMessage =
+                    `Server error (${response.status})`;
+
 
                 try {
 
-                    const errorData = await response.json();
+                    const errorData =
+                        await response.json();
+
 
                     if (errorData.error) {
-                        errorMessage = errorData.error;
+
+                        errorMessage =
+                            errorData.error;
                     }
 
-                } catch (e) {
+                }
+
+
+                catch (e) {
+
                     // Ignore JSON parsing error
                 }
 
-                throw new Error(errorMessage);
+
+                throw new Error(
+                    errorMessage
+                );
             }
 
-            const data = await response.json();
+
+            const data =
+                await response.json();
+
 
             if (data.error) {
-                throw new Error(data.error);
+
+                throw new Error(
+                    data.error
+                );
             }
 
-            console.log("Analysis result:", data);
+
+            console.log(
+                "Analysis result:",
+                data
+            );
 
 
             // ------------------------------------------------
@@ -755,36 +972,60 @@ async function analyzeStock(stock) {
             if (result) {
 
                 result.innerHTML = `
+
                     <div class="analysis-result">
 
                         <div class="result-stock">
                             ${data.name || stock}
                         </div>
 
+
                         <div class="result-symbol">
                             ${data.symbol || stock}
                         </div>
+
 
                         <div class="result-recommendation">
                             ${data.recommendation || "--"}
                         </div>
 
+
                         <div class="result-confidence">
-                            Confidence: ${data.confidence != null
-                                ? data.confidence + "%"
-                                : "--"}
+
+                            Confidence:
+                            ${
+                                data.confidence != null
+                                    ? data.confidence + "%"
+                                    : "--"
+                            }
+
                         </div>
+
 
                         <div class="result-price">
-                            ₹${data.price != null
-                                ? Number(data.price).toLocaleString("en-IN", {
-                                    maximumFractionDigits: 2
-                                })
-                                : "--"}
+
+                            ₹${
+                                data.price != null
+                                    ? Number(
+                                          data.price
+                                      ).toLocaleString(
+                                          "en-IN",
+                                          {
+                                              maximumFractionDigits:
+                                                  2
+                                          }
+                                      )
+                                    : "--"
+                            }
+
                         </div>
 
+
                         <div class="result-sentiment">
-                            Sentiment: ${data.sentiment || "--"}
+
+                            Sentiment:
+                            ${data.sentiment || "--"}
+
                         </div>
 
                     </div>
@@ -796,20 +1037,32 @@ async function analyzeStock(stock) {
             // LOAD LIVE PRICE CHART
             // ------------------------------------------------
 
-            updateStockChart(stock);
+            updateStockChart(
+                stock
+            );
+
+        }
 
 
-        } catch (error) {
+        catch (error) {
 
-            console.error("Analysis error:", error);
+            console.error(
+                "Analysis error:",
+                error
+            );
+
 
             showMessage(
                 `Unable to analyse ${stock}. ${error.message}`
             );
+        }
 
-        } finally {
 
-            analyzeBtn.disabled = false;
+        finally {
+
+            analyzeBtn.disabled =
+                false;
+
 
             analyzeBtn.innerHTML = `
                 ANALYZE
@@ -826,13 +1079,20 @@ async function analyzeStock(stock) {
 
 function setStock(stock) {
 
-    stock = stock.toUpperCase();
+    stock =
+        stock.toUpperCase();
+
 
     if (stockInput) {
-        stockInput.value = stock;
+
+        stockInput.value =
+            stock;
     }
 
-    updateStockChart(stock);
+
+    updateStockChart(
+        stock
+    );
 }
 
 
@@ -842,13 +1102,21 @@ function setStock(stock) {
 
 if (analyzeBtn) {
 
-    analyzeBtn.addEventListener("click", function() {
+    analyzeBtn.addEventListener(
+        "click",
+        function() {
 
-        const stock =
-            stockInput ? stockInput.value : "";
+            const stock =
+                stockInput
+                    ? stockInput.value
+                    : "";
 
-        analyzeStock(stock);
-    });
+
+            analyzeStock(
+                stock
+            );
+        }
+    );
 }
 
 
@@ -858,15 +1126,21 @@ if (analyzeBtn) {
 
 if (stockInput) {
 
-    stockInput.addEventListener("keydown", function(event) {
+    stockInput.addEventListener(
+        "keydown",
+        function(event) {
 
-        if (event.key === "Enter") {
+            if (event.key === "Enter") {
 
-            event.preventDefault();
+                event.preventDefault();
 
-            analyzeStock(stockInput.value);
+
+                analyzeStock(
+                    stockInput.value
+                );
+            }
         }
-    });
+    );
 }
 
 
@@ -874,71 +1148,109 @@ if (stockInput) {
 // TRY STOCK BUTTONS
 // ============================================================
 
-document.addEventListener("click", function(event) {
+document.addEventListener(
+    "click",
+    function(event) {
 
-    const button =
-        event.target.closest("[data-stock-select]");
+        const button =
+            event.target.closest(
+                "[data-stock-select]"
+            );
 
-    if (!button) {
-        return;
+
+        if (!button) {
+
+            return;
+        }
+
+
+        const stock =
+            button.dataset.stockSelect;
+
+
+        if (stock) {
+
+            setStock(
+                stock
+            );
+
+
+            analyzeStock(
+                stock
+            );
+        }
     }
-
-    const stock =
-        button.dataset.stockSelect;
-
-    if (stock) {
-
-        setStock(stock);
-
-        analyzeStock(stock);
-    }
-});
+);
 
 
 // ============================================================
 // INITIAL PAGE LOAD
 // ============================================================
 
-document.addEventListener("DOMContentLoaded", function() {
+document.addEventListener(
+    "DOMContentLoaded",
+    function() {
 
-    console.log("AI Stock Market Analyser loaded.");
+        console.log(
+            "AI Stock Market Analyser loaded."
+        );
 
 
-    // Load heatmap
-    updateHeatmap();
+        // Load heatmap
 
-    // Default stock chart
-    // This prevents the large blank chart area
-    // when the page is first opened.
-    updateStockChart("RELIANCE");
+        updateHeatmap();
 
-    // Put default stock into input if empty
-    if (
-        stockInput &&
-        stockInput.value.trim() === ""
-    ) {
-        stockInput.value = "RELIANCE";
+
+        // Default stock chart
+        // This prevents the large blank chart area
+        // when the page is first opened.
+
+        updateStockChart(
+            "RELIANCE"
+        );
+
+
+        // Put default stock into input if empty
+
+        if (
+            stockInput &&
+            stockInput.value.trim() === ""
+        ) {
+
+            stockInput.value =
+                "RELIANCE";
+        }
+
     }
-
-});
+);
 
 
 // ============================================================
 // AUTO REFRESH
 // ============================================================
 
-setInterval(function() {
+setInterval(
+    function() {
 
-    updateHeatmap();
+        updateHeatmap();
 
-}, 60000);
+    },
+    60000
+);
 
 
 // ============================================================
 // EXPORT FOR DEBUGGING
 // ============================================================
 
-window.analyzeStock = analyzeStock;
-window.updateStockChart = updateStockChart;
-window.updateHeatmap = updateHeatmap;
-window.setStock = setStock;
+window.analyzeStock =
+    analyzeStock;
+
+window.updateStockChart =
+    updateStockChart;
+
+window.updateHeatmap =
+    updateHeatmap;
+
+window.setStock =
+    setStock;
