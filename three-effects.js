@@ -120,3 +120,380 @@
     }
     animate();
 })();
+/* =========================================================
+   FULL PAGE 3D BACKGROUND
+   ========================================================= */
+
+(function init3DBackground() {
+
+    const canvas =
+        document.getElementById("background3D");
+
+    if (!canvas || !window.THREE) return;
+
+    const reduceMotion =
+        window.matchMedia &&
+        window.matchMedia(
+            "(prefers-reduced-motion: reduce)"
+        ).matches;
+
+
+    /* -------------------------------------------------------
+       SCENE
+       ------------------------------------------------------- */
+
+    const scene =
+        new THREE.Scene();
+
+
+    /* -------------------------------------------------------
+       CAMERA
+       ------------------------------------------------------- */
+
+    const camera =
+        new THREE.PerspectiveCamera(
+            60,
+            window.innerWidth /
+            window.innerHeight,
+            0.1,
+            1000
+        );
+
+    camera.position.z = 18;
+
+
+    /* -------------------------------------------------------
+       RENDERER
+       ------------------------------------------------------- */
+
+    const renderer =
+        new THREE.WebGLRenderer({
+            canvas: canvas,
+            alpha: true,
+            antialias: true
+        });
+
+    renderer.setPixelRatio(
+        Math.min(
+            window.devicePixelRatio || 1,
+            2
+        )
+    );
+
+    renderer.setSize(
+        window.innerWidth,
+        window.innerHeight
+    );
+
+
+    /* -------------------------------------------------------
+       PARTICLES
+       ------------------------------------------------------- */
+
+    const particleCount = 1800;
+
+    const positions = [];
+
+    for (
+        let i = 0;
+        i < particleCount;
+        i++
+    ) {
+
+        positions.push(
+            (Math.random() - 0.5) * 45,
+            (Math.random() - 0.5) * 28,
+            (Math.random() - 0.5) * 35
+        );
+
+    }
+
+
+    const particleGeometry =
+        new THREE.BufferGeometry();
+
+    particleGeometry.setAttribute(
+        "position",
+        new THREE.Float32BufferAttribute(
+            positions,
+            3
+        )
+    );
+
+
+    const particleMaterial =
+        new THREE.PointsMaterial({
+
+            color: 0x249cff,
+
+            size: 0.035,
+
+            transparent: true,
+
+            opacity: 0.65,
+
+            depthWrite: false
+
+        });
+
+
+    const particles =
+        new THREE.Points(
+            particleGeometry,
+            particleMaterial
+        );
+
+    scene.add(particles);
+
+
+    /* -------------------------------------------------------
+       FLOATING HOLOGRAPHIC SPHERES
+       ------------------------------------------------------- */
+
+    const spheres =
+        new THREE.Group();
+
+    scene.add(spheres);
+
+
+    for (let i = 0; i < 12; i++) {
+
+        const geometry =
+            new THREE.IcosahedronGeometry(
+                0.18 + Math.random() * 0.22,
+                1
+            );
+
+
+        const material =
+            new THREE.MeshBasicMaterial({
+
+                color:
+                    i % 2
+                        ? 0x1b8cff
+                        : 0x42d9ff,
+
+                wireframe: true,
+
+                transparent: true,
+
+                opacity: 0.35
+
+            });
+
+
+        const sphere =
+            new THREE.Mesh(
+                geometry,
+                material
+            );
+
+
+        sphere.position.set(
+            (Math.random() - 0.5) * 25,
+            (Math.random() - 0.5) * 15,
+            (Math.random() - 0.5) * 20
+        );
+
+
+        sphere.userData.speed =
+            0.001 +
+            Math.random() * 0.003;
+
+
+        spheres.add(sphere);
+
+    }
+
+
+    /* -------------------------------------------------------
+       LARGE BACKGROUND RINGS
+       ------------------------------------------------------- */
+
+    const rings =
+        new THREE.Group();
+
+    scene.add(rings);
+
+
+    for (let i = 0; i < 5; i++) {
+
+        const ring =
+            new THREE.Mesh(
+
+                new THREE.TorusGeometry(
+                    5 + i * 2.2,
+                    0.012,
+                    8,
+                    160
+                ),
+
+                new THREE.MeshBasicMaterial({
+
+                    color:
+                        i % 2
+                            ? 0x168bff
+                            : 0x28d5ff,
+
+                    transparent: true,
+
+                    opacity: 0.10
+
+                })
+
+            );
+
+
+        ring.position.set(
+            (i - 2) * 5,
+            2,
+            -12 - i * 2
+        );
+
+
+        ring.rotation.x =
+            Math.PI / 2;
+
+
+        rings.add(ring);
+
+    }
+
+
+    /* -------------------------------------------------------
+       MOUSE PARALLAX
+       ------------------------------------------------------- */
+
+    let mouseX = 0;
+    let mouseY = 0;
+
+    let targetX = 0;
+    let targetY = 0;
+
+
+    window.addEventListener(
+        "pointermove",
+        function(event) {
+
+            targetX =
+                (event.clientX /
+                    window.innerWidth -
+                    0.5) * 0.7;
+
+            targetY =
+                (event.clientY /
+                    window.innerHeight -
+                    0.5) * 0.4;
+
+        },
+        { passive: true }
+    );
+
+
+    /* -------------------------------------------------------
+       RESIZE
+       ------------------------------------------------------- */
+
+    window.addEventListener(
+        "resize",
+        function() {
+
+            camera.aspect =
+                window.innerWidth /
+                window.innerHeight;
+
+            camera.updateProjectionMatrix();
+
+            renderer.setSize(
+                window.innerWidth,
+                window.innerHeight
+            );
+
+        }
+    );
+
+
+    /* -------------------------------------------------------
+       ANIMATION
+       ------------------------------------------------------- */
+
+    const clock =
+        new THREE.Clock();
+
+
+    function animate() {
+
+        requestAnimationFrame(
+            animate
+        );
+
+
+        const time =
+            clock.getElapsedTime();
+
+
+        if (!reduceMotion) {
+
+            particles.rotation.y =
+                time * 0.008;
+
+            particles.rotation.x =
+                Math.sin(time * 0.08) *
+                0.025;
+
+
+            spheres.children.forEach(
+                function(sphere, index) {
+
+                    sphere.rotation.x +=
+                        sphere.userData.speed;
+
+                    sphere.rotation.y +=
+                        sphere.userData.speed * 1.5;
+
+
+                    sphere.position.y +=
+                        Math.sin(
+                            time * 0.25 +
+                            index
+                        ) * 0.0015;
+
+                }
+            );
+
+
+            rings.rotation.z =
+                time * 0.008;
+
+        }
+
+
+        /* Smooth mouse movement */
+
+        mouseX +=
+            (targetX - mouseX) *
+            0.025;
+
+        mouseY +=
+            (targetY - mouseY) *
+            0.025;
+
+
+        scene.rotation.y =
+            mouseX * 0.08;
+
+        scene.rotation.x =
+            mouseY * 0.04;
+
+
+        renderer.render(
+            scene,
+            camera
+        );
+
+    }
+
+
+    animate();
+
+})();
